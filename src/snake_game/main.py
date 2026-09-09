@@ -1,23 +1,32 @@
-"""Minimal pygame application lifecycle."""
+"""Application lifecycle and event, update, and render loop."""
 
 import pygame
 
+from snake_game.config import FPS, WINDOW_HEIGHT, WINDOW_TITLE, WINDOW_WIDTH
+from snake_game.rendering import render_grid
+
+
+def process_events() -> bool:
+    """Process pending events and return whether the application should continue."""
+    return not any(event.type == pygame.QUIT for event in pygame.event.get())
+
+
+def update() -> None:
+    """Run the update phase; no game state exists in the foundation yet."""
+
 
 def main() -> None:
-    """Open a blank window and run until the user closes it."""
+    """Display the grid and run until the user closes the window."""
     try:
         pygame.init()
-        screen = pygame.display.set_mode((640, 480))
-        pygame.display.set_caption("Snake Game")
+        screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+        pygame.display.set_caption(WINDOW_TITLE)
         clock = pygame.time.Clock()
 
-        while True:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    return
-
-            screen.fill((0, 0, 0))
+        while process_events():
+            update()
+            render_grid(screen)
             pygame.display.flip()
-            clock.tick(60)
+            clock.tick(FPS)
     finally:
         pygame.quit()
