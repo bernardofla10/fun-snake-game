@@ -9,11 +9,13 @@ from snake_game.config import (
     COLUMNS,
     GRID_COLOR,
     ROWS,
+    SNAKE_COLOR,
     WINDOW_HEIGHT,
     WINDOW_WIDTH,
 )
 from snake_game.grid import Position
-from snake_game.rendering import render_grid, to_pixel
+from snake_game.rendering import render_grid, render_snake, to_pixel
+from snake_game.snake import Direction, Snake
 
 
 @pytest.mark.parametrize(
@@ -44,3 +46,40 @@ def test_grid_lines_and_cell_interiors() -> None:
 
     assert screen.get_at((WINDOW_WIDTH - 1, CELL_SIZE // 2))[:3] == GRID_COLOR
     assert screen.get_at((CELL_SIZE // 2, WINDOW_HEIGHT - 1))[:3] == GRID_COLOR
+
+
+def test_snake_segments_render_at_logical_positions() -> None:
+    screen = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
+    body = [Position(5, 3), Position(4, 3), Position(4, 4)]
+    render_grid(screen)
+
+    render_snake(screen, body)
+
+    for position in body:
+        x, y = to_pixel(position)
+        assert screen.get_at((x, y))[:3] == SNAKE_COLOR
+        assert screen.get_at((x + CELL_SIZE - 1, y + CELL_SIZE - 1))[:3] == SNAKE_COLOR
+        assert (
+            screen.get_at((x + CELL_SIZE // 2, y + CELL_SIZE // 2))[:3] == SNAKE_COLOR
+        )
+    assert screen.get_at(to_pixel(Position(6, 3)))[:3] == GRID_COLOR
+    assert screen.get_at((CELL_SIZE // 2, CELL_SIZE // 2))[:3] == BACKGROUND_COLOR
+
+
+def test_render_after_movement_clears_old_tail() -> None:
+    screen = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
+    snake = Snake([Position(5, 3), Position(4, 3), Position(3, 3)], Direction.RIGHT)
+    render_grid(screen)
+    render_snake(screen, snake.body)
+
+    snake.step()
+    render_grid(screen)
+    render_snake(screen, snake.body)
+
+    half_cell = CELL_SIZE // 2
+    head_x, head_y = to_pixel(Position(6, 3))
+    assert screen.get_at((head_x + half_cell, head_y + half_cell))[:3] == SNAKE_COLOR
+    tail_x, tail_y = to_pixel(Position(3, 3))
+    assert (
+        screen.get_at((tail_x + half_cell, tail_y + half_cell))[:3] == BACKGROUND_COLOR
+    )

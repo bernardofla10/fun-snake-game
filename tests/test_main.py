@@ -1,13 +1,15 @@
 """Check application startup and shutdown using SDL's dummy display."""
 
-from unittest.mock import Mock
+from unittest.mock import Mock, call
 
 import pygame
 import pytest
 
 from snake_game import main as application
 from snake_game.config import FPS, WINDOW_HEIGHT, WINDOW_TITLE, WINDOW_WIDTH
+from snake_game.grid import Position
 from snake_game.main import main
+from snake_game.snake import Snake
 
 
 def test_window_runs_until_quit(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -37,10 +39,11 @@ def test_window_runs_until_quit(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_loop_repeats_phases_until_quit(monkeypatch: pytest.MonkeyPatch) -> None:
     phases: list[str] = []
+    rendered_bodies: list[list[Position]] = []
     batches = iter(
         [
             [],
-            [pygame.event.Event(pygame.USEREVENT)],
+            [pygame.event.Event(pygame.KEYDOWN, key=pygame.K_w)],
             [],
             [pygame.event.Event(pygame.QUIT)],
         ]
@@ -51,28 +54,51 @@ def test_loop_repeats_phases_until_quit(monkeypatch: pytest.MonkeyPatch) -> None
         return next(batches)
 
     def render(screen: pygame.Surface) -> None:
-        phases.append("render")
+        phases.append("grid")
         application_render(screen)
+
+    def render_snake(screen: pygame.Surface, body: list[Position]) -> None:
+        phases.append("snake")
+        rendered_bodies.append(body.copy())
+        application_render_snake(screen, body)
+
+    def update(snake: Snake, elapsed_ms: int, accumulated_ms: int) -> int:
+        phases.append("update")
+        return application_update(snake, elapsed_ms, accumulated_ms)
+
+    def tick(fps: int) -> int:
+        phases.append("tick")
+        return next(frame_times)
 
     def flip_frame() -> None:
         phases.append("flip")
         flip()
 
     application_render = application.render_grid
+    application_render_snake = application.render_snake
+    application_update = application.update
     flip = pygame.display.flip
+    frame_times = iter([0, 125, 250])
     clock = Mock()
-    clock.tick.side_effect = lambda fps: phases.append("tick")
+    clock.tick.side_effect = tick
     monkeypatch.setattr(pygame.event, "get", get_events)
-    monkeypatch.setattr(application, "update", lambda: phases.append("update"))
+    monkeypatch.setattr(application, "update", update)
     monkeypatch.setattr(application, "render_grid", render)
+    monkeypatch.setattr(application, "render_snake", render_snake)
     monkeypatch.setattr(pygame.display, "flip", flip_frame)
     monkeypatch.setattr(pygame.time, "Clock", lambda: clock)
 
     main()
 
-    assert phases == ["events", "update", "render", "flip", "tick"] * 3 + ["events"]
-    assert clock.tick.call_count == 3
-    clock.tick.assert_called_with(FPS)
+    assert phases == ["events", "tick", "update", "grid", "snake", "flip"] * 3 + [
+        "events"
+    ]
+    assert rendered_bodies == [
+        [Position(16, 12), Position(15, 12), Position(14, 12)],
+        [Position(16, 11), Position(16, 12), Position(15, 12)],
+        [Position(16, 9), Position(16, 10), Position(16, 11)],
+    ]
+    assert clock.tick.call_args_list == [call(FPS)] * 3
     assert not pygame.get_init()
 
 

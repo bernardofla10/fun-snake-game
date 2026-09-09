@@ -1,5 +1,7 @@
 """Convert logical coordinates to pixels and draw the game area."""
 
+from collections.abc import Sequence
+
 import pygame
 
 from snake_game.config import (
@@ -8,6 +10,7 @@ from snake_game.config import (
     COLUMNS,
     GRID_COLOR,
     ROWS,
+    SNAKE_COLOR,
     WINDOW_HEIGHT,
     WINDOW_WIDTH,
 )
@@ -32,3 +35,10 @@ def render_grid(screen: pygame.Surface) -> None:
         pygame.draw.line(screen, GRID_COLOR, (x, y), (WINDOW_WIDTH - 1, y))
 
     pygame.draw.rect(screen, GRID_COLOR, (0, 0, WINDOW_WIDTH, WINDOW_HEIGHT), 1)
+
+
+def render_snake(screen: pygame.Surface, body: Sequence[Position]) -> None:
+    """Draw one cell-sized rectangle for each logical body position."""
+    for position in body:
+        x, y = to_pixel(position)
+        pygame.draw.rect(screen, SNAKE_COLOR, (x, y, CELL_SIZE, CELL_SIZE))
