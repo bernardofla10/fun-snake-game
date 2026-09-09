@@ -9,6 +9,7 @@ from snake_game.config import (
     CELL_SIZE,
     COLUMNS,
     FOOD_COLOR,
+    GAME_OVER_COLOR,
     GRID_COLOR,
     ROWS,
     SNAKE_COLOR,
@@ -50,3 +51,9 @@ def render_food(screen: pygame.Surface, position: Position | None) -> None:
     if position is not None:
         x, y = to_pixel(position)
         pygame.draw.rect(screen, FOOD_COLOR, (x, y, CELL_SIZE, CELL_SIZE))
+
+
+def render_game_over(screen: pygame.Surface, font: pygame.font.Font) -> None:
+    """Draw a centered message over the final board."""
+    message = font.render("Game Over", True, GAME_OVER_COLOR, BACKGROUND_COLOR)
+    screen.blit(message, message.get_rect(center=screen.get_rect().center))

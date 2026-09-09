@@ -9,8 +9,10 @@ import pytest
 from snake_game import main as application
 from snake_game.config import (
     CELL_SIZE,
+    COLUMNS,
     FOOD_COLOR,
     FPS,
+    SNAKE_COLOR,
     WINDOW_HEIGHT,
     WINDOW_TITLE,
     WINDOW_WIDTH,
@@ -18,6 +20,7 @@ from snake_game.config import (
 from snake_game.game import Game
 from snake_game.grid import Position
 from snake_game.main import main
+from snake_game.snake import Direction, Snake
 
 
 def test_window_runs_until_quit(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -119,6 +122,8 @@ def test_loop_repeats_phases_until_quit(monkeypatch: pytest.MonkeyPatch) -> None
     monkeypatch.setattr(application, "render_food", render_food)
     monkeypatch.setattr(pygame.display, "flip", flip_frame)
     monkeypatch.setattr(pygame.time, "Clock", lambda: clock)
+    feedback = Mock()
+    monkeypatch.setattr(application, "render_game_over", feedback)
 
     main()
 
@@ -141,6 +146,7 @@ def test_loop_repeats_phases_until_quit(monkeypatch: pytest.MonkeyPatch) -> None
         assert food not in body
     assert clock.tick.call_args_list == [call(FPS)] * 3
     assert not pygame.get_init()
+    feedback.assert_not_called()
 
 
 def test_pygame_shuts_down_after_error(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -154,3 +160,60 @@ def test_pygame_shuts_down_after_error(monkeypatch: pytest.MonkeyPatch) -> None:
 
     assert not pygame.get_init()
     assert not pygame.display.get_init()
+
+
+def test_game_over_keeps_rendering_frozen_board_and_allows_close(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    batches = iter(
+        [
+            [],
+            [pygame.event.Event(pygame.KEYDOWN, key=pygame.K_UP)],
+            [],
+            [pygame.event.Event(pygame.QUIT)],
+        ]
+    )
+    frames: list[bytes] = []
+    games: list[Game] = []
+    create_game = application.Game
+    feedback = application.render_game_over
+    clock = Mock()
+    clock.tick.side_effect = [2000, 1000, 1000]
+
+    def make_game(snake: Snake, rng: Random) -> Game:
+        game = create_game(snake, rng)
+        game.food = Position(0, 0)
+        games.append(game)
+        return game
+
+    def render_game_over(screen: pygame.Surface, font: pygame.font.Font) -> None:
+        before = pygame.image.tobytes(screen, "RGB")
+        feedback(screen, font)
+        after = pygame.image.tobytes(screen, "RGB")
+        assert before != after
+        assert screen.get_at((CELL_SIZE // 2, CELL_SIZE // 2))[:3] == FOOD_COLOR
+        assert (
+            screen.get_at(
+                (
+                    (COLUMNS - 1) * CELL_SIZE + CELL_SIZE // 2,
+                    12 * CELL_SIZE + CELL_SIZE // 2,
+                )
+            )[:3]
+            == SNAKE_COLOR
+        )
+        frames.append(after)
+
+    monkeypatch.setattr(application, "Game", make_game)
+    monkeypatch.setattr(application, "render_game_over", render_game_over)
+    monkeypatch.setattr(pygame.event, "get", lambda: next(batches))
+    monkeypatch.setattr(pygame.time, "Clock", lambda: clock)
+
+    main()
+
+    assert len(frames) == 3
+    assert frames[0] == frames[1] == frames[2]
+    assert games[0].snake.body == [Position(32, 12), Position(31, 12), Position(30, 12)]
+    assert games[0].snake.direction is Direction.RIGHT
+    assert games[0].snake.requested_direction is None
+    assert games[0].food == Position(0, 0)
+    assert not pygame.get_init()

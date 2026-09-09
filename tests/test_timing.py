@@ -1,10 +1,11 @@
 """Verify elapsed-time movement across different render frame durations."""
 
 from random import Random
+from unittest.mock import Mock
 
 import pytest
 
-from snake_game.game import Game
+from snake_game.game import Game, GameState
 from snake_game.grid import Position
 from snake_game.main import update
 from snake_game.snake import Direction, Snake
@@ -31,6 +32,28 @@ def test_one_second_produces_eight_steps(frame_times: list[int]) -> None:
 
     assert snake.body == [Position(13, 3), Position(12, 3), Position(11, 3)]
     assert accumulated_ms == 0
+
+
+def test_fatal_step_stops_catch_up_and_future_updates(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    snake = Snake([Position(1, 3), Position(2, 3), Position(3, 3)], Direction.LEFT)
+    game = Game(snake, Random(0))
+    game.food = Position(5, 5)
+    step = Mock(wraps=game.step)
+    monkeypatch.setattr(game, "step", step)
+
+    remainder = update(game, 1000, 100)
+
+    assert game.state is GameState.GAME_OVER
+    assert snake.body == [Position(-1, 3), Position(0, 3), Position(1, 3)]
+    assert step.call_count == 2
+    assert remainder == 0
+
+    assert update(game, 10000, remainder) == 0
+    assert step.call_count == 2
+    assert snake.body == [Position(-1, 3), Position(0, 3), Position(1, 3)]
+    assert game.food == Position(5, 5)
 
 
 def test_partial_intervals_are_preserved() -> None:

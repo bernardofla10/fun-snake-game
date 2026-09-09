@@ -1,5 +1,7 @@
 """Verify coordinate conversion and grid drawing without a window."""
 
+from unittest.mock import Mock
+
 import pygame
 import pytest
 
@@ -8,6 +10,7 @@ from snake_game.config import (
     CELL_SIZE,
     COLUMNS,
     FOOD_COLOR,
+    GAME_OVER_COLOR,
     GRID_COLOR,
     ROWS,
     SNAKE_COLOR,
@@ -15,7 +18,13 @@ from snake_game.config import (
     WINDOW_WIDTH,
 )
 from snake_game.grid import Position
-from snake_game.rendering import render_food, render_grid, render_snake, to_pixel
+from snake_game.rendering import (
+    render_food,
+    render_game_over,
+    render_grid,
+    render_snake,
+    to_pixel,
+)
 from snake_game.snake import Direction, Snake
 
 
@@ -108,3 +117,37 @@ def test_no_food_leaves_rendering_unchanged() -> None:
     render_food(screen, None)
 
     assert pygame.image.tobytes(screen, "RGB") == before
+
+
+def test_game_over_message_is_centered_without_clearing_board() -> None:
+    screen = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
+    render_grid(screen)
+    render_food(screen, Position(1, 1))
+    render_snake(screen, [Position(5, 3), Position(4, 3), Position(3, 3)])
+    message = pygame.Surface((120, 40))
+    message.fill(GAME_OVER_COLOR)
+    font = Mock(spec=pygame.font.Font)
+    font.render.return_value = message
+
+    render_game_over(screen, font)
+
+    font.render.assert_called_once_with(
+        "Game Over", True, GAME_OVER_COLOR, BACKGROUND_COLOR
+    )
+    message_rect = message.get_rect(center=screen.get_rect().center)
+    assert screen.get_at(message_rect.topleft)[:3] == GAME_OVER_COLOR
+    assert (
+        screen.get_at((message_rect.right - 1, message_rect.bottom - 1))[:3]
+        == GAME_OVER_COLOR
+    )
+    assert (
+        screen.get_at((CELL_SIZE + CELL_SIZE // 2, CELL_SIZE + CELL_SIZE // 2))[:3]
+        == FOOD_COLOR
+    )
+    assert (
+        screen.get_at((5 * CELL_SIZE + CELL_SIZE // 2, 3 * CELL_SIZE + CELL_SIZE // 2))[
+            :3
+        ]
+        == SNAKE_COLOR
+    )
+    assert screen.get_at((0, 0))[:3] == GRID_COLOR
