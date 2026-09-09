@@ -17,7 +17,7 @@ class Direction(Enum):
 
 @dataclass
 class Snake:
-    """A fixed-length body ordered from head to tail."""
+    """A body ordered from head to tail, independent of food and rendering."""
 
     body: list[Position]
     direction: Direction
@@ -29,8 +29,8 @@ class Snake:
         if direction.value != (-dx, -dy):
             self.requested_direction = direction
 
-    def step(self) -> None:
-        """Apply the pending direction and move one cell, preserving length."""
+    def step(self) -> Position:
+        """Move one cell at the current length and return the displaced tail."""
         if self.requested_direction is not None:
             self.direction = self.requested_direction
             self.requested_direction = None
@@ -38,4 +38,8 @@ class Snake:
         dx, dy = self.direction.value
         head = self.body[0]
         self.body.insert(0, Position(head.x + dx, head.y + dy))
-        self.body.pop()
+        return self.body.pop()
+
+    def grow(self, tail: Position) -> None:
+        """Restore the tail displaced by this movement to grow by one segment."""
+        self.body.append(tail)

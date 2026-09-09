@@ -8,6 +8,7 @@ from snake_game.config import (
     BACKGROUND_COLOR,
     CELL_SIZE,
     COLUMNS,
+    FOOD_COLOR,
     GRID_COLOR,
     ROWS,
     SNAKE_COLOR,
@@ -42,3 +43,10 @@ def render_snake(screen: pygame.Surface, body: Sequence[Position]) -> None:
     for position in body:
         x, y = to_pixel(position)
         pygame.draw.rect(screen, SNAKE_COLOR, (x, y, CELL_SIZE, CELL_SIZE))
+
+
+def render_food(screen: pygame.Surface, position: Position | None) -> None:
+    """Draw the food cell when a position is available."""
+    if position is not None:
+        x, y = to_pixel(position)
+        pygame.draw.rect(screen, FOOD_COLOR, (x, y, CELL_SIZE, CELL_SIZE))

@@ -1,5 +1,7 @@
 """Application lifecycle and event, update, and render loop."""
 
+from random import Random
+
 import pygame
 
 from snake_game.config import (
@@ -11,8 +13,9 @@ from snake_game.config import (
     WINDOW_TITLE,
     WINDOW_WIDTH,
 )
+from snake_game.game import Game
 from snake_game.grid import Position
-from snake_game.rendering import render_grid, render_snake
+from snake_game.rendering import render_food, render_grid, render_snake
 from snake_game.snake import Direction, Snake
 
 KEY_DIRECTIONS = {
@@ -39,11 +42,11 @@ def process_events(snake: Snake) -> bool:
     return True
 
 
-def update(snake: Snake, elapsed_ms: int, accumulated_ms: int) -> int:
+def update(game: Game, elapsed_ms: int, accumulated_ms: int) -> int:
     """Run all movement steps due and return the unconsumed milliseconds."""
     accumulated_ms += elapsed_ms
     while accumulated_ms >= SNAKE_MOVE_INTERVAL_MS:
-        snake.step()
+        game.step()
         accumulated_ms -= SNAKE_MOVE_INTERVAL_MS
     return accumulated_ms
 
@@ -59,11 +62,13 @@ def main() -> None:
             body=[Position(COLUMNS // 2 - offset, ROWS // 2) for offset in range(3)],
             direction=Direction.RIGHT,
         )
+        game = Game(snake, Random())
         accumulated_ms = 0
 
         while process_events(snake):
-            accumulated_ms = update(snake, clock.tick(FPS), accumulated_ms)
+            accumulated_ms = update(game, clock.tick(FPS), accumulated_ms)
             render_grid(screen)
+            render_food(screen, game.food)
             render_snake(screen, snake.body)
             pygame.display.flip()
     finally:

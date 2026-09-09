@@ -129,3 +129,27 @@ def test_movement_can_leave_the_grid() -> None:
     snake = Snake([Position(0, 3), Position(1, 3), Position(2, 3)], Direction.LEFT)
     snake.step()
     assert snake.body == [Position(-1, 3), Position(0, 3), Position(1, 3)]
+
+
+def test_growth_retains_displaced_tail_for_exactly_one_step() -> None:
+    snake = Snake([Position(5, 3), Position(4, 3), Position(3, 3)], Direction.RIGHT)
+
+    tail = snake.step()
+    assert tail == Position(3, 3)
+    snake.grow(tail)
+
+    assert snake.body == [
+        Position(6, 3),
+        Position(5, 3),
+        Position(4, 3),
+        Position(3, 3),
+    ]
+
+    snake.step()
+
+    assert snake.body == [
+        Position(7, 3),
+        Position(6, 3),
+        Position(5, 3),
+        Position(4, 3),
+    ]

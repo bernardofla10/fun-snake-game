@@ -7,6 +7,7 @@ from snake_game.config import (
     BACKGROUND_COLOR,
     CELL_SIZE,
     COLUMNS,
+    FOOD_COLOR,
     GRID_COLOR,
     ROWS,
     SNAKE_COLOR,
@@ -14,7 +15,7 @@ from snake_game.config import (
     WINDOW_WIDTH,
 )
 from snake_game.grid import Position
-from snake_game.rendering import render_grid, render_snake, to_pixel
+from snake_game.rendering import render_food, render_grid, render_snake, to_pixel
 from snake_game.snake import Direction, Snake
 
 
@@ -83,3 +84,27 @@ def test_render_after_movement_clears_old_tail() -> None:
     assert (
         screen.get_at((tail_x + half_cell, tail_y + half_cell))[:3] == BACKGROUND_COLOR
     )
+
+
+def test_food_renders_only_its_logical_cell() -> None:
+    screen = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
+    render_grid(screen)
+
+    render_food(screen, Position(5, 3))
+
+    x, y = to_pixel(Position(5, 3))
+    for offset_x, offset_y in [(0, 0), (CELL_SIZE - 1, CELL_SIZE - 1)]:
+        assert screen.get_at((x + offset_x, y + offset_y))[:3] == FOOD_COLOR
+    assert screen.get_at((x + CELL_SIZE // 2, y + CELL_SIZE // 2))[:3] == FOOD_COLOR
+    assert screen.get_at((x + CELL_SIZE, y))[:3] == GRID_COLOR
+    assert FOOD_COLOR != SNAKE_COLOR
+
+
+def test_no_food_leaves_rendering_unchanged() -> None:
+    screen = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
+    render_grid(screen)
+    before = pygame.image.tobytes(screen, "RGB")
+
+    render_food(screen, None)
+
+    assert pygame.image.tobytes(screen, "RGB") == before
