@@ -1,6 +1,6 @@
 """Verify coordinate conversion and grid drawing without a window."""
 
-from unittest.mock import Mock
+from unittest.mock import Mock, call
 
 import pygame
 import pytest
@@ -12,7 +12,10 @@ from snake_game.config import (
     FOOD_COLOR,
     GAME_OVER_COLOR,
     GRID_COLOR,
+    GRID_HEIGHT,
+    GRID_WIDTH,
     ROWS,
+    SCORE_COLOR,
     SNAKE_COLOR,
     WINDOW_HEIGHT,
     WINDOW_WIDTH,
@@ -22,6 +25,7 @@ from snake_game.rendering import (
     render_food,
     render_game_over,
     render_grid,
+    render_score,
     render_snake,
     to_pixel,
 )
@@ -55,7 +59,7 @@ def test_grid_lines_and_cell_interiors() -> None:
             assert screen.get_at(center)[:3] == BACKGROUND_COLOR
 
     assert screen.get_at((WINDOW_WIDTH - 1, CELL_SIZE // 2))[:3] == GRID_COLOR
-    assert screen.get_at((CELL_SIZE // 2, WINDOW_HEIGHT - 1))[:3] == GRID_COLOR
+    assert screen.get_at((CELL_SIZE // 2, GRID_HEIGHT - 1))[:3] == GRID_COLOR
 
 
 def test_snake_segments_render_at_logical_positions() -> None:
@@ -131,10 +135,11 @@ def test_game_over_message_is_centered_without_clearing_board() -> None:
 
     render_game_over(screen, font)
 
-    font.render.assert_called_once_with(
-        "Game Over", True, GAME_OVER_COLOR, BACKGROUND_COLOR
-    )
-    message_rect = message.get_rect(center=screen.get_rect().center)
+    assert font.render.call_args_list == [
+        call("Game Over", True, GAME_OVER_COLOR, BACKGROUND_COLOR),
+        call("R / Enter to restart", True, GAME_OVER_COLOR, BACKGROUND_COLOR),
+    ]
+    message_rect = message.get_rect(center=(GRID_WIDTH // 2, GRID_HEIGHT // 2))
     assert screen.get_at(message_rect.topleft)[:3] == GAME_OVER_COLOR
     assert (
         screen.get_at((message_rect.right - 1, message_rect.bottom - 1))[:3]
@@ -151,3 +156,51 @@ def test_game_over_message_is_centered_without_clearing_board() -> None:
         == SNAKE_COLOR
     )
     assert screen.get_at((0, 0))[:3] == GRID_COLOR
+
+
+@pytest.mark.parametrize("score", [0, 1, 27])
+def test_score_is_rendered_below_grid_without_covering_food(score: int) -> None:
+    screen = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
+    render_grid(screen)
+    render_food(screen, Position(COLUMNS - 1, 0))
+    board_before = pygame.image.tobytes(
+        screen.subsurface((0, 0, GRID_WIDTH, GRID_HEIGHT)), "RGB"
+    )
+    message = pygame.Surface((100, 24))
+    message.fill(SCORE_COLOR)
+    font = Mock(spec=pygame.font.Font)
+    font.render.return_value = message
+
+    render_score(screen, font, score)
+
+    font.render.assert_called_once_with(
+        f"Score: {score}", True, SCORE_COLOR, BACKGROUND_COLOR
+    )
+    assert screen.get_at((WINDOW_WIDTH - 108, GRID_HEIGHT + 8))[:3] == SCORE_COLOR
+    assert screen.get_at((WINDOW_WIDTH - 9, GRID_HEIGHT + 31))[:3] == SCORE_COLOR
+    assert (
+        pygame.image.tobytes(screen.subsurface((0, 0, GRID_WIDTH, GRID_HEIGHT)), "RGB")
+        == board_before
+    )
+    assert screen.get_at((0, 0))[:3] == GRID_COLOR
+
+
+def test_fatal_bottom_wall_step_does_not_draw_snake_in_score_strip() -> None:
+    screen = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
+    render_grid(screen)
+    panel = screen.subsurface(
+        (0, GRID_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT - GRID_HEIGHT)
+    )
+    panel_before = pygame.image.tobytes(panel, "RGB")
+
+    render_snake(
+        screen, [Position(5, ROWS), Position(5, ROWS - 1), Position(5, ROWS - 2)]
+    )
+
+    assert pygame.image.tobytes(panel, "RGB") == panel_before
+    assert (
+        screen.get_at((5 * CELL_SIZE + CELL_SIZE // 2, GRID_HEIGHT - CELL_SIZE // 2))[
+            :3
+        ]
+        == SNAKE_COLOR
+    )

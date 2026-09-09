@@ -2,14 +2,25 @@
 
 import pytest
 
-from snake_game.config import CELL_SIZE, COLUMNS, ROWS, WINDOW_HEIGHT, WINDOW_WIDTH
+from snake_game.config import (
+    CELL_SIZE,
+    COLUMNS,
+    GRID_HEIGHT,
+    GRID_WIDTH,
+    ROWS,
+    SCORE_PANEL_HEIGHT,
+    WINDOW_HEIGHT,
+    WINDOW_WIDTH,
+)
 from snake_game.grid import Position, is_valid_position
 
 
 def test_grid_dimensions() -> None:
     assert (COLUMNS, ROWS, CELL_SIZE) == (32, 24, 20)
-    assert WINDOW_WIDTH == COLUMNS * CELL_SIZE == 640
-    assert WINDOW_HEIGHT == ROWS * CELL_SIZE == 480
+    assert GRID_WIDTH == COLUMNS * CELL_SIZE == 640
+    assert GRID_HEIGHT == ROWS * CELL_SIZE == 480
+    assert WINDOW_WIDTH == GRID_WIDTH
+    assert WINDOW_HEIGHT == GRID_HEIGHT + SCORE_PANEL_HEIGHT == 520
 
 
 @pytest.mark.parametrize(

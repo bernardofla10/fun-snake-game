@@ -55,6 +55,64 @@ def test_unrelated_events_do_not_change_direction(
     assert snake.requested_direction is None
 
 
+@pytest.mark.parametrize("key", [pygame.K_r, pygame.K_RETURN])
+@pytest.mark.parametrize("state", [GameState.RUNNING, GameState.GAME_OVER])
+def test_restart_keys_only_reset_game_over(
+    monkeypatch: pytest.MonkeyPatch, key: int, state: GameState
+) -> None:
+    snake = Snake([Position(0, 3), Position(1, 3), Position(2, 3)], Direction.LEFT)
+    game = Game(snake, Random(0))
+    game.score = 5
+    game.accumulated_ms = 100
+    if state is GameState.GAME_OVER:
+        game.step()
+    body = snake.body.copy()
+    food = game.food
+    rng_state = game.rng.getstate()
+    monkeypatch.setattr(
+        pygame.event, "get", lambda: [pygame.event.Event(pygame.KEYDOWN, key=key)]
+    )
+
+    assert process_events(game)
+
+    assert game.state is GameState.RUNNING
+    if state is GameState.GAME_OVER:
+        assert game.snake is not snake
+        assert game.snake.body == [Position(16, 12), Position(15, 12), Position(14, 12)]
+        assert game.snake.direction is Direction.RIGHT
+        assert game.snake.requested_direction is None
+        assert game.score == 0
+        assert game.accumulated_ms == 0
+        assert game.food is not None
+        assert game.food not in game.snake.body
+        assert game.rng.getstate() != rng_state
+    else:
+        assert game.snake is snake
+        assert snake.body == body
+        assert snake.direction is Direction.LEFT
+        assert game.score == 5
+        assert game.accumulated_ms == 100
+        assert game.food == food
+        assert game.rng.getstate() == rng_state
+
+
+@pytest.mark.parametrize("key", [pygame.K_r, pygame.K_RETURN])
+def test_releasing_restart_key_does_not_restart(
+    monkeypatch: pytest.MonkeyPatch, key: int
+) -> None:
+    game = Game(
+        Snake([Position(0, 3), Position(1, 3), Position(2, 3)], Direction.LEFT),
+        Random(0),
+    )
+    game.step()
+    monkeypatch.setattr(
+        pygame.event, "get", lambda: [pygame.event.Event(pygame.KEYUP, key=key)]
+    )
+
+    assert process_events(game)
+    assert game.state is GameState.GAME_OVER
+
+
 def test_event_batch_cannot_reverse_snake(monkeypatch: pytest.MonkeyPatch) -> None:
     snake = Snake([Position(5, 3), Position(4, 3), Position(3, 3)], Direction.RIGHT)
     events = [

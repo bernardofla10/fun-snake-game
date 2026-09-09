@@ -28,7 +28,7 @@ def test_one_second_produces_eight_steps(frame_times: list[int]) -> None:
     accumulated_ms = 0
 
     for elapsed_ms in frame_times:
-        accumulated_ms = update(game, elapsed_ms, accumulated_ms)
+        accumulated_ms = update(game, elapsed_ms)
 
     assert snake.body == [Position(13, 3), Position(12, 3), Position(11, 3)]
     assert accumulated_ms == 0
@@ -43,14 +43,15 @@ def test_fatal_step_stops_catch_up_and_future_updates(
     step = Mock(wraps=game.step)
     monkeypatch.setattr(game, "step", step)
 
-    remainder = update(game, 1000, 100)
+    game.accumulated_ms = 100
+    remainder = update(game, 1000)
 
     assert game.state is GameState.GAME_OVER
     assert snake.body == [Position(-1, 3), Position(0, 3), Position(1, 3)]
     assert step.call_count == 2
     assert remainder == 0
 
-    assert update(game, 10000, remainder) == 0
+    assert update(game, 10000) == 0
     assert step.call_count == 2
     assert snake.body == [Position(-1, 3), Position(0, 3), Position(1, 3)]
     assert game.food == Position(5, 5)
@@ -61,20 +62,20 @@ def test_partial_intervals_are_preserved() -> None:
     game = Game(snake, Random(0))
     game.food = Position(0, 0)
 
-    remainder = update(game, 0, 0)
-    remainder = update(game, 124, remainder)
+    remainder = update(game, 0)
+    remainder = update(game, 124)
     assert snake.body[0] == Position(5, 3)
     assert remainder == 124
 
-    remainder = update(game, 1, remainder)
+    remainder = update(game, 1)
     assert snake.body[0] == Position(6, 3)
     assert remainder == 0
 
-    remainder = update(game, 260, remainder)
+    remainder = update(game, 260)
     assert snake.body[0] == Position(8, 3)
     assert remainder == 10
 
-    remainder = update(game, 115, remainder)
+    remainder = update(game, 115)
     assert snake.body[0] == Position(9, 3)
     assert remainder == 0
 
@@ -100,7 +101,7 @@ def test_every_due_step_can_consume_and_replace_food(
     accumulated_ms = 0
 
     for elapsed_ms in frame_times:
-        accumulated_ms = update(game, elapsed_ms, accumulated_ms)
+        accumulated_ms = update(game, elapsed_ms)
 
     assert snake.body == [
         Position(8, 3),
@@ -112,3 +113,4 @@ def test_every_due_step_can_consume_and_replace_food(
     assert game.food == Position(0, 0)
     assert chosen == [Position(6, 3), Position(7, 3), Position(0, 0)]
     assert accumulated_ms == 0
+    assert game.score == 2

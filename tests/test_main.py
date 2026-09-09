@@ -17,10 +17,10 @@ from snake_game.config import (
     WINDOW_TITLE,
     WINDOW_WIDTH,
 )
-from snake_game.game import Game
+from snake_game.game import Game, GameState
 from snake_game.grid import Position
 from snake_game.main import main
-from snake_game.snake import Direction, Snake
+from snake_game.snake import Direction
 
 
 def test_window_runs_until_quit(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -85,9 +85,9 @@ def test_loop_repeats_phases_until_quit(monkeypatch: pytest.MonkeyPatch) -> None
         )
         assert screen.get_at(center)[:3] == FOOD_COLOR
 
-    def update(game: Game, elapsed_ms: int, accumulated_ms: int) -> int:
+    def update(game: Game, elapsed_ms: int) -> int:
         phases.append("update")
-        return application_update(game, elapsed_ms, accumulated_ms)
+        return application_update(game, elapsed_ms)
 
     def tick(fps: int) -> int:
         phases.append("tick")
@@ -124,6 +124,8 @@ def test_loop_repeats_phases_until_quit(monkeypatch: pytest.MonkeyPatch) -> None
     monkeypatch.setattr(pygame.time, "Clock", lambda: clock)
     feedback = Mock()
     monkeypatch.setattr(application, "render_game_over", feedback)
+    score_display = Mock(wraps=application.render_score)
+    monkeypatch.setattr(application, "render_score", score_display)
 
     main()
 
@@ -147,6 +149,7 @@ def test_loop_repeats_phases_until_quit(monkeypatch: pytest.MonkeyPatch) -> None
     assert clock.tick.call_args_list == [call(FPS)] * 3
     assert not pygame.get_init()
     feedback.assert_not_called()
+    assert [entry.args[2] for entry in score_display.call_args_list] == [0, 1, 1]
 
 
 def test_pygame_shuts_down_after_error(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -180,8 +183,8 @@ def test_game_over_keeps_rendering_frozen_board_and_allows_close(
     clock = Mock()
     clock.tick.side_effect = [2000, 1000, 1000]
 
-    def make_game(snake: Snake, rng: Random) -> Game:
-        game = create_game(snake, rng)
+    def make_game(rng: Random) -> Game:
+        game = create_game(rng=rng)
         game.food = Position(0, 0)
         games.append(game)
         return game
@@ -216,4 +219,107 @@ def test_game_over_keeps_rendering_frozen_board_and_allows_close(
     assert games[0].snake.direction is Direction.RIGHT
     assert games[0].snake.requested_direction is None
     assert games[0].food == Position(0, 0)
+    assert not pygame.get_init()
+
+
+@pytest.mark.parametrize("restart_key", [pygame.K_r, pygame.K_RETURN])
+def test_restart_renders_reset_state_and_discards_old_frame_time(
+    monkeypatch: pytest.MonkeyPatch, restart_key: int
+) -> None:
+    batches = iter(
+        [
+            [],
+            [],
+            [pygame.event.Event(pygame.KEYDOWN, key=restart_key)],
+            [],
+            [],
+            [pygame.event.Event(pygame.QUIT)],
+        ]
+    )
+    rng = Random(0)
+    placements = iter([Position(17, 12), Position(0, 0), Position(0, 1)])
+    games: list[Game] = []
+    bodies: list[list[Position]] = []
+    scores: list[int] = []
+    states: list[GameState] = []
+    foods: list[Position | None] = []
+    clock = Mock()
+    clock.tick.side_effect = [125, 2000, 5000, 124, 1]
+    create_game = application.Game
+    draw_snake = application.render_snake
+    draw_score = application.render_score
+
+    def choice(available: list[Position]) -> Position:
+        position = next(placements)
+        assert position in available
+        return position
+
+    def make_game(rng: Random) -> Game:
+        game = create_game(rng=rng)
+        games.append(game)
+        return game
+
+    def render_snake(screen: pygame.Surface, body: list[Position]) -> None:
+        bodies.append(body.copy())
+        foods.append(games[0].food)
+        states.append(games[0].state)
+        draw_snake(screen, body)
+
+    def render_score(
+        screen: pygame.Surface, font: pygame.font.Font, score: int
+    ) -> None:
+        before = pygame.image.tobytes(screen, "RGB")
+        draw_score(screen, font, score)
+        assert pygame.image.tobytes(screen, "RGB") != before
+        assert games[0].score == score
+        scores.append(score)
+
+    feedback = Mock(wraps=application.render_game_over)
+    monkeypatch.setattr(rng, "choice", choice)
+    monkeypatch.setattr(application, "Random", lambda: rng)
+    monkeypatch.setattr(application, "Game", make_game)
+    monkeypatch.setattr(application, "render_snake", render_snake)
+    monkeypatch.setattr(application, "render_score", render_score)
+    monkeypatch.setattr(application, "render_game_over", feedback)
+    monkeypatch.setattr(pygame.event, "get", lambda: next(batches))
+    monkeypatch.setattr(pygame.time, "Clock", lambda: clock)
+
+    main()
+
+    assert len(games) == 1
+    assert scores == [1, 1, 0, 0, 0]
+    assert states == [
+        GameState.RUNNING,
+        GameState.GAME_OVER,
+        GameState.RUNNING,
+        GameState.RUNNING,
+        GameState.RUNNING,
+    ]
+    assert bodies[0] == [
+        Position(17, 12),
+        Position(16, 12),
+        Position(15, 12),
+        Position(14, 12),
+    ]
+    assert bodies[1] == [
+        Position(32, 12),
+        Position(31, 12),
+        Position(30, 12),
+        Position(29, 12),
+    ]
+    assert (
+        bodies[2] == bodies[3] == [Position(16, 12), Position(15, 12), Position(14, 12)]
+    )
+    assert bodies[4] == [Position(17, 12), Position(16, 12), Position(15, 12)]
+    assert foods == [
+        Position(0, 0),
+        Position(0, 0),
+        Position(0, 1),
+        Position(0, 1),
+        Position(0, 1),
+    ]
+    assert games[0].accumulated_ms == 0
+    assert games[0].snake.direction is Direction.RIGHT
+    assert games[0].snake.requested_direction is None
+    assert feedback.call_count == 1
     assert not pygame.get_init()

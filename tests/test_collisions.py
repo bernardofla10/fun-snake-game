@@ -121,6 +121,7 @@ def test_fatal_collision_precedes_food_consumption(collision: str) -> None:
     game = Game(snake, Random(0))
     # Deliberately place food at a fatal position to verify rule precedence.
     game.food = fatal_position
+    game.score = 7
     original_length = len(snake.body)
     random_state = game.rng.getstate()
 
@@ -131,6 +132,7 @@ def test_fatal_collision_precedes_food_consumption(collision: str) -> None:
     assert len(snake.body) == original_length
     assert game.food == fatal_position
     assert game.rng.getstate() == random_state
+    assert game.score == 7
 
 
 def test_game_over_ignores_steps_and_all_domain_direction_requests() -> None:
