@@ -12,9 +12,11 @@ incrementally through new specifications.
 ## Current State
 
 - `main` is the integration branch for completed features.
-- Specifications `001` through `010` are implemented and complete.
+- Specifications `001` through `011` are implemented and complete.
 - The application includes fullscreen navigation and requires selection or
   creation of a SQLite-backed local profile before Home.
+- Food consumption grants persistent profile coins, and the persistence layer
+  supports atomic cosmetic purchase transactions.
 - The next feature specification must use the next available three-digit number.
 - Existing gameplay behavior must remain stable unless a new specification
   explicitly changes it.

@@ -6,7 +6,7 @@ from random import Random
 from typing import Protocol
 
 from snake_game.config import SNAKE_MOVE_INTERVAL_MS
-from snake_game.game import Game, GameState
+from snake_game.game import Game, GameState, StepOutcome
 from snake_game.profiles import (
     DuplicateProfileName,
     InvalidProfileName,
@@ -43,6 +43,7 @@ class StorageOperation(Enum):
 
     INITIALIZE = auto()
     CREATE_PROFILE = auto()
+    CREDIT_COINS = auto()
 
 
 class ProfileRepository(Protocol):
@@ -54,20 +55,31 @@ class ProfileRepository(Protocol):
 
     def create_profile(self, name: str) -> PlayerProfile: ...
 
+    def credit_coins(self, profile_id: int, amount: int) -> PlayerProfile: ...
 
-def advance_game(game: Game, elapsed_ms: int) -> int:
-    """Run due movement steps and return the remaining accumulated time."""
+
+@dataclass(frozen=True)
+class AdvanceResult:
+    """Elapsed-time remainder and every domain outcome processed this frame."""
+
+    remaining_ms: int
+    outcomes: tuple[StepOutcome, ...]
+
+
+def advance_game(game: Game, elapsed_ms: int) -> AdvanceResult:
+    """Run due movement steps and expose their outcomes."""
     if game.state is GameState.GAME_OVER:
         game.accumulated_ms = 0
-        return 0
+        return AdvanceResult(0, ())
     game.accumulated_ms += max(0, elapsed_ms)
+    outcomes: list[StepOutcome] = []
     while game.accumulated_ms >= SNAKE_MOVE_INTERVAL_MS:
-        game.step()
+        outcomes.append(game.step())
         if game.state is GameState.GAME_OVER:
             game.accumulated_ms = 0
-            return 0
+            return AdvanceResult(0, tuple(outcomes))
         game.accumulated_ms -= SNAKE_MOVE_INTERVAL_MS
-    return game.accumulated_ms
+    return AdvanceResult(game.accumulated_ms, tuple(outcomes))
 
 
 @dataclass
@@ -88,6 +100,9 @@ class ApplicationController:
     profile_message: str | None = field(init=False, default=None)
     storage_message: str | None = field(init=False, default=None)
     failed_storage_operation: StorageOperation | None = field(init=False, default=None)
+    match_coins: int = field(init=False, default=0)
+    pending_coin_credit: int = field(init=False, default=0)
+    storage_return_state: AppState | None = field(init=False, default=None)
 
     def update(self, elapsed_ms: int) -> None:
         """Advance only the behavior belonging to the current screen."""
@@ -101,9 +116,16 @@ class ApplicationController:
         elif self.state is AppState.PLAYING:
             if self.game is None:
                 raise RuntimeError("PLAYING requires an active game")
-            advance_game(self.game, elapsed_ms)
-            if self.game.state is GameState.GAME_OVER:
-                self.state = AppState.GAME_OVER
+            advance_result = advance_game(self.game, elapsed_ms)
+            earned = advance_result.outcomes.count(StepOutcome.ATE_FOOD)
+            return_state = (
+                AppState.GAME_OVER
+                if self.game.state is GameState.GAME_OVER
+                else AppState.PLAYING
+            )
+            if earned and not self._credit_coins(earned, return_state):
+                return
+            self.state = return_state
 
     def skip_welcome(self) -> None:
         """Advance from Welcome without affecting later screens."""
@@ -116,12 +138,16 @@ class ApplicationController:
         if self.active_profile is None:
             raise RuntimeError("PLAYING requires an active profile")
         self.game = Game(rng=self.rng)
+        self.match_coins = 0
+        self.pending_coin_credit = 0
         self.state = AppState.PLAYING
 
     def restart_game(self) -> None:
         """Restart the frozen match and return to gameplay."""
         if self.state is AppState.GAME_OVER and self.game is not None:
             if self.game.restart():
+                self.match_coins = 0
+                self.pending_coin_credit = 0
                 self.state = AppState.PLAYING
 
     def open_style(self) -> None:
@@ -234,6 +260,8 @@ class ApplicationController:
         if self.state is AppState.HOME:
             self.active_profile = None
             self.game = None
+            self.match_coins = 0
+            self.pending_coin_credit = 0
             self.profile_page = 0
             self.state = AppState.PROFILE_SELECT
 
@@ -247,6 +275,9 @@ class ApplicationController:
             self.state = AppState.PROFILE_SELECT
             self.creating_profile = True
             self.create_profile()
+        elif self.failed_storage_operation is StorageOperation.CREDIT_COINS:
+            return_state = self.storage_return_state or AppState.PLAYING
+            self._credit_coins(self.pending_coin_credit, return_state)
 
     def _load_profiles(self) -> None:
         try:
@@ -268,3 +299,27 @@ class ApplicationController:
         self.storage_message = "Não foi possível acessar os perfis salvos."
         self.creating_profile = False
         self.state = AppState.STORAGE_ERROR
+
+    def _credit_coins(self, amount: int, return_state: AppState) -> bool:
+        if self.active_profile is None:
+            raise RuntimeError("coin credit requires an active profile")
+        try:
+            updated = self.profile_store.credit_coins(self.active_profile.id, amount)
+        except ProfileStorageError:
+            self.pending_coin_credit = amount
+            self.storage_return_state = return_state
+            self._show_storage_error(StorageOperation.CREDIT_COINS)
+            return False
+
+        self.active_profile = updated
+        self.profiles = tuple(
+            updated if profile.id == updated.id else profile
+            for profile in self.profiles
+        )
+        self.match_coins += amount
+        self.pending_coin_credit = 0
+        self.storage_return_state = None
+        self.failed_storage_operation = None
+        self.storage_message = None
+        self.state = return_state
+        return True

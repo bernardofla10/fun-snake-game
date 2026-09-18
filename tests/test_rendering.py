@@ -21,6 +21,7 @@ from snake_game.config import (
 from snake_game.grid import Position
 from snake_game.layout import GameLayout
 from snake_game.rendering import (
+    render_balance,
     render_food,
     render_game_over,
     render_grid,
@@ -199,6 +200,29 @@ def test_score_is_rendered_in_hud_without_covering_board(score: int) -> None:
     assert screen.get_at(expected.topleft)[:3] == SCORE_COLOR
     assert screen.get_at((expected.right - 1, expected.bottom - 1))[:3] == SCORE_COLOR
     assert pygame.image.tobytes(screen.subsurface(board), "RGB") == board_before
+
+
+@pytest.mark.parametrize("coins", [0, 1, 27])
+def test_balance_is_rendered_on_left_side_of_hud(coins: int) -> None:
+    screen = pygame.Surface(WINDOWED_SIZE)
+    render_grid(screen, LAYOUT)
+    message = pygame.Surface((120, 24))
+    message.fill(SCORE_COLOR)
+    font = Mock(spec=pygame.font.Font)
+    font.render.return_value = message
+
+    render_balance(screen, font, coins, LAYOUT)
+
+    font.render.assert_called_once_with(
+        f"Moedas: {coins}", True, SCORE_COLOR, HUD_COLOR
+    )
+    expected = message.get_rect(
+        midleft=(
+            LAYOUT.hud_rect.x + max(8, LAYOUT.cell_size // 2),
+            LAYOUT.hud_rect.y + LAYOUT.hud_rect.height // 2,
+        )
+    )
+    assert screen.get_at(expected.topleft)[:3] == SCORE_COLOR
 
 
 @pytest.mark.parametrize(

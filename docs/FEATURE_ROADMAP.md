@@ -320,6 +320,8 @@ A combinação de perfil, tipo e item deverá ser única.
 
 ## 5.4 Etapa 011 — Moedas e compras
 
+**Status:** concluída.
+
 ### Objetivo
 
 Transformar as comidas ingeridas em moedas permanentes e permitir compras cosméticas.
@@ -388,15 +390,15 @@ O resumo do Game Over deverá mostrar:
 
 ### Tarefas
 
-- [ ] Criar o resultado tipado de `Game.step()`.
-- [ ] Adaptar os testes existentes ao resultado do passo.
-- [ ] Implementar crédito persistente de moedas.
-- [ ] Implementar transações de compra.
-- [ ] Mostrar saldo nas telas.
-- [ ] Mostrar moedas ganhas no Game Over.
-- [ ] Tratar falhas de persistência.
-- [ ] Adicionar testes de economia e transações.
-- [ ] Executar a validação completa.
+- [x] Criar o resultado tipado de `Game.step()`.
+- [x] Adaptar os testes existentes ao resultado do passo.
+- [x] Implementar crédito persistente de moedas.
+- [x] Implementar transações de compra.
+- [x] Mostrar saldo nas telas.
+- [x] Mostrar moedas ganhas no Game Over.
+- [x] Tratar falhas de persistência.
+- [x] Adicionar testes de economia e transações.
+- [x] Executar a validação completa.
 
 ---
 

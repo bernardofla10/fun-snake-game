@@ -153,3 +153,21 @@ def render_score(
         )
     )
     screen.blit(text, target)
+
+
+def render_balance(
+    screen: pygame.Surface,
+    font: pygame.font.Font,
+    coins: int,
+    layout: GameLayout,
+) -> None:
+    """Display the active profile's persistent coin balance in the HUD."""
+    text = font.render(f"Moedas: {coins}", True, SCORE_COLOR, HUD_COLOR)
+    padding = max(8, layout.cell_size // 2)
+    target = text.get_rect(
+        midleft=(
+            layout.hud_rect.x + padding,
+            layout.hud_rect.y + layout.hud_rect.height // 2,
+        )
+    )
+    screen.blit(text, target)

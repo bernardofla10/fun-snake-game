@@ -5,7 +5,8 @@ from unittest.mock import Mock
 
 import pytest
 
-from snake_game.game import Game, GameState
+from snake_game.app import advance_game
+from snake_game.game import Game, GameState, StepOutcome
 from snake_game.grid import Position
 from snake_game.main import update
 from snake_game.snake import Direction, Snake
@@ -114,3 +115,14 @@ def test_every_due_step_can_consume_and_replace_food(
     assert chosen == [Position(6, 3), Position(7, 3), Position(0, 0)]
     assert accumulated_ms == 0
     assert game.score == 2
+
+
+def test_advance_result_exposes_every_due_step_outcome() -> None:
+    snake = Snake([Position(5, 3), Position(4, 3), Position(3, 3)], Direction.RIGHT)
+    game = Game(snake, Random(0))
+    game.food = Position(6, 3)
+
+    result = advance_game(game, 250)
+
+    assert result.remaining_ms == 0
+    assert result.outcomes == (StepOutcome.ATE_FOOD, StepOutcome.MOVED)

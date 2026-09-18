@@ -51,7 +51,8 @@ Profile names contain 1–20 characters and are unique without case distinctions
 the list supports any number of profiles through mouse-operated pagination. Home
 provides **Play**, **Style**, **Trocar perfil**, and **Sair**. Style currently
 previews the default Snake and apple through the **Animais** and **Comidas** tabs;
-additional cosmetics and purchases belong to later features.
+catalog cards, purchase controls, and alternative cosmetics belong to later
+features.
 
 Profiles use a local SQLite database named `profiles.db`. On Linux it is stored
 under `$XDG_DATA_HOME/fun-snake-game` or `~/.local/share/fun-snake-game`; on
@@ -63,14 +64,17 @@ account is involved.
 A three-segment Snake starts near the center, moving right. Use arrow keys or
 WASD to turn; immediate reversals are ignored. The latest valid request takes
 effect at the next movement step, checked against the last movement direction.
-Each food eaten adds one segment and one point, and places new food on an unoccupied
-grid cell. Moving outside the grid or into the remaining Snake body ends the game.
+Each food eaten adds one segment, one score point, and one persistent coin to the
+active profile, then places new food on an unoccupied grid cell. Total coins are
+shown on Home, Style, and the gameplay HUD. Moving outside the grid or into the
+remaining Snake body ends the game.
 The final board stays on screen with a **Game Over** message, and direction keys
 no longer affect the Snake. The score remains visible below the board while
-running and after game over. Click **Jogar novamente**, or press **R** or **Enter**,
-to start again. Click **Menu** to return Home. Restart resets the Snake to three
-segments near the center, moving right, with zero score and newly placed food.
-Pause is not implemented.
+running and after game over. The Game Over summary shows the final score, coins
+earned in that match, and the saved total. Click **Jogar novamente**, or press
+**R** or **Enter**, to start again. Click **Menu** to return Home. Restart resets
+the Snake to three segments near the center, moving right, with zero score and
+newly placed food without changing the saved balance. Pause is not implemented.
 If every grid cell is occupied when food is placed, no food is created; filling
 the grid alone does not end the game.
 
@@ -112,8 +116,8 @@ state, keyboard mapping, movement timing, scoring, restart and timing resets,
 grid, Snake and food drawing, score display, game-over feedback, display-mode
 transitions, application navigation, mouse-button semantics, responsive screen
 geometry, local profile validation, temporary SQLite databases, persistence
-recovery, fullscreen startup, close-event handling, and pygame cleanup after an
-error.
+recovery, typed step outcomes, persistent coin credit, atomic purchase results,
+fullscreen startup, close-event handling, and pygame cleanup after an error.
 
 ## Continuous integration
 
@@ -140,6 +144,7 @@ fixture.
 - `specs/008-responsive-fullscreen-board/`: responsive layout and fullscreen requirements.
 - `specs/009-screens-navigation/`: application screens and mouse navigation requirements.
 - `specs/010-local-profiles/`: local profiles and SQLite persistence requirements.
+- `specs/011-coins-purchases/`: persistent coins and atomic purchase requirements.
 - `docs/FEATURE_ROADMAP.md`: ordered post-MVP feature roadmap.
 - `docs/PRODUCT.md`: product vision and future scope.
 

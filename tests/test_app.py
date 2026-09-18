@@ -2,6 +2,8 @@
 
 from random import Random
 
+import pytest
+
 from snake_game.app import (
     PROFILES_PER_PAGE,
     WELCOME_DURATION_MS,
@@ -179,3 +181,98 @@ def test_restart_menu_style_and_switch_transitions() -> None:
     assert controller.state is AppState.PROFILE_SELECT
     assert controller.active_profile is None
     assert controller.game is None
+
+
+def test_food_credits_score_match_coins_and_persistent_balance() -> None:
+    controller = _active_controller()
+    controller.start_game()
+    assert controller.game is not None
+    controller.game.food = Position(17, 12)
+
+    controller.update(125)
+
+    assert controller.game.score == 1
+    assert controller.match_coins == 1
+    assert controller.active_profile is not None
+    assert controller.active_profile.coins == 1
+    assert isinstance(controller.profile_store, FakeProfileStore)
+    assert controller.profile_store.credit_calls == [(1, 1)]
+
+
+def test_multiple_foods_in_one_frame_are_credited_together(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    controller = _active_controller()
+    controller.start_game()
+    assert controller.game is not None
+    controller.game.food = Position(17, 12)
+    placements = iter((Position(18, 12), Position(0, 0)))
+
+    def choice(available: list[Position]) -> Position:
+        position = next(placements)
+        assert position in available
+        return position
+
+    monkeypatch.setattr(controller.game.rng, "choice", choice)
+
+    controller.update(250)
+
+    assert controller.game.score == 2
+    assert controller.match_coins == 2
+    assert controller.active_profile is not None
+    assert controller.active_profile.coins == 2
+    assert isinstance(controller.profile_store, FakeProfileStore)
+    assert controller.profile_store.credit_calls == [(1, 2)]
+
+
+def test_movement_collision_and_restart_do_not_duplicate_coins() -> None:
+    controller = _active_controller()
+    controller.start_game()
+    assert controller.game is not None
+    controller.game.food = Position(0, 0)
+
+    controller.update(125)
+    assert controller.match_coins == 0
+    assert isinstance(controller.profile_store, FakeProfileStore)
+    assert controller.profile_store.credit_calls == []
+
+    controller.game.snake = Snake(
+        [Position(31, 3), Position(30, 3), Position(29, 3)], Direction.RIGHT
+    )
+    controller.update(125)
+    assert controller.state is AppState.GAME_OVER
+    assert controller.profile_store.credit_calls == []
+
+    controller.restart_game()
+    assert controller.match_coins == 0
+    assert controller.profile_store.credit_calls == []
+
+
+def test_failed_coin_credit_retries_once_and_returns_to_game_over() -> None:
+    profile = make_profile()
+    store = FakeProfileStore([profile], credit_failures=1)
+    controller = ApplicationController(profile_store=store, rng=Random(0))
+    controller.active_profile = profile
+    controller.state = AppState.HOME
+    controller.start_game()
+    assert controller.game is not None
+    controller.game.snake = Snake(
+        [Position(30, 3), Position(29, 3), Position(28, 3)], Direction.RIGHT
+    )
+    controller.game.food = Position(31, 3)
+
+    controller.update(250)
+
+    assert controller.state is AppState.STORAGE_ERROR
+    assert controller.failed_storage_operation is StorageOperation.CREDIT_COINS
+    assert controller.pending_coin_credit == 1
+    assert controller.game.state is GameState.GAME_OVER
+    assert controller.match_coins == 0
+
+    controller.retry_storage()
+
+    assert controller.state is AppState.GAME_OVER
+    assert controller.match_coins == 1
+    assert controller.active_profile is not None
+    assert controller.active_profile.coins == 1
+    assert store.credit_calls == [(1, 1), (1, 1)]

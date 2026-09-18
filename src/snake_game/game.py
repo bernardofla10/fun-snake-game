@@ -17,6 +17,14 @@ class GameState(Enum):
     GAME_OVER = auto()
 
 
+class StepOutcome(Enum):
+    """The observable result of one attempted game step."""
+
+    MOVED = auto()
+    ATE_FOOD = auto()
+    COLLISION = auto()
+
+
 def _initial_snake() -> Snake:
     """Create the starting body and direction for a new match."""
     return Snake(
@@ -54,21 +62,23 @@ class Game:
         self._reset(_initial_snake())
         return True
 
-    def step(self) -> None:
+    def step(self) -> StepOutcome:
         """Move while running, resolving fatal collisions before consumption."""
         if self.state is GameState.GAME_OVER:
-            return
+            return StepOutcome.COLLISION
 
         tail = self.snake.step()
         head = self.snake.body[0]
         if not is_valid_position(head) or head in self.snake.body[1:]:
             self.state = GameState.GAME_OVER
-            return
+            return StepOutcome.COLLISION
 
         if head == self.food:
             self.snake.grow(tail)
             self.score += 1
             self.food = spawn_food(self.snake.body, self.rng)
+            return StepOutcome.ATE_FOOD
+        return StepOutcome.MOVED
 
     def request_direction(self, direction: Direction) -> None:
         """Accept direction requests only while the game is running."""

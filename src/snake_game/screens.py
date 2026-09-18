@@ -22,7 +22,13 @@ from snake_game.config import (
     UI_TEXT_COLOR,
 )
 from snake_game.layout import GameLayout
-from snake_game.rendering import render_food, render_grid, render_score, render_snake
+from snake_game.rendering import (
+    render_balance,
+    render_food,
+    render_grid,
+    render_score,
+    render_snake,
+)
 from snake_game.ui import Button, ButtonInteraction, UIAction, render_button
 
 
@@ -203,7 +209,7 @@ def buttons_for_state(
     if state is AppState.GAME_OVER:
         width = min(290, max(210, layout.board_rect.width // 3))
         gap = max(16, layout.cell_size)
-        center_y = layout.board_rect.y + layout.board_rect.height * 2 // 3
+        center_y = layout.board_rect.y + layout.board_rect.height * 3 // 4
         return (
             _centered_button(
                 UIAction.RESTART,
@@ -341,7 +347,10 @@ def render_style(
     screen.blit(title, title.get_rect(center=(center_x, screen.get_height() // 11)))
     if controller.active_profile is not None:
         profile = fonts.body.render(
-            f"Perfil: {controller.active_profile.name}",
+            (
+                f"Perfil: {controller.active_profile.name} · "
+                f"{controller.active_profile.coins} moedas"
+            ),
             True,
             UI_MUTED_TEXT_COLOR,
         )
@@ -495,6 +504,9 @@ def _render_game(
     render_food(screen, game.food, layout)
     render_snake(screen, game.snake.body, layout)
     render_score(screen, fonts.score, game.score, layout)
+    if controller.active_profile is None:
+        raise RuntimeError("game screen requires an active profile")
+    render_balance(screen, fonts.score, controller.active_profile.coins, layout)
 
 
 def render_game_over_screen(
@@ -519,9 +531,16 @@ def render_game_over_screen(
         raise RuntimeError("Game Over requires an active game")
     title = fonts.title.render("Game Over", True, UI_TEXT_COLOR)
     score = fonts.heading.render(f"Score final: {game.score}", True, UI_TEXT_COLOR)
+    earned = fonts.body.render(
+        f"Moedas nesta partida: {controller.match_coins}", True, UI_TEXT_COLOR
+    )
+    total_coins = controller.active_profile.coins if controller.active_profile else 0
+    total = fonts.body.render(f"Saldo total: {total_coins}", True, UI_TEXT_COLOR)
     center_x, center_y = layout.board_rect.center
-    screen.blit(title, title.get_rect(center=(center_x, center_y - 100)))
-    screen.blit(score, score.get_rect(center=(center_x, center_y - 42)))
+    screen.blit(title, title.get_rect(center=(center_x, center_y - 120)))
+    screen.blit(score, score.get_rect(center=(center_x, center_y - 62)))
+    screen.blit(earned, earned.get_rect(center=(center_x, center_y - 15)))
+    screen.blit(total, total.get_rect(center=(center_x, center_y + 22)))
     _render_buttons(screen, fonts, buttons, interaction, mouse_position)
 
 
