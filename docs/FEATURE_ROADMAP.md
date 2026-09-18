@@ -404,6 +404,8 @@ O resumo do Game Over deverá mostrar:
 
 ## 5.5 Etapa 012 — Loja e estilos de comida
 
+**Status:** concluída.
+
 ### Objetivo
 
 Permitir comprar, equipar e usar diferentes aparências de comida.
@@ -453,15 +455,15 @@ Estados possíveis:
 
 ### Tarefas
 
-- [ ] Criar os dados tipados do catálogo.
-- [ ] Implementar os cartões de comida.
-- [ ] Implementar confirmação de compra.
-- [ ] Implementar seleção de comida.
-- [ ] Criar os sprites da maçã, morango, queijo, cupcake, pizza e sushi.
-- [ ] Incluir os assets na instalação do pacote.
-- [ ] Adaptar a renderização da comida.
-- [ ] Adicionar testes de compra, seleção e renderização.
-- [ ] Executar a validação completa.
+- [x] Criar os dados tipados do catálogo.
+- [x] Implementar os cartões de comida.
+- [x] Implementar confirmação de compra.
+- [x] Implementar seleção de comida.
+- [x] Criar os sprites da maçã, morango, queijo, cupcake, pizza e sushi.
+- [x] Incluir os assets na instalação do pacote.
+- [x] Adaptar a renderização da comida.
+- [x] Adicionar testes de compra, seleção e renderização.
+- [x] Executar a validação completa.
 
 ---
 
