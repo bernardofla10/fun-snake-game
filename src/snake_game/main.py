@@ -15,6 +15,7 @@ from snake_game.config import FPS, MIN_WINDOW_SIZE, WINDOW_TITLE, WINDOWED_SIZE
 from snake_game.game import Game
 from snake_game.layout import GameLayout
 from snake_game.profiles import ProfileStore, default_database_path
+from snake_game.rendering import load_food_sprites
 from snake_game.screens import (
     UIFonts,
     buttons_for_state,
@@ -73,7 +74,8 @@ def _apply_ui_command(controller: ApplicationController, command: UICommand) -> 
     elif action is UIAction.RESTART:
         controller.restart_game()
     elif action is UIAction.SELECT_PROFILE and command.value is not None:
-        controller.select_profile(command.value)
+        if isinstance(command.value, int):
+            controller.select_profile(command.value)
     elif action is UIAction.NEW_PROFILE:
         controller.begin_profile_creation()
     elif action is UIAction.CREATE_PROFILE:
@@ -88,6 +90,12 @@ def _apply_ui_command(controller: ApplicationController, command: UICommand) -> 
         controller.switch_profile()
     elif action is UIAction.RETRY_STORAGE:
         controller.retry_storage()
+    elif action is UIAction.SELECT_FOOD and isinstance(command.value, str):
+        controller.select_food(command.value)
+    elif action is UIAction.CONFIRM_FOOD_PURCHASE:
+        controller.confirm_food_purchase()
+    elif action is UIAction.DISMISS_FOOD_DIALOG:
+        controller.dismiss_food_dialog()
     return True
 
 
@@ -203,6 +211,7 @@ def main() -> None:
         screen, layout = create_display(fullscreen, windowed_size)
         pygame.display.set_caption(WINDOW_TITLE)
         fonts = create_fonts(layout)
+        food_sprites = load_food_sprites()
         clock = pygame.time.Clock()
         controller = ApplicationController(
             profile_store=ProfileStore(default_database_path()),
@@ -269,6 +278,7 @@ def main() -> None:
                 buttons,
                 interaction,
                 pygame.mouse.get_pos(),
+                food_sprites,
             )
             pygame.display.flip()
     finally:

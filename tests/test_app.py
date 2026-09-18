@@ -9,9 +9,11 @@ from snake_game.app import (
     WELCOME_DURATION_MS,
     ApplicationController,
     AppState,
+    FoodDialogKind,
     StorageOperation,
     StyleTab,
 )
+from snake_game.catalog import FOOD_CATALOG
 from snake_game.game import GameState
 from snake_game.grid import Position
 from snake_game.snake import Direction, Snake
@@ -199,6 +201,28 @@ def test_food_credits_score_match_coins_and_persistent_balance() -> None:
     assert controller.profile_store.credit_calls == [(1, 1)]
 
 
+@pytest.mark.parametrize("food_id", [item.id for item in FOOD_CATALOG])
+def test_every_food_style_keeps_one_point_and_one_coin_reward(food_id: str) -> None:
+    profile = make_profile(
+        equipped_food=food_id,
+        owned_foods=tuple({"apple", food_id}),
+    )
+    store = FakeProfileStore([profile])
+    controller = ApplicationController(profile_store=store, rng=Random(0))
+    controller.active_profile = profile
+    controller.state = AppState.HOME
+    controller.start_game()
+    assert controller.game is not None
+    controller.game.food = Position(17, 12)
+
+    controller.update(125)
+
+    assert controller.game.score == 1
+    assert controller.match_coins == 1
+    assert controller.active_profile is not None
+    assert controller.active_profile.coins == 1
+
+
 def test_multiple_foods_in_one_frame_are_credited_together(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -276,3 +300,108 @@ def test_failed_coin_credit_retries_once_and_returns_to_game_over() -> None:
     assert controller.active_profile is not None
     assert controller.active_profile.coins == 1
     assert store.credit_calls == [(1, 1), (1, 1)]
+
+
+def test_food_selection_equips_owned_item_immediately() -> None:
+    profile = make_profile(coins=12, owned_foods=("apple", "strawberry"))
+    store = FakeProfileStore([profile])
+    controller = ApplicationController(profile_store=store, rng=Random(0))
+    controller.active_profile = profile
+    controller.profiles = (profile,)
+    controller.state = AppState.STYLE
+    controller.style_tab = StyleTab.FOODS
+
+    controller.select_food("strawberry")
+
+    assert store.equipment_calls == [(profile.id, "strawberry")]
+    assert controller.active_profile is not None
+    assert controller.active_profile.equipped_food == "strawberry"
+    assert controller.active_profile.coins == 12
+    assert controller.food_dialog is None
+
+
+def test_affordable_food_requires_confirmation_then_buys_and_equips() -> None:
+    profile = make_profile(coins=12)
+    store = FakeProfileStore([profile])
+    controller = ApplicationController(profile_store=store, rng=Random(0))
+    controller.active_profile = profile
+    controller.profiles = (profile,)
+    controller.state = AppState.STYLE
+    controller.style_tab = StyleTab.FOODS
+
+    controller.select_food("cheese")
+
+    assert controller.food_dialog is not None
+    assert controller.food_dialog.kind is FoodDialogKind.PURCHASE
+    assert store.purchase_calls == []
+
+    controller.confirm_food_purchase()
+
+    assert store.purchase_calls == [(profile.id, "cheese")]
+    assert controller.active_profile is not None
+    assert controller.active_profile.coins == 2
+    assert controller.active_profile.equipped_food == "cheese"
+    assert controller.food_dialog is None
+
+
+def test_unaffordable_food_shows_missing_coin_notice_without_purchase() -> None:
+    profile = make_profile(coins=4)
+    store = FakeProfileStore([profile])
+    controller = ApplicationController(profile_store=store, rng=Random(0))
+    controller.active_profile = profile
+    controller.state = AppState.STYLE
+    controller.style_tab = StyleTab.FOODS
+
+    controller.select_food("strawberry")
+
+    assert controller.food_dialog is not None
+    assert controller.food_dialog.kind is FoodDialogKind.INSUFFICIENT_FUNDS
+    controller.confirm_food_purchase()
+    assert store.purchase_calls == []
+    assert controller.active_profile.coins == 4
+
+
+def test_purchase_failure_retries_pending_food_and_returns_to_style() -> None:
+    profile = make_profile(coins=20)
+    store = FakeProfileStore([profile], purchase_failures=1)
+    controller = ApplicationController(profile_store=store, rng=Random(0))
+    controller.active_profile = profile
+    controller.profiles = (profile,)
+    controller.state = AppState.STYLE
+    controller.style_tab = StyleTab.FOODS
+    controller.select_food("cupcake")
+
+    controller.confirm_food_purchase()
+
+    assert controller.state is AppState.STORAGE_ERROR
+    assert controller.failed_storage_operation is StorageOperation.PURCHASE_FOOD
+    assert controller.pending_food_id == "cupcake"
+
+    controller.retry_storage()
+
+    assert store.purchase_calls == [(profile.id, "cupcake")] * 2
+    assert controller.state is AppState.STYLE
+    assert controller.active_profile is not None
+    assert controller.active_profile.equipped_food == "cupcake"
+    assert controller.pending_food_id is None
+
+
+def test_equipment_failure_retries_without_spending_coins() -> None:
+    profile = make_profile(coins=9, owned_foods=("apple", "strawberry"))
+    store = FakeProfileStore([profile], equipment_failures=1)
+    controller = ApplicationController(profile_store=store, rng=Random(0))
+    controller.active_profile = profile
+    controller.profiles = (profile,)
+    controller.state = AppState.STYLE
+    controller.style_tab = StyleTab.FOODS
+
+    controller.select_food("strawberry")
+    assert controller.state is AppState.STORAGE_ERROR
+    assert controller.failed_storage_operation is StorageOperation.EQUIP_FOOD
+
+    controller.retry_storage()
+
+    assert store.equipment_calls == [(profile.id, "strawberry")] * 2
+    assert controller.active_profile is not None
+    assert controller.active_profile.equipped_food == "strawberry"
+    assert controller.active_profile.coins == 9

@@ -1,9 +1,12 @@
 """Convert logical coordinates to pixels and draw the responsive game area."""
 
 from collections.abc import Sequence
+from importlib import resources
+from io import BytesIO
 
 import pygame
 
+from snake_game.catalog import FOOD_CATALOG
 from snake_game.config import (
     BACKGROUND_COLOR,
     COLUMNS,
@@ -111,16 +114,44 @@ def render_snake(
 
 
 def render_food(
-    screen: pygame.Surface, position: Position | None, layout: GameLayout
+    screen: pygame.Surface,
+    position: Position | None,
+    layout: GameLayout,
+    sprite: pygame.Surface | None = None,
 ) -> None:
-    """Draw the food cell, clipped to the logical board, when available."""
+    """Draw a centered food sprite or the legacy cell fallback."""
     if position is not None:
         x, y = to_pixel(position, layout)
-        food = pygame.Rect(x, y, layout.cell_size, layout.cell_size).clip(
-            _pygame_rect(layout.board_rect)
+        cell = pygame.Rect(x, y, layout.cell_size, layout.cell_size)
+        if not _pygame_rect(layout.board_rect).contains(cell):
+            return
+        if sprite is None:
+            pygame.draw.rect(screen, FOOD_COLOR, cell)
+            return
+        maximum = max(1, round(layout.cell_size * 0.8))
+        scale = min(maximum / sprite.get_width(), maximum / sprite.get_height())
+        size = (
+            max(1, round(sprite.get_width() * scale)),
+            max(1, round(sprite.get_height() * scale)),
         )
-        if food.width and food.height:
-            pygame.draw.rect(screen, FOOD_COLOR, food)
+        scaled = pygame.transform.smoothscale(sprite, size)
+        screen.blit(scaled, scaled.get_rect(center=cell.center))
+
+
+def load_food_sprites() -> dict[str, pygame.Surface]:
+    """Load every catalog sprite once from installed package resources."""
+    food_assets = resources.files("snake_game").joinpath("assets", "foods")
+    sprites: dict[str, pygame.Surface] = {}
+    for item in FOOD_CATALOG:
+        asset = food_assets.joinpath(item.asset_name)
+        try:
+            data = asset.read_bytes()
+            sprites[item.id] = pygame.image.load(BytesIO(data), item.asset_name)
+        except (OSError, pygame.error) as error:
+            raise RuntimeError(
+                f"Não foi possível carregar o sprite de {item.name}: {item.asset_name}"
+            ) from error
+    return sprites
 
 
 def render_game_over(

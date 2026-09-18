@@ -100,6 +100,17 @@ The game now:
 * supports atomic purchases with typed failure results and no negative balances;
 * recovers failed coin credits without duplicating rewards.
 
+### 012 — Food Shop and Styles
+
+The game now:
+
+* shows all six food styles as mouse-operated cards with price and ownership state;
+* confirms affordable purchases and explains the missing balance for locked items;
+* atomically purchases and equips a selected food using persistent profile coins;
+* remembers the equipped food for each profile after restarting;
+* renders transparent cartoon food sprites within one logical cell;
+* keeps every food style worth exactly one point and one coin.
+
 ---
 
 ## 6. Future Features

@@ -81,6 +81,27 @@ def test_profile_payload_must_match_on_press_and_release() -> None:
     )
 
 
+def test_catalog_button_emits_string_item_id() -> None:
+    button = Button(
+        UIAction.SELECT_FOOD,
+        "",
+        pygame.Rect(10, 10, 120, 80),
+        value="strawberry",
+    )
+    interaction = ButtonInteraction()
+
+    interaction.handle(
+        pygame.event.Event(pygame.MOUSEBUTTONDOWN, button=1, pos=(20, 20)),
+        (button,),
+    )
+    command = interaction.handle(
+        pygame.event.Event(pygame.MOUSEBUTTONUP, button=1, pos=(20, 20)),
+        (button,),
+    )
+
+    assert command == UICommand(UIAction.SELECT_FOOD, "strawberry")
+
+
 def test_disabled_button_never_starts_a_click() -> None:
     button = Button(
         UIAction.PLAY,

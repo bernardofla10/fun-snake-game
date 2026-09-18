@@ -12,6 +12,8 @@ from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 
+from snake_game.catalog import FOOD_CATALOG, FOODS_BY_ID
+
 SCHEMA_VERSION = 1
 DEFAULT_CHARACTER_ID = "snake"
 DEFAULT_FOOD_ID = "apple"
@@ -37,12 +39,7 @@ CATALOG_PRICES: dict[OwnedItem, int] = {
     OwnedItem(ItemType.CHARACTER, "worm"): 20,
     OwnedItem(ItemType.CHARACTER, "caterpillar"): 40,
     OwnedItem(ItemType.CHARACTER, "axolotl"): 70,
-    OwnedItem(ItemType.FOOD, DEFAULT_FOOD_ID): 0,
-    OwnedItem(ItemType.FOOD, "strawberry"): 5,
-    OwnedItem(ItemType.FOOD, "cheese"): 10,
-    OwnedItem(ItemType.FOOD, "cupcake"): 15,
-    OwnedItem(ItemType.FOOD, "pizza"): 25,
-    OwnedItem(ItemType.FOOD, "sushi"): 35,
+    **{OwnedItem(ItemType.FOOD, item.id): item.price for item in FOOD_CATALOG},
 }
 
 
@@ -74,6 +71,23 @@ class PurchaseResult:
     """A purchase status and the refreshed profile after success."""
 
     status: PurchaseStatus
+    profile: PlayerProfile | None = None
+
+
+class EquipmentStatus(Enum):
+    """All expected outcomes of equipping a cosmetic food."""
+
+    SUCCESS = "success"
+    NOT_OWNED = "not_owned"
+    ITEM_NOT_FOUND = "item_not_found"
+    PERSISTENCE_ERROR = "persistence_error"
+
+
+@dataclass(frozen=True)
+class EquipmentResult:
+    """An equipment status and the refreshed profile after success."""
+
+    status: EquipmentStatus
     profile: PlayerProfile | None = None
 
 
@@ -335,6 +349,98 @@ class ProfileStore:
                 ) VALUES (?, ?, ?, ?)
                 """,
                 (profile_id, item_type.value, item_id, purchased_at),
+            )
+            profile = self._load_profile(connection, profile_id)
+            connection.commit()
+            return PurchaseResult(PurchaseStatus.SUCCESS, profile)
+        except (ProfileStorageError, sqlite3.Error):
+            connection.rollback()
+            return PurchaseResult(PurchaseStatus.PERSISTENCE_ERROR)
+        finally:
+            connection.close()
+
+    def equip_food(self, profile_id: int, food_id: str) -> EquipmentResult:
+        """Equip a known, owned food and return the refreshed profile."""
+        if food_id not in FOODS_BY_ID:
+            return EquipmentResult(EquipmentStatus.ITEM_NOT_FOUND)
+
+        try:
+            connection = self._connect()
+        except ProfileStorageError:
+            return EquipmentResult(EquipmentStatus.PERSISTENCE_ERROR)
+        try:
+            connection.execute("BEGIN IMMEDIATE")
+            owned = connection.execute(
+                """
+                SELECT 1 FROM purchases
+                WHERE profile_id = ? AND item_type = ? AND item_id = ?
+                """,
+                (profile_id, ItemType.FOOD.value, food_id),
+            ).fetchone()
+            if not owned:
+                connection.rollback()
+                return EquipmentResult(EquipmentStatus.NOT_OWNED)
+            cursor = connection.execute(
+                "UPDATE profiles SET equipped_food = ? WHERE id = ?",
+                (food_id, profile_id),
+            )
+            if cursor.rowcount != 1:
+                connection.rollback()
+                return EquipmentResult(EquipmentStatus.PERSISTENCE_ERROR)
+            profile = self._load_profile(connection, profile_id)
+            connection.commit()
+            return EquipmentResult(EquipmentStatus.SUCCESS, profile)
+        except (ProfileStorageError, sqlite3.Error):
+            connection.rollback()
+            return EquipmentResult(EquipmentStatus.PERSISTENCE_ERROR)
+        finally:
+            connection.close()
+
+    def purchase_and_equip_food(self, profile_id: int, food_id: str) -> PurchaseResult:
+        """Atomically buy and equip a food; retries are safe after ownership."""
+        item = FOODS_BY_ID.get(food_id)
+        if item is None:
+            return PurchaseResult(PurchaseStatus.ITEM_NOT_FOUND)
+
+        try:
+            connection = self._connect()
+        except ProfileStorageError:
+            return PurchaseResult(PurchaseStatus.PERSISTENCE_ERROR)
+        try:
+            connection.execute("BEGIN IMMEDIATE")
+            balance_row = connection.execute(
+                "SELECT coins FROM profiles WHERE id = ?", (profile_id,)
+            ).fetchone()
+            if balance_row is None:
+                connection.rollback()
+                return PurchaseResult(PurchaseStatus.PERSISTENCE_ERROR)
+            owned = connection.execute(
+                """
+                SELECT 1 FROM purchases
+                WHERE profile_id = ? AND item_type = ? AND item_id = ?
+                """,
+                (profile_id, ItemType.FOOD.value, food_id),
+            ).fetchone()
+            if not owned:
+                if balance_row[0] < item.price:
+                    connection.rollback()
+                    return PurchaseResult(PurchaseStatus.INSUFFICIENT_FUNDS)
+                purchased_at = self._clock().astimezone(UTC).isoformat()
+                connection.execute(
+                    "UPDATE profiles SET coins = coins - ? WHERE id = ?",
+                    (item.price, profile_id),
+                )
+                connection.execute(
+                    """
+                    INSERT INTO purchases (
+                        profile_id, item_type, item_id, purchased_at
+                    ) VALUES (?, ?, ?, ?)
+                    """,
+                    (profile_id, ItemType.FOOD.value, food_id, purchased_at),
+                )
+            connection.execute(
+                "UPDATE profiles SET equipped_food = ? WHERE id = ?",
+                (food_id, profile_id),
             )
             profile = self._load_profile(connection, profile_id)
             connection.commit()

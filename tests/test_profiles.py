@@ -11,6 +11,7 @@ from snake_game.profiles import (
     DEFAULT_CHARACTER_ID,
     DEFAULT_FOOD_ID,
     DuplicateProfileName,
+    EquipmentStatus,
     InvalidProfileName,
     ItemType,
     OwnedItem,
@@ -241,3 +242,96 @@ def test_purchase_missing_profile_is_persistence_error(tmp_path: Path) -> None:
     result = store.purchase(999, ItemType.FOOD, "strawberry")
 
     assert result.status is PurchaseStatus.PERSISTENCE_ERROR
+
+
+def test_owned_food_can_be_equipped_and_persists(tmp_path: Path) -> None:
+    database = tmp_path / "profiles.db"
+    store = ProfileStore(database)
+    store.initialize()
+    profile = store.create_profile("Ana")
+    store.credit_coins(profile.id, 10)
+    bought = store.purchase(profile.id, ItemType.FOOD, "strawberry")
+    assert bought.status is PurchaseStatus.SUCCESS
+
+    result = store.equip_food(profile.id, "strawberry")
+
+    assert result.status is EquipmentStatus.SUCCESS
+    assert result.profile is not None
+    assert result.profile.equipped_food == "strawberry"
+    assert ProfileStore(database).list_profiles()[0].equipped_food == "strawberry"
+
+
+def test_food_equipment_rejects_unknown_and_unowned_items(tmp_path: Path) -> None:
+    store = ProfileStore(tmp_path / "profiles.db")
+    store.initialize()
+    profile = store.create_profile("Ana")
+
+    unknown = store.equip_food(profile.id, "unknown")
+    unowned = store.equip_food(profile.id, "sushi")
+
+    assert unknown.status is EquipmentStatus.ITEM_NOT_FOUND
+    assert unowned.status is EquipmentStatus.NOT_OWNED
+    assert store.list_profiles()[0].equipped_food == DEFAULT_FOOD_ID
+
+
+def test_purchase_and_equip_food_is_atomic_and_idempotent(tmp_path: Path) -> None:
+    database = tmp_path / "profiles.db"
+    store = ProfileStore(database)
+    store.initialize()
+    profile = store.create_profile("Ana")
+    store.credit_coins(profile.id, 20)
+
+    result = store.purchase_and_equip_food(profile.id, "cupcake")
+    repeated = store.purchase_and_equip_food(profile.id, "cupcake")
+
+    assert result.status is PurchaseStatus.SUCCESS
+    assert repeated.status is PurchaseStatus.SUCCESS
+    assert repeated.profile is not None
+    assert repeated.profile.coins == 5
+    assert repeated.profile.equipped_food == "cupcake"
+    assert OwnedItem(ItemType.FOOD, "cupcake") in repeated.profile.owned_items
+    assert ProfileStore(database).list_profiles()[0] == repeated.profile
+
+
+def test_purchase_and_equip_rolls_back_every_change_on_failure(
+    tmp_path: Path,
+) -> None:
+    database = tmp_path / "profiles.db"
+    store = ProfileStore(database)
+    store.initialize()
+    profile = store.create_profile("Ana")
+    store.credit_coins(profile.id, 20)
+    with sqlite3.connect(database) as connection:
+        connection.execute(
+            """
+            CREATE TRIGGER reject_equipment BEFORE UPDATE OF equipped_food ON profiles
+            WHEN NEW.equipped_food = 'cupcake'
+            BEGIN SELECT RAISE(ABORT, 'rejected'); END
+            """
+        )
+
+    result = store.purchase_and_equip_food(profile.id, "cupcake")
+
+    assert result.status is PurchaseStatus.PERSISTENCE_ERROR
+    unchanged = store.list_profiles()[0]
+    assert unchanged.coins == 20
+    assert unchanged.equipped_food == DEFAULT_FOOD_ID
+    assert OwnedItem(ItemType.FOOD, "cupcake") not in unchanged.owned_items
+
+
+def test_food_purchases_and_equipment_are_isolated_by_profile(tmp_path: Path) -> None:
+    database = tmp_path / "profiles.db"
+    store = ProfileStore(database)
+    store.initialize()
+    ana = store.create_profile("Ana")
+    bia = store.create_profile("Bia")
+    store.credit_coins(ana.id, 5)
+
+    result = store.purchase_and_equip_food(ana.id, "strawberry")
+
+    assert result.status is PurchaseStatus.SUCCESS
+    profiles = {profile.name: profile for profile in store.list_profiles()}
+    assert profiles["Ana"].equipped_food == "strawberry"
+    assert OwnedItem(ItemType.FOOD, "strawberry") in profiles["Ana"].owned_items
+    assert profiles["Bia"].equipped_food == DEFAULT_FOOD_ID
+    assert profiles["Bia"].owned_items == bia.owned_items

@@ -6,7 +6,14 @@ from unittest.mock import Mock, call
 import pygame
 import pytest
 
-from snake_game.app import ApplicationController, AppState, StyleTab
+from snake_game.app import (
+    ApplicationController,
+    AppState,
+    FoodDialog,
+    FoodDialogKind,
+    StyleTab,
+)
+from snake_game.catalog import FOOD_CATALOG
 from snake_game.config import UI_MUTED_TEXT_COLOR, UI_TEXT_COLOR
 from snake_game.layout import GameLayout
 from snake_game.screens import (
@@ -62,6 +69,65 @@ def test_style_tabs_mark_only_the_active_tab_selected() -> None:
     assert next(
         button for button in foods if button.action is UIAction.TAB_FOODS
     ).selected
+
+
+@pytest.mark.parametrize("size", [(800, 600), (1280, 720), (1920, 1080)])
+def test_food_cards_show_every_catalog_item_without_overlap(
+    size: tuple[int, int],
+) -> None:
+    profile = make_profile(coins=40)
+    controller = ApplicationController(
+        profile_store=FakeProfileStore([profile]), rng=Random(0)
+    )
+    controller.active_profile = profile
+    controller.state = AppState.STYLE
+    controller.style_tab = StyleTab.FOODS
+    layout = GameLayout.from_size(size)
+
+    buttons = buttons_for_state(
+        controller.state, controller.style_tab, layout, controller
+    )
+    cards = [button for button in buttons if button.action is UIAction.SELECT_FOOD]
+
+    assert [button.value for button in cards] == [item.id for item in FOOD_CATALOG]
+    assert len(cards) == 6
+    for index, card in enumerate(cards):
+        assert pygame.Rect((0, 0), size).contains(card.rect)
+        for other in cards[index + 1 :]:
+            assert not card.rect.colliderect(other.rect)
+
+
+@pytest.mark.parametrize(
+    ("kind", "expected_actions"),
+    [
+        (
+            FoodDialogKind.PURCHASE,
+            {UIAction.CONFIRM_FOOD_PURCHASE, UIAction.DISMISS_FOOD_DIALOG},
+        ),
+        (FoodDialogKind.INSUFFICIENT_FUNDS, {UIAction.DISMISS_FOOD_DIALOG}),
+    ],
+)
+def test_food_dialog_disables_underlying_controls(
+    kind: FoodDialogKind, expected_actions: set[UIAction]
+) -> None:
+    profile = make_profile(coins=10)
+    controller = ApplicationController(
+        profile_store=FakeProfileStore([profile]), rng=Random(0)
+    )
+    controller.active_profile = profile
+    controller.state = AppState.STYLE
+    controller.style_tab = StyleTab.FOODS
+    controller.food_dialog = FoodDialog("strawberry", kind)
+
+    buttons = buttons_for_state(
+        controller.state,
+        controller.style_tab,
+        GameLayout.from_size((800, 600)),
+        controller,
+    )
+    enabled = {button.action for button in buttons if button.enabled}
+
+    assert enabled == expected_actions
 
 
 @pytest.mark.parametrize("size", [(800, 600), (1280, 720), (1920, 1080)])

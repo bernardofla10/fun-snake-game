@@ -19,6 +19,9 @@ snake-game = "snake_game.main:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+snake_game = ["assets/foods/*.png"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "--import-mode=importlib"

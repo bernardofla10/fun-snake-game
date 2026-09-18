@@ -1,7 +1,7 @@
 # Snake Game
 
-A playable Snake MVP built with Python and pygame-ce.
-Control the Snake with arrow keys or WASD and eat the red food to grow.
+A playable Snake game built with Python and pygame-ce.
+Control the Snake with arrow keys or WASD and eat cute food sprites to grow.
 
 ## Development setup
 
@@ -49,10 +49,12 @@ Each launch starts with a two-second welcome animation that can be skipped with
 any key or mouse click. The player must then select or create a local profile.
 Profile names contain 1–20 characters and are unique without case distinctions;
 the list supports any number of profiles through mouse-operated pagination. Home
-provides **Play**, **Style**, **Trocar perfil**, and **Sair**. Style currently
-previews the default Snake and apple through the **Animais** and **Comidas** tabs;
-catalog cards, purchase controls, and alternative cosmetics belong to later
-features.
+provides **Play**, **Style**, **Trocar perfil**, and **Sair**. The **Comidas** tab
+in Style shows apple, strawberry, cheese, cupcake, pizza, and sushi cards with
+their price and availability. Click an acquired food to equip it, or click an
+unowned food to review its price and remaining balance before buying. An item
+without sufficient balance stays visible and explains how many coins are missing.
+The **Animais** tab still previews the default Snake.
 
 Profiles use a local SQLite database named `profiles.db`. On Linux it is stored
 under `$XDG_DATA_HOME/fun-snake-game` or `~/.local/share/fun-snake-game`; on
@@ -65,7 +67,9 @@ A three-segment Snake starts near the center, moving right. Use arrow keys or
 WASD to turn; immediate reversals are ignored. The latest valid request takes
 effect at the next movement step, checked against the last movement direction.
 Each food eaten adds one segment, one score point, and one persistent coin to the
-active profile, then places new food on an unoccupied grid cell. Total coins are
+active profile, regardless of its visual style, then places new food on an
+unoccupied grid cell. The equipped food remains selected after restarting the
+application and its transparent sprite stays inside one logical cell. Total coins are
 shown on Home, Style, and the gameplay HUD. Moving outside the grid or into the
 remaining Snake body ends the game.
 The final board stays on screen with a **Game Over** message, and direction keys
@@ -117,6 +121,7 @@ grid, Snake and food drawing, score display, game-over feedback, display-mode
 transitions, application navigation, mouse-button semantics, responsive screen
 geometry, local profile validation, temporary SQLite databases, persistence
 recovery, typed step outcomes, persistent coin credit, atomic purchase results,
+food catalog cards, persistent food equipment, packaged sprite loading and bounds,
 fullscreen startup, close-event handling, and pygame cleanup after an error.
 
 ## Continuous integration
@@ -145,6 +150,7 @@ fixture.
 - `specs/009-screens-navigation/`: application screens and mouse navigation requirements.
 - `specs/010-local-profiles/`: local profiles and SQLite persistence requirements.
 - `specs/011-coins-purchases/`: persistent coins and atomic purchase requirements.
+- `specs/012-food-shop-styles/`: cosmetic food shop and sprite requirements.
 - `docs/FEATURE_ROADMAP.md`: ordered post-MVP feature roadmap.
 - `docs/PRODUCT.md`: product vision and future scope.
 
