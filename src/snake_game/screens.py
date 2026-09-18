@@ -591,7 +591,7 @@ def _render_character_cards(
                     ),
                 ),
             )
-        details_y = button.rect.bottom - 7 - details.get_height() // 2
+        details_y = button.rect.bottom - 12 - details.get_height() // 2
         name_y = details_y - details.get_height() // 2 - 3 - name.get_height() // 2
         screen.blit(name, name.get_rect(center=(button.rect.centerx, name_y)))
         screen.blit(
