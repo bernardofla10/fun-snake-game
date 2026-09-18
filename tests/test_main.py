@@ -8,23 +8,24 @@ import pytest
 
 from snake_game import main as application
 from snake_game.config import (
-    CELL_SIZE,
     COLUMNS,
     FOOD_COLOR,
     FPS,
     SNAKE_COLOR,
-    WINDOW_HEIGHT,
     WINDOW_TITLE,
-    WINDOW_WIDTH,
+    WINDOWED_SIZE,
 )
 from snake_game.game import Game, GameState
 from snake_game.grid import Position
+from snake_game.layout import GameLayout
 from snake_game.main import main
+from snake_game.rendering import to_pixel
 from snake_game.snake import Direction
 
 
 def test_window_runs_until_quit(monkeypatch: pytest.MonkeyPatch) -> None:
     event_polls = 0
+    set_mode = Mock(wraps=pygame.display.set_mode)
 
     def get_events() -> list[pygame.event.Event]:
         nonlocal event_polls
@@ -32,7 +33,8 @@ def test_window_runs_until_quit(monkeypatch: pytest.MonkeyPatch) -> None:
         assert pygame.get_init()
         screen = pygame.display.get_surface()
         assert screen is not None
-        assert screen.get_size() == (WINDOW_WIDTH, WINDOW_HEIGHT)
+        assert screen.get_width() > 0
+        assert screen.get_height() > 0
         assert pygame.display.get_caption()[0] == WINDOW_TITLE
 
         if event_polls == 1:
@@ -40,10 +42,12 @@ def test_window_runs_until_quit(monkeypatch: pytest.MonkeyPatch) -> None:
         return [pygame.event.Event(pygame.QUIT)]
 
     monkeypatch.setattr(pygame.event, "get", get_events)
+    monkeypatch.setattr(pygame.display, "set_mode", set_mode)
 
     main()
 
     assert event_polls == 2
+    set_mode.assert_called_once_with((0, 0), pygame.FULLSCREEN)
     assert not pygame.get_init()
     assert not pygame.display.get_init()
 
@@ -65,24 +69,28 @@ def test_loop_repeats_phases_until_quit(monkeypatch: pytest.MonkeyPatch) -> None
         phases.append("events")
         return next(batches)
 
-    def render(screen: pygame.Surface) -> None:
+    def render(screen: pygame.Surface, layout: GameLayout) -> None:
         phases.append("grid")
-        application_render(screen)
+        application_render(screen, layout)
 
-    def render_snake(screen: pygame.Surface, body: list[Position]) -> None:
+    def render_snake(
+        screen: pygame.Surface, body: list[Position], layout: GameLayout
+    ) -> None:
         phases.append("snake")
         rendered_bodies.append(body.copy())
-        application_render_snake(screen, body)
+        application_render_snake(screen, body, layout)
 
-    def render_food(screen: pygame.Surface, position: Position | None) -> None:
+    def render_food(
+        screen: pygame.Surface,
+        position: Position | None,
+        layout: GameLayout,
+    ) -> None:
         phases.append("food")
         rendered_food.append(position)
-        application_render_food(screen, position)
+        application_render_food(screen, position, layout)
         assert position is not None
-        center = (
-            position.x * CELL_SIZE + CELL_SIZE // 2,
-            position.y * CELL_SIZE + CELL_SIZE // 2,
-        )
+        x, y = to_pixel(position, layout)
+        center = (x + layout.cell_size // 2, y + layout.cell_size // 2)
         assert screen.get_at(center)[:3] == FOOD_COLOR
 
     def update(game: Game, elapsed_ms: int) -> int:
@@ -165,6 +173,80 @@ def test_pygame_shuts_down_after_error(monkeypatch: pytest.MonkeyPatch) -> None:
     assert not pygame.display.get_init()
 
 
+def test_windowed_display_is_resizable_and_clamped(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    screen = pygame.Surface((800, 600))
+    set_mode = Mock(return_value=screen)
+    monkeypatch.setattr(pygame.display, "set_mode", set_mode)
+
+    created_screen, layout = application.create_display(False, (320, 240))
+
+    assert created_screen is screen
+    assert layout.screen_size == (800, 600)
+    set_mode.assert_called_once_with((800, 600), pygame.RESIZABLE)
+
+
+def test_display_changes_preserve_match_and_discard_transition_time(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    batches = iter(
+        [
+            [],
+            [pygame.event.Event(pygame.KEYDOWN, key=pygame.K_F11)],
+            [pygame.event.Event(pygame.VIDEORESIZE, size=(1000, 700))],
+            [pygame.event.Event(pygame.KEYDOWN, key=pygame.K_F11)],
+            [pygame.event.Event(pygame.KEYDOWN, key=pygame.K_ESCAPE)],
+            [pygame.event.Event(pygame.KEYDOWN, key=pygame.K_ESCAPE)],
+            [pygame.event.Event(pygame.QUIT)],
+        ]
+    )
+    display_requests: list[tuple[bool, tuple[int, int]]] = []
+    games: list[Game] = []
+    create_game = application.Game
+    clock = Mock()
+    clock.tick.side_effect = [124, 5000, 5000, 5000, 5000, 0]
+
+    def create_display(
+        fullscreen: bool, windowed_size: tuple[int, int]
+    ) -> tuple[pygame.Surface, GameLayout]:
+        display_requests.append((fullscreen, windowed_size))
+        size = (1920, 1080) if fullscreen else windowed_size
+        return pygame.Surface(size), GameLayout.from_size(size)
+
+    def make_game(rng: Random) -> Game:
+        game = create_game(rng=rng)
+        games.append(game)
+        return game
+
+    monkeypatch.setattr(application, "create_display", create_display)
+    monkeypatch.setattr(application, "Game", make_game)
+    monkeypatch.setattr(pygame.event, "get", lambda: next(batches))
+    monkeypatch.setattr(pygame.display, "flip", lambda: None)
+    monkeypatch.setattr(pygame.time, "Clock", lambda: clock)
+
+    main()
+
+    assert display_requests == [
+        (True, WINDOWED_SIZE),
+        (False, WINDOWED_SIZE),
+        (False, (1000, 700)),
+        (True, (1000, 700)),
+        (False, (1000, 700)),
+    ]
+    assert len(games) == 1
+    assert games[0].snake.body == [
+        Position(16, 12),
+        Position(15, 12),
+        Position(14, 12),
+    ]
+    assert games[0].snake.direction is Direction.RIGHT
+    assert games[0].score == 0
+    assert games[0].state is GameState.RUNNING
+    assert games[0].accumulated_ms == 124
+    assert clock.tick.call_args_list == [call(FPS)] * 6
+
+
 def test_game_over_keeps_rendering_frozen_board_and_allows_close(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -189,17 +271,31 @@ def test_game_over_keeps_rendering_frozen_board_and_allows_close(
         games.append(game)
         return game
 
-    def render_game_over(screen: pygame.Surface, font: pygame.font.Font) -> None:
+    def render_game_over(
+        screen: pygame.Surface,
+        font: pygame.font.Font,
+        layout: GameLayout,
+    ) -> None:
         before = pygame.image.tobytes(screen, "RGB")
-        feedback(screen, font)
+        feedback(screen, font, layout)
         after = pygame.image.tobytes(screen, "RGB")
         assert before != after
-        assert screen.get_at((CELL_SIZE // 2, CELL_SIZE // 2))[:3] == FOOD_COLOR
+        food_x, food_y = to_pixel(Position(0, 0), layout)
         assert (
             screen.get_at(
                 (
-                    (COLUMNS - 1) * CELL_SIZE + CELL_SIZE // 2,
-                    12 * CELL_SIZE + CELL_SIZE // 2,
+                    food_x + layout.cell_size // 2,
+                    food_y + layout.cell_size // 2,
+                )
+            )[:3]
+            == FOOD_COLOR
+        )
+        snake_x, snake_y = to_pixel(Position(COLUMNS - 1, 12), layout)
+        assert (
+            screen.get_at(
+                (
+                    snake_x + layout.cell_size // 2,
+                    snake_y + layout.cell_size // 2,
                 )
             )[:3]
             == SNAKE_COLOR
@@ -259,17 +355,22 @@ def test_restart_renders_reset_state_and_discards_old_frame_time(
         games.append(game)
         return game
 
-    def render_snake(screen: pygame.Surface, body: list[Position]) -> None:
+    def render_snake(
+        screen: pygame.Surface, body: list[Position], layout: GameLayout
+    ) -> None:
         bodies.append(body.copy())
         foods.append(games[0].food)
         states.append(games[0].state)
-        draw_snake(screen, body)
+        draw_snake(screen, body, layout)
 
     def render_score(
-        screen: pygame.Surface, font: pygame.font.Font, score: int
+        screen: pygame.Surface,
+        font: pygame.font.Font,
+        score: int,
+        layout: GameLayout,
     ) -> None:
         before = pygame.image.tobytes(screen, "RGB")
-        draw_score(screen, font, score)
+        draw_score(screen, font, score, layout)
         assert pygame.image.tobytes(screen, "RGB") != before
         assert games[0].score == score
         scores.append(score)

@@ -57,7 +57,22 @@ No additional gameplay features are required for v0.1.
 
 ---
 
-## 5. Future Features
+## 5. Delivered Post-MVP Features
+
+### 008 — Responsive Fullscreen Board
+
+The game now:
+
+* starts in fullscreen at the desktop resolution;
+* preserves its fixed 32×24 logical grid while scaling square cells;
+* centers the board inside a garden-themed frame;
+* displays score in a separate responsive HUD;
+* supports F11 fullscreen toggling and a resizable window;
+* preserves the active match across display changes.
+
+---
+
+## 6. Future Features
 
 Potential post-MVP features include:
 
@@ -81,7 +96,7 @@ These features are candidates rather than requirements and will receive individu
 
 ---
 
-## 6. Engineering Goals
+## 7. Engineering Goals
 
 The project should demonstrate:
 
@@ -100,7 +115,7 @@ The project should demonstrate:
 
 ---
 
-## 7. Non-Goals for the MVP
+## 8. Non-Goals for the MVP
 
 The first version will not attempt to include:
 
@@ -117,7 +132,7 @@ These could add complexity without improving the main learning objective.
 
 ---
 
-## 8. Success Criteria for v0.1
+## 9. Success Criteria for v0.1
 
 The MVP is complete when:
 

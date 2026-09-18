@@ -5,9 +5,10 @@ from random import Random
 import pygame
 import pytest
 
+from snake_game.config import MIN_WINDOW_SIZE
 from snake_game.game import Game, GameState
 from snake_game.grid import Position
-from snake_game.main import process_events
+from snake_game.main import clamp_window_size, process_events
 from snake_game.snake import Direction, Snake
 
 
@@ -157,3 +158,62 @@ def test_direction_keys_do_not_alter_game_over(
     assert snake.body == body
     assert snake.direction is Direction.LEFT
     assert snake.requested_direction is None
+
+
+def test_display_keys_return_requests_without_changing_game(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    game = Game(rng=Random(0))
+    body = game.snake.body.copy()
+    events = [
+        pygame.event.Event(pygame.KEYDOWN, key=pygame.K_F11),
+        pygame.event.Event(pygame.KEYDOWN, key=pygame.K_ESCAPE),
+    ]
+    monkeypatch.setattr(pygame.event, "get", lambda: events)
+
+    result = process_events(game)
+
+    assert result.should_continue
+    assert result.toggle_fullscreen
+    assert result.leave_fullscreen
+    assert result.resized_to is None
+    assert game.snake.body == body
+    assert game.accumulated_ms == 0
+
+
+@pytest.mark.parametrize(
+    ("requested", "expected"),
+    [
+        ((1280, 720), (1280, 720)),
+        ((400, 900), (MIN_WINDOW_SIZE[0], 900)),
+        ((1200, 300), (1200, MIN_WINDOW_SIZE[1])),
+    ],
+)
+def test_resize_events_are_clamped(
+    monkeypatch: pytest.MonkeyPatch,
+    requested: tuple[int, int],
+    expected: tuple[int, int],
+) -> None:
+    monkeypatch.setattr(
+        pygame.event,
+        "get",
+        lambda: [pygame.event.Event(pygame.VIDEORESIZE, size=requested)],
+    )
+
+    result = process_events(Game(rng=Random(0)))
+
+    assert result.resized_to == expected
+    assert clamp_window_size(requested) == expected
+
+
+def test_quit_event_returns_stop_request(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        pygame.event,
+        "get",
+        lambda: [pygame.event.Event(pygame.QUIT)],
+    )
+
+    result = process_events(Game(rng=Random(0)))
+
+    assert not result
+    assert not result.should_continue
