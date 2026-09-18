@@ -37,9 +37,12 @@ With the virtual environment active:
 snake-game
 ```
 
-The application opens a 640×520 window titled **Snake Game**, displaying a 640×480
-grid of 32 columns and 24 rows with 20-pixel cells, plus a score strip below the
-board. Use the window's close button to exit.
+The application opens fullscreen at the current desktop resolution. It keeps a
+logical grid of 32 columns and 24 rows while scaling square cells to the largest
+integer size that fits the display. The board is centered inside a garden-themed
+frame, with the score in a separate HUD below it. Press **F11** to toggle between
+fullscreen and a resizable 1280×800 window. Press **Escape** to leave fullscreen;
+windowed sizes are kept at or above 800×600. Use the window's close button to exit.
 Running the application normally requires a graphical desktop environment.
 
 A three-segment Snake starts near the center, moving right. Use arrow keys or
@@ -57,7 +60,10 @@ If every grid cell is occupied when food is placed, no food is created; filling
 the grid alone does not end the game.
 
 Grid and window settings live in `src/snake_game/config.py`. Logical positions use
-cell coordinates with `(0, 0)` at the top left; rendering converts them to pixels.
+cell coordinates with `(0, 0)` at the top left. The pygame-independent responsive
+layout in `src/snake_game/layout.py` converts them to centered screen pixels for
+the active resolution. Changing display mode or resizing preserves the current
+match, and time spent recreating the display does not move the Snake.
 The loop processes events, updates movement, and renders at up to 60 FPS. Snake
 movement uses accumulated elapsed time at 8 steps per second (125 ms per step),
 including multiple steps when a frame takes longer. The Snake domain model uses
@@ -84,12 +90,13 @@ pytest
 ```
 
 Tests select SDL's dummy video and audio drivers automatically, so they do not
-require an interactive display. They check grid dimensions, coordinate conversion
-and bounds, Snake movement and direction rules, food placement and growth,
-consumption and replacement, collisions, frozen game-over state, keyboard mapping,
-movement timing, scoring, restart and timing resets, grid, Snake and food drawing,
-score display, game-over feedback, repeated loop phases, window startup,
-close-event handling, and pygame cleanup after an error.
+require an interactive display. They check grid dimensions, responsive layouts,
+coordinate conversion and bounds, Snake movement and direction rules, food
+placement and growth, consumption and replacement, collisions, frozen game-over
+state, keyboard mapping, movement timing, scoring, restart and timing resets,
+grid, Snake and food drawing, score display, game-over feedback, display-mode
+transitions, repeated loop phases, fullscreen startup, close-event handling, and
+pygame cleanup after an error.
 
 ## Continuous integration
 
@@ -113,6 +120,8 @@ fixture.
 - `specs/005-collisions-game-over/`: collision and game-over requirements, plan, and tasks.
 - `specs/006-score-restart/`: score and restart requirements, plan, and tasks.
 - `specs/007-mvp-release-readiness/`: CI and development workflow requirements.
+- `specs/008-responsive-fullscreen-board/`: responsive layout and fullscreen requirements.
+- `docs/FEATURE_ROADMAP.md`: ordered post-MVP feature roadmap.
 - `docs/PRODUCT.md`: product vision and future scope.
 
 Dependencies, packaging, pytest, and Ruff are configured in `pyproject.toml`.

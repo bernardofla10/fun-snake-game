@@ -99,6 +99,8 @@ Todos os demais itens aparecem desde o início na tela Style. Um item é conside
 
 ## 5.1 Etapa 008 — Tela cheia e tabuleiro responsivo
 
+**Status:** concluída.
+
 ### Objetivo
 
 Fazer o jogo ocupar a tela do computador sem alterar as regras da grade.
@@ -130,14 +132,14 @@ Fazer o jogo ocupar a tela do computador sem alterar as regras da grade.
 
 ### Tarefas
 
-- [ ] Criar um modelo de layout responsivo.
-- [ ] Separar coordenadas lógicas de coordenadas visuais.
-- [ ] Adaptar as funções de renderização ao novo layout.
-- [ ] Implementar tela cheia e modo janela.
-- [ ] Criar a borda decorativa.
-- [ ] Adaptar o painel de score.
-- [ ] Adicionar testes de layout em diferentes resoluções.
-- [ ] Executar a validação completa.
+- [x] Criar um modelo de layout responsivo.
+- [x] Separar coordenadas lógicas de coordenadas visuais.
+- [x] Adaptar as funções de renderização ao novo layout.
+- [x] Implementar tela cheia e modo janela.
+- [x] Criar a borda decorativa.
+- [x] Adaptar o painel de score.
+- [x] Adicionar testes de layout em diferentes resoluções.
+- [x] Executar a validação completa.
 
 ---
 
