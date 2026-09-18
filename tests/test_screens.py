@@ -14,6 +14,7 @@ from snake_game.screens import (
     welcome_opacity,
 )
 from snake_game.ui import ButtonInteraction, UIAction
+from tests.support import FakeProfileStore, make_profile
 
 
 @pytest.mark.parametrize(
@@ -57,14 +58,41 @@ def test_style_tabs_mark_only_the_active_tab_selected() -> None:
     ).selected
 
 
+@pytest.mark.parametrize("size", [(800, 600), (1280, 720), (1920, 1080)])
+def test_profile_cards_and_pagination_fit_without_overlap(
+    size: tuple[int, int],
+) -> None:
+    profiles = [make_profile(index, f"Perfil {index}") for index in range(1, 7)]
+    controller = ApplicationController(
+        profile_store=FakeProfileStore(profiles), rng=Random(0)
+    )
+    controller.skip_welcome()
+    layout = GameLayout.from_size(size)
+    buttons = buttons_for_state(
+        controller.state, controller.style_tab, layout, controller
+    )
+    screen_rect = pygame.Rect((0, 0), size)
+
+    for index, button in enumerate(buttons):
+        assert screen_rect.contains(button.rect)
+        for other in buttons[index + 1 :]:
+            assert not button.rect.colliderect(other.rect)
+    assert (
+        len([button for button in buttons if button.action is UIAction.SELECT_PROFILE])
+        == 4
+    )
+
+
 @pytest.mark.parametrize(
     "state",
     [
         AppState.WELCOME,
+        AppState.PROFILE_SELECT,
         AppState.HOME,
         AppState.STYLE,
         AppState.PLAYING,
         AppState.GAME_OVER,
+        AppState.STORAGE_ERROR,
     ],
 )
 def test_every_application_screen_renders(state: AppState) -> None:
@@ -72,11 +100,16 @@ def test_every_application_screen_renders(state: AppState) -> None:
     try:
         layout = GameLayout.from_size((1280, 720))
         screen = pygame.Surface(layout.screen_size)
-        controller = ApplicationController(rng=Random(0))
+        profile = make_profile()
+        controller = ApplicationController(
+            profile_store=FakeProfileStore([profile]), rng=Random(0)
+        )
+        controller.profiles = (profile,)
+        controller.active_profile = profile
         if state in (AppState.PLAYING, AppState.GAME_OVER):
             controller.start_game()
         controller.state = state
-        buttons = buttons_for_state(state, controller.style_tab, layout)
+        buttons = buttons_for_state(state, controller.style_tab, layout, controller)
 
         render_application(
             screen,

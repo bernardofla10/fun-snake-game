@@ -54,15 +54,20 @@ def _centered_button(
     center: tuple[int, int],
     size: tuple[int, int],
     *,
+    enabled: bool = True,
     selected: bool = False,
+    value: int | None = None,
 ) -> Button:
     rect = pygame.Rect(0, 0, *size)
     rect.center = center
-    return Button(action, label, rect, selected=selected)
+    return Button(action, label, rect, enabled=enabled, selected=selected, value=value)
 
 
 def buttons_for_state(
-    state: AppState, style_tab: StyleTab, layout: GameLayout
+    state: AppState,
+    style_tab: StyleTab,
+    layout: GameLayout,
+    controller: ApplicationController | None = None,
 ) -> tuple[Button, ...]:
     """Build responsive controls for the current screen."""
     screen_width, screen_height = layout.screen_size
@@ -75,19 +80,102 @@ def buttons_for_state(
         center_y = screen_height // 2 + height // 2
         return (
             _centered_button(
-                UIAction.PLAY, "PLAY", (center_x, center_y - gap), (width, height)
+                UIAction.PLAY,
+                "PLAY",
+                (center_x, center_y - gap * 3 // 2),
+                (width, height),
             ),
             _centered_button(
-                UIAction.STYLE, "STYLE", (center_x, center_y), (width, height)
+                UIAction.STYLE,
+                "STYLE",
+                (center_x, center_y - gap // 2),
+                (width, height),
             ),
             _centered_button(
-                UIAction.QUIT, "SAIR", (center_x, center_y + gap), (width, height)
+                UIAction.SWITCH_PROFILE,
+                "TROCAR PERFIL",
+                (center_x, center_y + gap // 2),
+                (width, height),
+            ),
+            _centered_button(
+                UIAction.QUIT,
+                "SAIR",
+                (center_x, center_y + gap * 3 // 2),
+                (width, height),
             ),
         )
 
+    if state is AppState.PROFILE_SELECT:
+        if controller is None:
+            raise ValueError("Profile Select requires its application controller")
+        action_y = screen_height - max(54, screen_height // 11)
+        if controller.creating_profile:
+            form_width = min(260, max(180, (screen_width - 100) // 3))
+            return (
+                _centered_button(
+                    UIAction.CREATE_PROFILE,
+                    "CRIAR",
+                    (center_x - form_width // 2 - 10, action_y),
+                    (form_width, height),
+                ),
+                _centered_button(
+                    UIAction.CANCEL_PROFILE,
+                    "CANCELAR",
+                    (center_x + form_width // 2 + 10, action_y),
+                    (form_width, height),
+                ),
+            )
+
+        card_width = min(300, max(220, (screen_width - 120) // 2))
+        card_height = min(82, max(60, screen_height // 9))
+        card_gap_x = max(20, screen_width // 35)
+        first_y = max(150, screen_height // 4)
+        second_y = first_y + card_height + max(16, screen_height // 35)
+        card_centers = (
+            (center_x - card_width // 2 - card_gap_x // 2, first_y),
+            (center_x + card_width // 2 + card_gap_x // 2, first_y),
+            (center_x - card_width // 2 - card_gap_x // 2, second_y),
+            (center_x + card_width // 2 + card_gap_x // 2, second_y),
+        )
+        cards = tuple(
+            _centered_button(
+                UIAction.SELECT_PROFILE,
+                f"{profile.name} · {profile.coins} moedas",
+                card_centers[index],
+                (card_width, card_height),
+                value=profile.id,
+            )
+            for index, profile in enumerate(controller.visible_profiles)
+        )
+        navigation_y = second_y + card_height // 2 + height
+        navigation_width = min(180, max(130, screen_width // 6))
+        navigation = (
+            _centered_button(
+                UIAction.PREVIOUS_PAGE,
+                "ANTERIOR",
+                (center_x - navigation_width // 2 - 10, navigation_y),
+                (navigation_width, height),
+                enabled=controller.profile_page > 0,
+            ),
+            _centered_button(
+                UIAction.NEXT_PAGE,
+                "PRÓXIMA",
+                (center_x + navigation_width // 2 + 10, navigation_y),
+                (navigation_width, height),
+                enabled=controller.profile_page < controller.profile_page_count - 1,
+            ),
+            _centered_button(
+                UIAction.NEW_PROFILE,
+                "NOVO PERFIL",
+                (center_x, action_y),
+                (width, height),
+            ),
+        )
+        return cards + navigation
+
     if state is AppState.STYLE:
         tab_width = min(260, max(180, (screen_width - 80) // 3))
-        tab_y = max(110, screen_height // 5)
+        tab_y = max(150, screen_height // 4)
         tab_gap = max(14, screen_width // 80)
         return (
             _centered_button(
@@ -127,6 +215,23 @@ def buttons_for_state(
                 UIAction.MENU,
                 "MENU",
                 (layout.board_rect.center[0] + width // 2 + gap // 2, center_y),
+                (width, height),
+            ),
+        )
+
+    if state is AppState.STORAGE_ERROR:
+        gap = height + max(14, height // 4)
+        return (
+            _centered_button(
+                UIAction.RETRY_STORAGE,
+                "TENTAR NOVAMENTE",
+                (center_x, screen_height // 2 + gap // 2),
+                (width, height),
+            ),
+            _centered_button(
+                UIAction.QUIT,
+                "SAIR",
+                (center_x, screen_height // 2 + gap * 3 // 2),
                 (width, height),
             ),
         )
@@ -172,7 +277,7 @@ def _render_buttons(
             fonts.button,
             button,
             mouse_position,
-            interaction.pressed_action,
+            interaction.pressed_command,
         )
 
 
@@ -199,15 +304,20 @@ def render_home(
     buttons: tuple[Button, ...],
     interaction: ButtonInteraction,
     mouse_position: tuple[int, int],
+    controller: ApplicationController,
 ) -> None:
     """Render the main menu."""
     _render_background(screen)
     center_x = screen.get_width() // 2
     title = fonts.title.render("Jogo da Cobrinha", True, UI_TEXT_COLOR)
     screen.blit(title, title.get_rect(center=(center_x, screen.get_height() // 5)))
-    subtitle = fonts.body.render(
-        "Escolha como quer continuar", True, UI_MUTED_TEXT_COLOR
+    profile = controller.active_profile
+    subtitle_text = (
+        f"Perfil: {profile.name} · {profile.coins} moedas"
+        if profile is not None
+        else "Escolha como quer continuar"
     )
+    subtitle = fonts.body.render(subtitle_text, True, UI_MUTED_TEXT_COLOR)
     screen.blit(
         subtitle,
         subtitle.get_rect(center=(center_x, screen.get_height() // 5 + 55)),
@@ -222,12 +332,23 @@ def render_style(
     buttons: tuple[Button, ...],
     interaction: ButtonInteraction,
     mouse_position: tuple[int, int],
+    controller: ApplicationController,
 ) -> None:
     """Render the initial Style tabs with only default cosmetics."""
     _render_background(screen)
     center_x = screen.get_width() // 2
     title = fonts.title.render("Style", True, UI_TEXT_COLOR)
     screen.blit(title, title.get_rect(center=(center_x, screen.get_height() // 11)))
+    if controller.active_profile is not None:
+        profile = fonts.body.render(
+            f"Perfil: {controller.active_profile.name}",
+            True,
+            UI_MUTED_TEXT_COLOR,
+        )
+        screen.blit(
+            profile,
+            profile.get_rect(center=(center_x, screen.get_height() // 11 + 45)),
+        )
 
     panel_width = min(760, screen.get_width() - 80)
     panel_height = max(220, screen.get_height() // 2)
@@ -271,6 +392,93 @@ def render_style(
         UI_MUTED_TEXT_COLOR,
     )
     screen.blit(helper, helper.get_rect(center=(panel.centerx, panel.bottom - 36)))
+    _render_buttons(screen, fonts, buttons, interaction, mouse_position)
+
+
+def render_profile_select(
+    screen: pygame.Surface,
+    fonts: UIFonts,
+    controller: ApplicationController,
+    buttons: tuple[Button, ...],
+    interaction: ButtonInteraction,
+    mouse_position: tuple[int, int],
+) -> None:
+    """Render paginated profile cards or the inline creation form."""
+    _render_background(screen)
+    center_x = screen.get_width() // 2
+    title = fonts.title.render("Escolha seu perfil", True, UI_TEXT_COLOR)
+    screen.blit(title, title.get_rect(center=(center_x, screen.get_height() // 10)))
+
+    if controller.creating_profile:
+        prompt = fonts.heading.render("Qual é o seu nome?", True, UI_TEXT_COLOR)
+        screen.blit(
+            prompt,
+            prompt.get_rect(center=(center_x, screen.get_height() // 3)),
+        )
+        field = pygame.Rect(0, 0, min(560, screen.get_width() - 100), 72)
+        field.center = (center_x, screen.get_height() // 2)
+        pygame.draw.rect(screen, UI_PANEL_COLOR, field, border_radius=18)
+        pygame.draw.rect(screen, FRAME_COLOR, field, width=3, border_radius=18)
+        draft = controller.profile_name_draft or "Digite o nome..."
+        color = UI_TEXT_COLOR if controller.profile_name_draft else UI_MUTED_TEXT_COLOR
+        text = fonts.heading.render(draft, True, color)
+        text_area = field.inflate(-30, -16)
+        previous_clip = screen.get_clip()
+        screen.set_clip(text_area)
+        screen.blit(text, (text_area.x, text.get_rect(centery=text_area.centery).y))
+        screen.set_clip(previous_clip)
+        if controller.profile_message:
+            message = fonts.body.render(
+                controller.profile_message, True, (244, 154, 135)
+            )
+            screen.blit(
+                message,
+                message.get_rect(center=(center_x, field.bottom + 36)),
+            )
+    else:
+        if not controller.profiles:
+            empty = fonts.heading.render(
+                "Crie o primeiro perfil para jogar", True, UI_MUTED_TEXT_COLOR
+            )
+            screen.blit(
+                empty,
+                empty.get_rect(center=(center_x, screen.get_height() // 2)),
+            )
+        elif controller.profile_page_count > 1:
+            page = fonts.body.render(
+                f"Página {controller.profile_page + 1} de {controller.profile_page_count}",
+                True,
+                UI_MUTED_TEXT_COLOR,
+            )
+            screen.blit(
+                page,
+                page.get_rect(center=(center_x, screen.get_height() * 3 // 4)),
+            )
+    _render_buttons(screen, fonts, buttons, interaction, mouse_position)
+
+
+def render_storage_error(
+    screen: pygame.Surface,
+    fonts: UIFonts,
+    controller: ApplicationController,
+    buttons: tuple[Button, ...],
+    interaction: ButtonInteraction,
+    mouse_position: tuple[int, int],
+) -> None:
+    """Render a recoverable persistence failure."""
+    _render_background(screen)
+    center_x = screen.get_width() // 2
+    title = fonts.title.render("Ops!", True, UI_TEXT_COLOR)
+    message = fonts.body.render(
+        controller.storage_message or "Não foi possível acessar os perfis salvos.",
+        True,
+        UI_MUTED_TEXT_COLOR,
+    )
+    screen.blit(title, title.get_rect(center=(center_x, screen.get_height() // 3)))
+    screen.blit(
+        message,
+        message.get_rect(center=(center_x, screen.get_height() // 3 + 60)),
+    )
     _render_buttons(screen, fonts, buttons, interaction, mouse_position)
 
 
@@ -329,8 +537,17 @@ def render_application(
     """Render the screen selected by the application controller."""
     if controller.state is AppState.WELCOME:
         render_welcome(screen, fonts, controller.welcome_elapsed_ms)
+    elif controller.state is AppState.PROFILE_SELECT:
+        render_profile_select(
+            screen,
+            fonts,
+            controller,
+            buttons,
+            interaction,
+            mouse_position,
+        )
     elif controller.state is AppState.HOME:
-        render_home(screen, fonts, buttons, interaction, mouse_position)
+        render_home(screen, fonts, buttons, interaction, mouse_position, controller)
     elif controller.state is AppState.STYLE:
         render_style(
             screen,
@@ -339,13 +556,23 @@ def render_application(
             buttons,
             interaction,
             mouse_position,
+            controller,
         )
     elif controller.state is AppState.PLAYING:
         _render_game(screen, layout, controller, fonts)
-    else:
+    elif controller.state is AppState.GAME_OVER:
         render_game_over_screen(
             screen,
             layout,
+            fonts,
+            controller,
+            buttons,
+            interaction,
+            mouse_position,
+        )
+    else:
+        render_storage_error(
+            screen,
             fonts,
             controller,
             buttons,

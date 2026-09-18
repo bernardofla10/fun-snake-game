@@ -16,6 +16,7 @@ from snake_game.ui import (
     Button,
     ButtonInteraction,
     UIAction,
+    UICommand,
     render_button,
 )
 
@@ -46,12 +47,37 @@ def test_click_requires_press_and_release_on_same_enabled_button() -> None:
         pygame.event.Event(pygame.MOUSEBUTTONDOWN, button=1, pos=(20, 20)),
         (play, style),
     )
+    assert interaction.handle(
+        pygame.event.Event(pygame.MOUSEBUTTONUP, button=1, pos=(20, 20)),
+        (play, style),
+    ) == UICommand(UIAction.PLAY)
+
+
+def test_profile_payload_must_match_on_press_and_release() -> None:
+    first = Button(
+        UIAction.SELECT_PROFILE,
+        "Ana",
+        pygame.Rect(10, 10, 120, 50),
+        value=1,
+    )
+    second = Button(
+        UIAction.SELECT_PROFILE,
+        "Bia",
+        pygame.Rect(10, 80, 120, 50),
+        value=2,
+    )
+    interaction = ButtonInteraction()
+
+    interaction.handle(
+        pygame.event.Event(pygame.MOUSEBUTTONDOWN, button=1, pos=(20, 20)),
+        (first, second),
+    )
     assert (
         interaction.handle(
-            pygame.event.Event(pygame.MOUSEBUTTONUP, button=1, pos=(20, 20)),
-            (play, style),
+            pygame.event.Event(pygame.MOUSEBUTTONUP, button=1, pos=(20, 90)),
+            (first, second),
         )
-        is UIAction.PLAY
+        is None
     )
 
 
@@ -82,16 +108,28 @@ def test_disabled_button_never_starts_a_click() -> None:
     [
         (True, False, (0, 0), None, UI_BUTTON_COLOR),
         (True, False, (30, 30), None, UI_BUTTON_HOVER_COLOR),
-        (True, False, (30, 30), UIAction.PLAY, UI_BUTTON_PRESSED_COLOR),
+        (
+            True,
+            False,
+            (30, 30),
+            UICommand(UIAction.PLAY),
+            UI_BUTTON_PRESSED_COLOR,
+        ),
         (True, True, (0, 0), None, UI_BUTTON_SELECTED_COLOR),
-        (False, False, (30, 30), UIAction.PLAY, UI_BUTTON_DISABLED_COLOR),
+        (
+            False,
+            False,
+            (30, 30),
+            UICommand(UIAction.PLAY),
+            UI_BUTTON_DISABLED_COLOR,
+        ),
     ],
 )
 def test_button_visual_states(
     enabled: bool,
     selected: bool,
     mouse: tuple[int, int],
-    pressed: UIAction | None,
+    pressed: UICommand | None,
     expected: tuple[int, int, int],
 ) -> None:
     screen = pygame.Surface((180, 90))

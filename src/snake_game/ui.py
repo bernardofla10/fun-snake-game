@@ -27,6 +27,22 @@ class UIAction(Enum):
     TAB_FOODS = auto()
     RESTART = auto()
     MENU = auto()
+    SELECT_PROFILE = auto()
+    NEW_PROFILE = auto()
+    CREATE_PROFILE = auto()
+    CANCEL_PROFILE = auto()
+    PREVIOUS_PAGE = auto()
+    NEXT_PAGE = auto()
+    SWITCH_PROFILE = auto()
+    RETRY_STORAGE = auto()
+
+
+@dataclass(frozen=True)
+class UICommand:
+    """A semantic UI action with an optional integer payload."""
+
+    action: UIAction
+    value: int | None = None
 
 
 @dataclass(frozen=True)
@@ -38,6 +54,12 @@ class Button:
     rect: pygame.Rect
     enabled: bool = True
     selected: bool = False
+    value: int | None = None
+
+    @property
+    def command(self) -> UICommand:
+        """Return the command emitted when this button is clicked."""
+        return UICommand(self.action, self.value)
 
     def contains(self, position: tuple[int, int]) -> bool:
         """Return whether a screen position is inside this button."""
@@ -45,23 +67,35 @@ class Button:
 
     def with_selected(self, selected: bool) -> Self:
         """Return a copy with the requested selection state."""
-        return type(self)(self.action, self.label, self.rect, self.enabled, selected)
+        return type(self)(
+            self.action,
+            self.label,
+            self.rect,
+            self.enabled,
+            selected,
+            self.value,
+        )
 
 
 @dataclass
 class ButtonInteraction:
     """Track a primary-button press until its matching release."""
 
-    pressed_action: UIAction | None = None
+    pressed_command: UICommand | None = None
+
+    @property
+    def pressed_action(self) -> UIAction | None:
+        """Return the pressed action for simple visual-state callers."""
+        return self.pressed_command.action if self.pressed_command else None
 
     def handle(
         self, event: pygame.event.Event, buttons: tuple[Button, ...]
-    ) -> UIAction | None:
+    ) -> UICommand | None:
         """Return a completed semantic click, if any."""
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            self.pressed_action = next(
+            self.pressed_command = next(
                 (
-                    button.action
+                    button.command
                     for button in buttons
                     if button.enabled and button.contains(event.pos)
                 ),
@@ -70,15 +104,15 @@ class ButtonInteraction:
             return None
 
         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-            pressed_action = self.pressed_action
-            self.pressed_action = None
-            if pressed_action is None:
+            pressed_command = self.pressed_command
+            self.pressed_command = None
+            if pressed_command is None:
                 return None
             return next(
                 (
-                    button.action
+                    button.command
                     for button in buttons
-                    if button.action is pressed_action
+                    if button.command == pressed_command
                     and button.enabled
                     and button.contains(event.pos)
                 ),
@@ -88,7 +122,7 @@ class ButtonInteraction:
 
     def clear(self) -> None:
         """Cancel a pending interaction after a layout or screen change."""
-        self.pressed_action = None
+        self.pressed_command = None
 
 
 def render_button(
@@ -96,12 +130,12 @@ def render_button(
     font: pygame.font.Font,
     button: Button,
     mouse_position: tuple[int, int],
-    pressed_action: UIAction | None,
+    pressed_command: UICommand | None,
 ) -> None:
     """Draw a button using its enabled, selected, hover, and pressed state."""
     if not button.enabled:
         color = UI_BUTTON_DISABLED_COLOR
-    elif pressed_action is button.action and button.contains(mouse_position):
+    elif pressed_command == button.command and button.contains(mouse_position):
         color = UI_BUTTON_PRESSED_COLOR
     elif button.selected:
         color = UI_BUTTON_SELECTED_COLOR
@@ -120,4 +154,11 @@ def render_button(
         border_radius=radius,
     )
     text = font.render(button.label, True, UI_BUTTON_TEXT_COLOR)
+    maximum_width = max(1, button.rect.width - 20)
+    if text.get_width() > maximum_width:
+        scale = maximum_width / text.get_width()
+        text = pygame.transform.smoothscale(
+            text,
+            (maximum_width, max(1, int(text.get_height() * scale))),
+        )
     screen.blit(text, text.get_rect(center=button.rect.center))
