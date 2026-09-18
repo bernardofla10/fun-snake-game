@@ -70,6 +70,16 @@ The game now:
 * supports F11 fullscreen toggling and a resizable window;
 * preserves the active match across display changes.
 
+### 009 — Screens and Navigation
+
+The game now:
+
+* opens with a short, skippable welcome animation;
+* provides a mouse-operated Home menu for playing, previewing styles, or exiting;
+* previews the default Snake and apple in separate Style tabs;
+* shows restart and Home actions over the frozen final board;
+* keeps application navigation separate from the match rules.
+
 ---
 
 ## 6. Future Features
