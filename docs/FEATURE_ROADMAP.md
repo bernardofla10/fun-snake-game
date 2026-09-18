@@ -233,6 +233,8 @@ Os componentes deverão possuir estados visuais para:
 
 ## 5.3 Etapa 010 — Perfis locais e SQLite
 
+**Status:** concluída.
+
 ### Objetivo
 
 Salvar o progresso de diferentes jogadores no mesmo computador.
@@ -303,16 +305,16 @@ A combinação de perfil, tipo e item deverá ser única.
 
 ### Tarefas
 
-- [ ] Criar o módulo de persistência.
-- [ ] Criar automaticamente o esquema do banco.
-- [ ] Implementar criação de perfil.
-- [ ] Implementar listagem e seleção de perfis.
-- [ ] Implementar carregamento do progresso.
-- [ ] Registrar cobra e maçã para perfis novos.
-- [ ] Implementar troca de perfil.
-- [ ] Criar a interface visual de seleção de perfil.
-- [ ] Adicionar testes com bancos temporários.
-- [ ] Executar a validação completa.
+- [x] Criar o módulo de persistência.
+- [x] Criar automaticamente o esquema do banco.
+- [x] Implementar criação de perfil.
+- [x] Implementar listagem e seleção de perfis.
+- [x] Implementar carregamento do progresso.
+- [x] Registrar cobra e maçã para perfis novos.
+- [x] Implementar troca de perfil.
+- [x] Criar a interface visual de seleção de perfil.
+- [x] Adicionar testes com bancos temporários.
+- [x] Executar a validação completa.
 
 ---
 
