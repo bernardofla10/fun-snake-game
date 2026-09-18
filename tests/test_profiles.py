@@ -317,3 +317,21 @@ def test_purchase_and_equip_rolls_back_every_change_on_failure(
     assert unchanged.coins == 20
     assert unchanged.equipped_food == DEFAULT_FOOD_ID
     assert OwnedItem(ItemType.FOOD, "cupcake") not in unchanged.owned_items
+
+
+def test_food_purchases_and_equipment_are_isolated_by_profile(tmp_path: Path) -> None:
+    database = tmp_path / "profiles.db"
+    store = ProfileStore(database)
+    store.initialize()
+    ana = store.create_profile("Ana")
+    bia = store.create_profile("Bia")
+    store.credit_coins(ana.id, 5)
+
+    result = store.purchase_and_equip_food(ana.id, "strawberry")
+
+    assert result.status is PurchaseStatus.SUCCESS
+    profiles = {profile.name: profile for profile in store.list_profiles()}
+    assert profiles["Ana"].equipped_food == "strawberry"
+    assert OwnedItem(ItemType.FOOD, "strawberry") in profiles["Ana"].owned_items
+    assert profiles["Bia"].equipped_food == DEFAULT_FOOD_ID
+    assert profiles["Bia"].owned_items == bia.owned_items
