@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 
 from snake_game.profiles import (
+    CATALOG_PRICES,
     DEFAULT_CHARACTER_ID,
     DEFAULT_FOOD_ID,
     DuplicateProfileName,
@@ -15,6 +16,7 @@ from snake_game.profiles import (
     OwnedItem,
     ProfileStorageError,
     ProfileStore,
+    PurchaseStatus,
     UnsupportedSchemaVersion,
     default_database_path,
     normalize_profile_name,
@@ -157,3 +159,85 @@ def test_default_items_are_created_in_same_transaction(tmp_path: Path) -> None:
         store.create_profile("Ana")
 
     assert store.list_profiles() == ()
+
+
+def test_coin_credit_is_persistent_and_rejects_invalid_amount(tmp_path: Path) -> None:
+    database = tmp_path / "profiles.db"
+    store = ProfileStore(database)
+    store.initialize()
+    profile = store.create_profile("Ana")
+
+    credited = store.credit_coins(profile.id, 3)
+
+    assert credited.coins == 3
+    assert ProfileStore(database).list_profiles()[0].coins == 3
+    with pytest.raises(ValueError):
+        store.credit_coins(profile.id, 0)
+
+
+def test_purchase_deducts_exact_price_and_persists_ownership(tmp_path: Path) -> None:
+    database = tmp_path / "profiles.db"
+    store = ProfileStore(database)
+    store.initialize()
+    profile = store.create_profile("Ana")
+    funded = store.credit_coins(profile.id, 30)
+
+    result = store.purchase(profile.id, ItemType.CHARACTER, "worm")
+
+    assert result.status is PurchaseStatus.SUCCESS
+    assert result.profile is not None
+    assert result.profile.coins == funded.coins - 20
+    assert OwnedItem(ItemType.CHARACTER, "worm") in result.profile.owned_items
+    assert ProfileStore(database).list_profiles()[0] == result.profile
+    assert CATALOG_PRICES[OwnedItem(ItemType.CHARACTER, "worm")] == 20
+
+
+def test_purchase_rejects_insufficient_repeated_and_unknown_items(
+    tmp_path: Path,
+) -> None:
+    store = ProfileStore(tmp_path / "profiles.db")
+    store.initialize()
+    profile = store.create_profile("Ana")
+
+    insufficient = store.purchase(profile.id, ItemType.FOOD, "strawberry")
+    repeated = store.purchase(profile.id, ItemType.FOOD, DEFAULT_FOOD_ID)
+    unknown = store.purchase(profile.id, ItemType.FOOD, "unknown")
+
+    assert insufficient.status is PurchaseStatus.INSUFFICIENT_FUNDS
+    assert repeated.status is PurchaseStatus.ALREADY_OWNED
+    assert unknown.status is PurchaseStatus.ITEM_NOT_FOUND
+    unchanged = store.list_profiles()[0]
+    assert unchanged.coins == 0
+    assert len(unchanged.owned_items) == 2
+
+
+def test_purchase_failure_rolls_back_balance_and_ownership(tmp_path: Path) -> None:
+    database = tmp_path / "profiles.db"
+    store = ProfileStore(database)
+    store.initialize()
+    profile = store.create_profile("Ana")
+    store.credit_coins(profile.id, 30)
+    with sqlite3.connect(database) as connection:
+        connection.execute(
+            """
+            CREATE TRIGGER reject_worm BEFORE INSERT ON purchases
+            WHEN NEW.item_id = 'worm'
+            BEGIN SELECT RAISE(ABORT, 'rejected'); END
+            """
+        )
+
+    result = store.purchase(profile.id, ItemType.CHARACTER, "worm")
+
+    assert result.status is PurchaseStatus.PERSISTENCE_ERROR
+    unchanged = store.list_profiles()[0]
+    assert unchanged.coins == 30
+    assert OwnedItem(ItemType.CHARACTER, "worm") not in unchanged.owned_items
+
+
+def test_purchase_missing_profile_is_persistence_error(tmp_path: Path) -> None:
+    store = ProfileStore(tmp_path / "profiles.db")
+    store.initialize()
+
+    result = store.purchase(999, ItemType.FOOD, "strawberry")
+
+    assert result.status is PurchaseStatus.PERSISTENCE_ERROR

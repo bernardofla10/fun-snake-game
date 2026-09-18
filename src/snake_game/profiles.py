@@ -32,6 +32,20 @@ class OwnedItem:
     item_id: str
 
 
+CATALOG_PRICES: dict[OwnedItem, int] = {
+    OwnedItem(ItemType.CHARACTER, DEFAULT_CHARACTER_ID): 0,
+    OwnedItem(ItemType.CHARACTER, "worm"): 20,
+    OwnedItem(ItemType.CHARACTER, "caterpillar"): 40,
+    OwnedItem(ItemType.CHARACTER, "axolotl"): 70,
+    OwnedItem(ItemType.FOOD, DEFAULT_FOOD_ID): 0,
+    OwnedItem(ItemType.FOOD, "strawberry"): 5,
+    OwnedItem(ItemType.FOOD, "cheese"): 10,
+    OwnedItem(ItemType.FOOD, "cupcake"): 15,
+    OwnedItem(ItemType.FOOD, "pizza"): 25,
+    OwnedItem(ItemType.FOOD, "sushi"): 35,
+}
+
+
 @dataclass(frozen=True)
 class PlayerProfile:
     """Persisted progress belonging to one local player."""
@@ -43,6 +57,24 @@ class PlayerProfile:
     equipped_food: str
     created_at: str
     owned_items: frozenset[OwnedItem]
+
+
+class PurchaseStatus(Enum):
+    """All expected outcomes of a cosmetic purchase."""
+
+    SUCCESS = "success"
+    INSUFFICIENT_FUNDS = "insufficient_funds"
+    ALREADY_OWNED = "already_owned"
+    ITEM_NOT_FOUND = "item_not_found"
+    PERSISTENCE_ERROR = "persistence_error"
+
+
+@dataclass(frozen=True)
+class PurchaseResult:
+    """A purchase status and the refreshed profile after success."""
+
+    status: PurchaseStatus
+    profile: PlayerProfile | None = None
 
 
 class ProfileError(Exception):
@@ -228,6 +260,91 @@ class ProfileStore:
             ),
         )
 
+    def credit_coins(self, profile_id: int, amount: int) -> PlayerProfile:
+        """Atomically add positive coins and return the refreshed profile."""
+        if amount <= 0:
+            raise ValueError("coin credit must be positive")
+        connection = self._connect()
+        try:
+            connection.execute("BEGIN IMMEDIATE")
+            cursor = connection.execute(
+                "UPDATE profiles SET coins = coins + ? WHERE id = ?",
+                (amount, profile_id),
+            )
+            if cursor.rowcount != 1:
+                raise ProfileStorageError("O perfil ativo não foi encontrado.")
+            profile = self._load_profile(connection, profile_id)
+            connection.commit()
+            return profile
+        except ProfileStorageError:
+            connection.rollback()
+            raise
+        except sqlite3.Error as error:
+            connection.rollback()
+            raise ProfileStorageError("Não foi possível salvar as moedas.") from error
+        finally:
+            connection.close()
+
+    def purchase(
+        self,
+        profile_id: int,
+        item_type: ItemType,
+        item_id: str,
+    ) -> PurchaseResult:
+        """Buy one known item in a single immediate SQLite transaction."""
+        item = OwnedItem(item_type, item_id)
+        price = CATALOG_PRICES.get(item)
+        if price is None:
+            return PurchaseResult(PurchaseStatus.ITEM_NOT_FOUND)
+
+        try:
+            connection = self._connect()
+        except ProfileStorageError:
+            return PurchaseResult(PurchaseStatus.PERSISTENCE_ERROR)
+        try:
+            connection.execute("BEGIN IMMEDIATE")
+            balance_row = connection.execute(
+                "SELECT coins FROM profiles WHERE id = ?", (profile_id,)
+            ).fetchone()
+            if balance_row is None:
+                connection.rollback()
+                return PurchaseResult(PurchaseStatus.PERSISTENCE_ERROR)
+            owned = connection.execute(
+                """
+                SELECT 1 FROM purchases
+                WHERE profile_id = ? AND item_type = ? AND item_id = ?
+                """,
+                (profile_id, item_type.value, item_id),
+            ).fetchone()
+            if owned:
+                connection.rollback()
+                return PurchaseResult(PurchaseStatus.ALREADY_OWNED)
+            if balance_row[0] < price:
+                connection.rollback()
+                return PurchaseResult(PurchaseStatus.INSUFFICIENT_FUNDS)
+
+            purchased_at = self._clock().astimezone(UTC).isoformat()
+            connection.execute(
+                "UPDATE profiles SET coins = coins - ? WHERE id = ?",
+                (price, profile_id),
+            )
+            connection.execute(
+                """
+                INSERT INTO purchases (
+                    profile_id, item_type, item_id, purchased_at
+                ) VALUES (?, ?, ?, ?)
+                """,
+                (profile_id, item_type.value, item_id, purchased_at),
+            )
+            profile = self._load_profile(connection, profile_id)
+            connection.commit()
+            return PurchaseResult(PurchaseStatus.SUCCESS, profile)
+        except (ProfileStorageError, sqlite3.Error):
+            connection.rollback()
+            return PurchaseResult(PurchaseStatus.PERSISTENCE_ERROR)
+        finally:
+            connection.close()
+
     def _connect(self) -> sqlite3.Connection:
         try:
             connection = sqlite3.connect(self.database_path)
@@ -298,3 +415,26 @@ class ProfileStore:
                 ) from error
             purchases.setdefault(profile_id, set()).add(owned_item)
         return purchases
+
+    def _load_profile(
+        self, connection: sqlite3.Connection, profile_id: int
+    ) -> PlayerProfile:
+        row = connection.execute(
+            """
+            SELECT id, name, coins, equipped_character, equipped_food, created_at
+            FROM profiles WHERE id = ?
+            """,
+            (profile_id,),
+        ).fetchone()
+        if row is None:
+            raise ProfileStorageError("O perfil ativo não foi encontrado.")
+        purchases = self._load_purchases(connection)
+        return PlayerProfile(
+            id=row[0],
+            name=row[1],
+            coins=row[2],
+            equipped_character=row[3],
+            equipped_food=row[4],
+            created_at=row[5],
+            owned_items=frozenset(purchases.get(profile_id, ())),
+        )
