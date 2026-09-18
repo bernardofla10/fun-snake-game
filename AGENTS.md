@@ -5,18 +5,20 @@
 This repository contains a Snake game implemented in Python using pygame-ce.
 
 The v0.1 MVP is complete. Post-MVP specifications extend it with responsive
-fullscreen presentation, local profiles, and cosmetic food styles.
+fullscreen presentation, local profiles, and cosmetic food and animal styles.
 Future work is described in `docs/FEATURE_ROADMAP.md` and must be delivered
 incrementally through new specifications.
 
 ## Current State
 
 - `main` is the integration branch for completed features.
-- Specifications `001` through `012` are implemented and complete.
+- Specifications `001` through `013` are implemented and complete.
 - The application includes fullscreen navigation and requires selection or
   creation of a SQLite-backed local profile before Home.
 - The food shop supports mouse-driven purchases, persistent equipment, and six
   packaged cartoon food sprites without changing gameplay rewards.
+- The animal shop supports four segmented cartoon characters, persistent
+  equipment, six-segment previews, and shared rendering in gameplay and Game Over.
 - The next feature specification must use the next available three-digit number.
 - Existing gameplay behavior must remain stable unless a new specification
   explicitly changes it.

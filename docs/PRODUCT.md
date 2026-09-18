@@ -111,6 +111,17 @@ The game now:
 * renders transparent cartoon food sprites within one logical cell;
 * keeps every food style worth exactly one point and one coin.
 
+### 013 — Cute Animals
+
+The game now:
+
+* offers the Snake, Worm, Caterpillar, and Axolotl as cosmetic characters;
+* shows all animal styles as mouse-operated cards with a curved six-segment preview;
+* confirms purchases, equips acquired animals, and persists the selection by profile;
+* renders directional head, straight-body, curve, and tail sprites in the board cells;
+* uses the same sprites in Style, gameplay, and Game Over;
+* keeps movement, growth, collisions, score, and coin rewards identical for every animal.
+
 ---
 
 ## 6. Future Features
