@@ -1,27 +1,27 @@
-"""Application lifecycle and event, update, and responsive render loop."""
+"""Application lifecycle, navigation events, timing, and responsive rendering."""
 
 from dataclasses import dataclass
 from random import Random
 
 import pygame
 
-from snake_game.config import (
-    FPS,
-    MIN_WINDOW_SIZE,
-    SNAKE_MOVE_INTERVAL_MS,
-    WINDOW_TITLE,
-    WINDOWED_SIZE,
+from snake_game.app import (
+    ApplicationController,
+    AppState,
+    StyleTab,
+    advance_game,
 )
-from snake_game.game import Game, GameState
+from snake_game.config import FPS, MIN_WINDOW_SIZE, WINDOW_TITLE, WINDOWED_SIZE
+from snake_game.game import Game
 from snake_game.layout import GameLayout
-from snake_game.rendering import (
-    render_food,
-    render_game_over,
-    render_grid,
-    render_score,
-    render_snake,
+from snake_game.screens import (
+    UIFonts,
+    buttons_for_state,
+    create_ui_fonts,
+    render_application,
 )
 from snake_game.snake import Direction
+from snake_game.ui import Button, ButtonInteraction, UIAction
 
 KEY_DIRECTIONS = {
     pygame.K_UP: Direction.UP,
@@ -45,7 +45,7 @@ class FrameEvents:
     resized_to: tuple[int, int] | None = None
 
     def __bool__(self) -> bool:
-        """Preserve the former truth-value behavior of event processing."""
+        """Return whether the application should continue."""
         return self.should_continue
 
 
@@ -54,8 +54,31 @@ def clamp_window_size(size: tuple[int, int]) -> tuple[int, int]:
     return max(size[0], MIN_WINDOW_SIZE[0]), max(size[1], MIN_WINDOW_SIZE[1])
 
 
-def process_events(game: Game) -> FrameEvents:
-    """Translate pygame events into game requests and display actions."""
+def _apply_ui_action(controller: ApplicationController, action: UIAction) -> bool:
+    """Apply a semantic UI action and report whether to keep running."""
+    if action is UIAction.PLAY:
+        controller.start_game()
+    elif action is UIAction.STYLE:
+        controller.open_style()
+    elif action is UIAction.QUIT:
+        return False
+    elif action in (UIAction.BACK, UIAction.MENU):
+        controller.go_home()
+    elif action is UIAction.TAB_ANIMALS:
+        controller.select_style_tab(StyleTab.ANIMALS)
+    elif action is UIAction.TAB_FOODS:
+        controller.select_style_tab(StyleTab.FOODS)
+    elif action is UIAction.RESTART:
+        controller.restart_game()
+    return True
+
+
+def process_events(
+    controller: ApplicationController,
+    buttons: tuple[Button, ...],
+    interaction: ButtonInteraction,
+) -> FrameEvents:
+    """Translate pygame events into navigation, game, and display actions."""
     should_continue = True
     toggle_fullscreen = False
     leave_fullscreen = False
@@ -68,19 +91,41 @@ def process_events(game: Game) -> FrameEvents:
         if event.type == pygame.VIDEORESIZE:
             resized_to = clamp_window_size(event.size)
             continue
+
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_F11:
                 toggle_fullscreen = not toggle_fullscreen
+                controller.skip_welcome()
                 continue
             if event.key == pygame.K_ESCAPE:
                 leave_fullscreen = True
+                controller.skip_welcome()
                 continue
-            if event.key in (pygame.K_r, pygame.K_RETURN):
-                game.restart()
+            if controller.state is AppState.WELCOME:
+                controller.skip_welcome()
                 continue
-            direction = KEY_DIRECTIONS.get(event.key)
-            if direction is not None:
-                game.request_direction(direction)
+            if controller.state is AppState.GAME_OVER and event.key in (
+                pygame.K_r,
+                pygame.K_RETURN,
+            ):
+                controller.restart_game()
+                continue
+            if controller.state is AppState.PLAYING and controller.game is not None:
+                direction = KEY_DIRECTIONS.get(event.key)
+                if direction is not None:
+                    controller.game.request_direction(direction)
+            continue
+
+        if controller.state is AppState.WELCOME:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                controller.skip_welcome()
+            continue
+
+        if controller.state in (AppState.HOME, AppState.STYLE, AppState.GAME_OVER):
+            action = interaction.handle(event, buttons)
+            if action is not None and not _apply_ui_action(controller, action):
+                should_continue = False
+                break
 
     return FrameEvents(
         should_continue=should_continue,
@@ -104,46 +149,33 @@ def create_display(
     return screen, GameLayout.from_size(screen.get_size())
 
 
-def create_fonts(
-    layout: GameLayout,
-) -> tuple[pygame.font.Font, pygame.font.Font]:
-    """Create fonts scaled for the active layout."""
-    return (
-        pygame.font.Font(None, layout.game_over_font_size),
-        pygame.font.Font(None, layout.score_font_size),
-    )
+def create_fonts(layout: GameLayout) -> UIFonts:
+    """Create all fonts scaled for the active layout."""
+    return create_ui_fonts(layout)
 
 
 def update(game: Game, elapsed_ms: int) -> int:
-    """Run due steps, discarding accumulated time when the game ends."""
-    if game.state is GameState.GAME_OVER:
-        game.accumulated_ms = 0
-        return 0
-    game.accumulated_ms += elapsed_ms
-    while game.accumulated_ms >= SNAKE_MOVE_INTERVAL_MS:
-        game.step()
-        if game.state is GameState.GAME_OVER:
-            game.accumulated_ms = 0
-            return 0
-        game.accumulated_ms -= SNAKE_MOVE_INTERVAL_MS
-    return game.accumulated_ms
+    """Compatibility wrapper for direct game-timing callers."""
+    return advance_game(game, elapsed_ms)
 
 
 def main() -> None:
-    """Run Snake movement and responsive rendering until the user closes it."""
+    """Run the navigable Snake application until the user closes it."""
     try:
         pygame.init()
         fullscreen = True
         windowed_size = WINDOWED_SIZE
         screen, layout = create_display(fullscreen, windowed_size)
         pygame.display.set_caption(WINDOW_TITLE)
-        game_over_font, score_font = create_fonts(layout)
+        fonts = create_fonts(layout)
         clock = pygame.time.Clock()
-        game = Game(rng=Random())
+        controller = ApplicationController(rng=Random())
+        interaction = ButtonInteraction()
 
         while True:
-            previous_state = game.state
-            frame_events = process_events(game)
+            previous_state = controller.state
+            buttons = buttons_for_state(controller.state, controller.style_tab, layout)
+            frame_events = process_events(controller, buttons, interaction)
             if not frame_events:
                 break
 
@@ -157,28 +189,34 @@ def main() -> None:
             if target_fullscreen != fullscreen:
                 fullscreen = target_fullscreen
                 screen, layout = create_display(fullscreen, windowed_size)
-                game_over_font, score_font = create_fonts(layout)
+                fonts = create_fonts(layout)
+                interaction.clear()
                 display_changed = True
             elif frame_events.resized_to is not None and not fullscreen:
                 windowed_size = frame_events.resized_to
                 screen, layout = create_display(False, windowed_size)
-                game_over_font, score_font = create_fonts(layout)
+                fonts = create_fonts(layout)
+                interaction.clear()
                 display_changed = True
 
             elapsed_ms = clock.tick(FPS)
-            if display_changed or (
-                previous_state is GameState.GAME_OVER
-                and game.state is GameState.RUNNING
-            ):
-                # Display recreation and restart can make this frame's delta stale.
+            entered_gameplay = (
+                previous_state is not AppState.PLAYING
+                and controller.state is AppState.PLAYING
+            )
+            if display_changed or entered_gameplay:
                 elapsed_ms = 0
-            update(game, elapsed_ms)
-            render_grid(screen, layout)
-            render_food(screen, game.food, layout)
-            render_snake(screen, game.snake.body, layout)
-            render_score(screen, score_font, game.score, layout)
-            if game.state is GameState.GAME_OVER:
-                render_game_over(screen, game_over_font, layout)
+            controller.update(elapsed_ms)
+            buttons = buttons_for_state(controller.state, controller.style_tab, layout)
+            render_application(
+                screen,
+                layout,
+                fonts,
+                controller,
+                buttons,
+                interaction,
+                pygame.mouse.get_pos(),
+            )
             pygame.display.flip()
     finally:
         pygame.quit()

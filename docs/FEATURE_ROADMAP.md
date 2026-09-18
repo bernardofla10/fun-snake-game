@@ -145,16 +145,18 @@ Fazer o jogo ocupar a tela do computador sem alterar as regras da grade.
 
 ## 5.2 Etapa 009 — Telas e navegação
 
+**Status:** concluída.
+
 ### Objetivo
 
-Adicionar o fluxo de boas-vindas, seleção de perfil, menu principal e tela Style.
+Adicionar o fluxo de boas-vindas, menu principal, tela Style e ações de Game Over.
+A seleção de perfil permanece na Etapa 010.
 
 ### Estados da aplicação
 
 A aplicação deverá possuir estados separados dos estados internos da partida:
 
 - `WELCOME`
-- `PROFILE_SELECT`
 - `HOME`
 - `STYLE`
 - `PLAYING`
@@ -179,7 +181,6 @@ O menu principal terá dois botões principais:
 
 Também terá ações secundárias:
 
-- trocar perfil;
 - sair do jogo.
 
 ### Componentes de interface
@@ -187,10 +188,6 @@ Também terá ações secundárias:
 Criar componentes simples para:
 
 - botões;
-- cartões de perfil;
-- cartões de catálogo;
-- caixas de confirmação;
-- mensagens de erro;
 - abas de animais e comidas.
 
 Os componentes deverão possuir estados visuais para:
@@ -203,7 +200,7 @@ Os componentes deverão possuir estados visuais para:
 
 ### Controles
 
-- O mouse controla menus, perfis, compras e seleção de estilos.
+- O mouse controla os menus e as abas de Style.
 - Setas e WASD continuam controlando o animal durante a partida.
 - `R` e Enter continuam reiniciando depois do Game Over.
 - O Game Over também terá botões para jogar novamente e voltar ao menu.
@@ -216,20 +213,21 @@ Os componentes deverão possuir estados visuais para:
 - O botão Play inicia uma partida.
 - O botão Style abre a personalização.
 - É possível voltar da tela Style ao menu.
+- O Game Over permite jogar novamente ou voltar ao menu com o mouse.
 - Fechar a janela encerra corretamente o pygame.
 
 ### Tarefas
 
-- [ ] Criar o controlador de estados da aplicação.
-- [ ] Implementar a tela de boas-vindas.
-- [ ] Implementar os componentes de botão.
-- [ ] Implementar o menu principal.
-- [ ] Implementar a estrutura da tela Style.
-- [ ] Implementar o overlay de Game Over.
-- [ ] Integrar eventos de mouse.
-- [ ] Preservar os controles atuais da partida.
-- [ ] Adicionar testes de navegação e clique.
-- [ ] Executar a validação completa.
+- [x] Criar o controlador de estados da aplicação.
+- [x] Implementar a tela de boas-vindas.
+- [x] Implementar os componentes de botão.
+- [x] Implementar o menu principal.
+- [x] Implementar a estrutura da tela Style.
+- [x] Implementar o overlay de Game Over.
+- [x] Integrar eventos de mouse.
+- [x] Preservar os controles atuais da partida.
+- [x] Adicionar testes de navegação e clique.
+- [x] Executar a validação completa.
 
 ---
 

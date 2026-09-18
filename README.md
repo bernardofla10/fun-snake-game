@@ -45,17 +45,23 @@ fullscreen and a resizable 1280×800 window. Press **Escape** to leave fullscree
 windowed sizes are kept at or above 800×600. Use the window's close button to exit.
 Running the application normally requires a graphical desktop environment.
 
+Each launch starts with a two-second welcome animation that can be skipped with
+any key or mouse click. The Home screen provides **Play**, **Style**, and **Sair**
+buttons operated with the mouse. Style currently previews the default Snake and
+apple through the **Animais** and **Comidas** tabs; additional cosmetics, purchases,
+and profiles belong to later features.
+
 A three-segment Snake starts near the center, moving right. Use arrow keys or
 WASD to turn; immediate reversals are ignored. The latest valid request takes
 effect at the next movement step, checked against the last movement direction.
 Each food eaten adds one segment and one point, and places new food on an unoccupied
 grid cell. Moving outside the grid or into the remaining Snake body ends the game.
 The final board stays on screen with a **Game Over** message, and direction keys
-no longer affect the Snake. The score remains visible below the board
-while running and after game over. Press **R** or **Enter** after game over to start
-again; these keys do nothing during an active game. Restart resets the Snake to
-three segments near the center, moving right, with zero score and newly placed
-food. Close the window to exit. Pause and menus are not implemented.
+no longer affect the Snake. The score remains visible below the board while
+running and after game over. Click **Jogar novamente**, or press **R** or **Enter**,
+to start again. Click **Menu** to return Home. Restart resets the Snake to three
+segments near the center, moving right, with zero score and newly placed food.
+Pause is not implemented.
 If every grid cell is occupied when food is placed, no food is created; filling
 the grid alone does not end the game.
 
@@ -95,8 +101,9 @@ coordinate conversion and bounds, Snake movement and direction rules, food
 placement and growth, consumption and replacement, collisions, frozen game-over
 state, keyboard mapping, movement timing, scoring, restart and timing resets,
 grid, Snake and food drawing, score display, game-over feedback, display-mode
-transitions, repeated loop phases, fullscreen startup, close-event handling, and
-pygame cleanup after an error.
+transitions, application navigation, mouse-button semantics, responsive screen
+geometry, fullscreen startup, close-event handling, and pygame cleanup after an
+error.
 
 ## Continuous integration
 
@@ -121,6 +128,7 @@ fixture.
 - `specs/006-score-restart/`: score and restart requirements, plan, and tasks.
 - `specs/007-mvp-release-readiness/`: CI and development workflow requirements.
 - `specs/008-responsive-fullscreen-board/`: responsive layout and fullscreen requirements.
+- `specs/009-screens-navigation/`: application screens and mouse navigation requirements.
 - `docs/FEATURE_ROADMAP.md`: ordered post-MVP feature roadmap.
 - `docs/PRODUCT.md`: product vision and future scope.
 
