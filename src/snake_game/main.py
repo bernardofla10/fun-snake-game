@@ -14,6 +14,7 @@ from snake_game.app import (
 from snake_game.config import FPS, MIN_WINDOW_SIZE, WINDOW_TITLE, WINDOWED_SIZE
 from snake_game.game import Game
 from snake_game.layout import GameLayout
+from snake_game.profiles import ProfileStore, default_database_path
 from snake_game.screens import (
     UIFonts,
     buttons_for_state,
@@ -21,7 +22,7 @@ from snake_game.screens import (
     render_application,
 )
 from snake_game.snake import Direction
-from snake_game.ui import Button, ButtonInteraction, UIAction
+from snake_game.ui import Button, ButtonInteraction, UIAction, UICommand
 
 KEY_DIRECTIONS = {
     pygame.K_UP: Direction.UP,
@@ -54,8 +55,9 @@ def clamp_window_size(size: tuple[int, int]) -> tuple[int, int]:
     return max(size[0], MIN_WINDOW_SIZE[0]), max(size[1], MIN_WINDOW_SIZE[1])
 
 
-def _apply_ui_action(controller: ApplicationController, action: UIAction) -> bool:
+def _apply_ui_command(controller: ApplicationController, command: UICommand) -> bool:
     """Apply a semantic UI action and report whether to keep running."""
+    action = command.action
     if action is UIAction.PLAY:
         controller.start_game()
     elif action is UIAction.STYLE:
@@ -70,6 +72,22 @@ def _apply_ui_action(controller: ApplicationController, action: UIAction) -> boo
         controller.select_style_tab(StyleTab.FOODS)
     elif action is UIAction.RESTART:
         controller.restart_game()
+    elif action is UIAction.SELECT_PROFILE and command.value is not None:
+        controller.select_profile(command.value)
+    elif action is UIAction.NEW_PROFILE:
+        controller.begin_profile_creation()
+    elif action is UIAction.CREATE_PROFILE:
+        controller.create_profile()
+    elif action is UIAction.CANCEL_PROFILE:
+        controller.cancel_profile_creation()
+    elif action is UIAction.PREVIOUS_PAGE:
+        controller.previous_profile_page()
+    elif action is UIAction.NEXT_PAGE:
+        controller.next_profile_page()
+    elif action is UIAction.SWITCH_PROFILE:
+        controller.switch_profile()
+    elif action is UIAction.RETRY_STORAGE:
+        controller.retry_storage()
     return True
 
 
@@ -92,6 +110,10 @@ def process_events(
             resized_to = clamp_window_size(event.size)
             continue
 
+        if event.type == pygame.TEXTINPUT:
+            controller.append_profile_text(event.text)
+            continue
+
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_F11:
                 toggle_fullscreen = not toggle_fullscreen
@@ -103,6 +125,13 @@ def process_events(
                 continue
             if controller.state is AppState.WELCOME:
                 controller.skip_welcome()
+                continue
+            if (
+                controller.state is AppState.PROFILE_SELECT
+                and controller.creating_profile
+                and event.key == pygame.K_BACKSPACE
+            ):
+                controller.backspace_profile_text()
                 continue
             if controller.state is AppState.GAME_OVER and event.key in (
                 pygame.K_r,
@@ -121,9 +150,15 @@ def process_events(
                 controller.skip_welcome()
             continue
 
-        if controller.state in (AppState.HOME, AppState.STYLE, AppState.GAME_OVER):
-            action = interaction.handle(event, buttons)
-            if action is not None and not _apply_ui_action(controller, action):
+        if controller.state in (
+            AppState.PROFILE_SELECT,
+            AppState.HOME,
+            AppState.STYLE,
+            AppState.GAME_OVER,
+            AppState.STORAGE_ERROR,
+        ):
+            command = interaction.handle(event, buttons)
+            if command is not None and not _apply_ui_command(controller, command):
                 should_continue = False
                 break
 
@@ -169,12 +204,21 @@ def main() -> None:
         pygame.display.set_caption(WINDOW_TITLE)
         fonts = create_fonts(layout)
         clock = pygame.time.Clock()
-        controller = ApplicationController(rng=Random())
+        controller = ApplicationController(
+            profile_store=ProfileStore(default_database_path()),
+            rng=Random(),
+        )
         interaction = ButtonInteraction()
 
         while True:
             previous_state = controller.state
-            buttons = buttons_for_state(controller.state, controller.style_tab, layout)
+            was_typing = controller.creating_profile
+            buttons = buttons_for_state(
+                controller.state,
+                controller.style_tab,
+                layout,
+                controller,
+            )
             frame_events = process_events(controller, buttons, interaction)
             if not frame_events:
                 break
@@ -207,7 +251,16 @@ def main() -> None:
             if display_changed or entered_gameplay:
                 elapsed_ms = 0
             controller.update(elapsed_ms)
-            buttons = buttons_for_state(controller.state, controller.style_tab, layout)
+            if controller.creating_profile and not was_typing:
+                pygame.key.start_text_input()
+            elif was_typing and not controller.creating_profile:
+                pygame.key.stop_text_input()
+            buttons = buttons_for_state(
+                controller.state,
+                controller.style_tab,
+                layout,
+                controller,
+            )
             render_application(
                 screen,
                 layout,

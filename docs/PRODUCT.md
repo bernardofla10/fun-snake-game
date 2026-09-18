@@ -80,6 +80,16 @@ The game now:
 * shows restart and Home actions over the frozen final board;
 * keeps application navigation separate from the match rules.
 
+### 010 — Local Profiles
+
+The game now:
+
+* requires a local profile selection after every Welcome;
+* creates and lists any number of profiles through a paginated mouse interface;
+* stores profile identity and initial progress in a local SQLite database;
+* gives each new profile the default Snake and apple;
+* supports switching profiles from Home and retrying storage failures.
+
 ---
 
 ## 6. Future Features

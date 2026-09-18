@@ -14,6 +14,17 @@ from snake_game.layout import GameLayout
 from snake_game.main import main
 from snake_game.screens import buttons_for_state
 from snake_game.snake import Direction, Snake
+from tests.support import FakeProfileStore, make_profile
+
+
+def _active_controller() -> ApplicationController:
+    profile = make_profile()
+    controller = ApplicationController(
+        profile_store=FakeProfileStore([profile]), rng=Random(0)
+    )
+    controller.active_profile = profile
+    controller.state = AppState.HOME
+    return controller
 
 
 def test_window_runs_welcome_until_quit(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -42,13 +53,15 @@ def test_window_runs_welcome_until_quit(monkeypatch: pytest.MonkeyPatch) -> None
 def test_welcome_advances_to_home_inside_main_loop(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    controller = ApplicationController(rng=Random(0))
+    controller = ApplicationController(profile_store=FakeProfileStore(), rng=Random(0))
     rendered_states: list[AppState] = []
     batches = iter([[], [pygame.event.Event(pygame.QUIT)]])
     clock = Mock()
     clock.tick.return_value = 2000
 
-    monkeypatch.setattr(application, "ApplicationController", lambda rng: controller)
+    monkeypatch.setattr(
+        application, "ApplicationController", lambda **_kwargs: controller
+    )
     monkeypatch.setattr(application, "create_display", _fake_display)
     monkeypatch.setattr(pygame.event, "get", lambda: next(batches))
     monkeypatch.setattr(pygame.time, "Clock", lambda: clock)
@@ -61,7 +74,7 @@ def test_welcome_advances_to_home_inside_main_loop(
 
     main()
 
-    assert rendered_states == [AppState.HOME]
+    assert rendered_states == [AppState.PROFILE_SELECT]
     clock.tick.assert_called_once_with(FPS)
 
 
@@ -96,8 +109,7 @@ def test_windowed_display_is_resizable_and_clamped(
 def test_display_changes_preserve_navigation_state(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    controller = ApplicationController(rng=Random(0))
-    controller.skip_welcome()
+    controller = _active_controller()
     batches = iter(
         [
             [pygame.event.Event(pygame.KEYDOWN, key=pygame.K_F11)],
@@ -119,7 +131,9 @@ def test_display_changes_preserve_navigation_state(
         size = (1920, 1080) if fullscreen else windowed_size
         return pygame.Surface(size), GameLayout.from_size(size)
 
-    monkeypatch.setattr(application, "ApplicationController", lambda rng: controller)
+    monkeypatch.setattr(
+        application, "ApplicationController", lambda **_kwargs: controller
+    )
     monkeypatch.setattr(application, "create_display", create_display)
     monkeypatch.setattr(application, "render_application", lambda *_args: None)
     monkeypatch.setattr(pygame.event, "get", lambda: next(batches))
@@ -142,10 +156,11 @@ def test_display_changes_preserve_navigation_state(
 def test_play_transition_discards_elapsed_frame_time(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    controller = ApplicationController(rng=Random(0))
-    controller.skip_welcome()
+    controller = _active_controller()
     _, layout = _fake_display(True, WINDOWED_SIZE)
-    play = buttons_for_state(controller.state, controller.style_tab, layout)[0]
+    play = buttons_for_state(
+        controller.state, controller.style_tab, layout, controller
+    )[0]
     batches = iter(
         [
             [
@@ -162,7 +177,9 @@ def test_play_transition_discards_elapsed_frame_time(
     clock = Mock()
     clock.tick.return_value = 5000
 
-    monkeypatch.setattr(application, "ApplicationController", lambda rng: controller)
+    monkeypatch.setattr(
+        application, "ApplicationController", lambda **_kwargs: controller
+    )
     monkeypatch.setattr(application, "create_display", _fake_display)
     monkeypatch.setattr(application, "render_application", lambda *_args: None)
     monkeypatch.setattr(pygame.event, "get", lambda: next(batches))
@@ -181,11 +198,80 @@ def test_play_transition_discards_elapsed_frame_time(
     assert controller.game.accumulated_ms == 0
 
 
+def test_main_starts_and_stops_text_input_with_inline_form(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    controller = ApplicationController(profile_store=FakeProfileStore(), rng=Random(0))
+    controller.skip_welcome()
+    _, layout = _fake_display(True, WINDOWED_SIZE)
+    new_profile = next(
+        button
+        for button in buttons_for_state(
+            controller.state, controller.style_tab, layout, controller
+        )
+        if button.action is application.UIAction.NEW_PROFILE
+    )
+    controller.begin_profile_creation()
+    cancel = next(
+        button
+        for button in buttons_for_state(
+            controller.state, controller.style_tab, layout, controller
+        )
+        if button.action is application.UIAction.CANCEL_PROFILE
+    )
+    controller.cancel_profile_creation()
+    batches = iter(
+        [
+            [
+                pygame.event.Event(
+                    pygame.MOUSEBUTTONDOWN,
+                    button=1,
+                    pos=new_profile.rect.center,
+                ),
+                pygame.event.Event(
+                    pygame.MOUSEBUTTONUP,
+                    button=1,
+                    pos=new_profile.rect.center,
+                ),
+            ],
+            [
+                pygame.event.Event(
+                    pygame.MOUSEBUTTONDOWN, button=1, pos=cancel.rect.center
+                ),
+                pygame.event.Event(
+                    pygame.MOUSEBUTTONUP, button=1, pos=cancel.rect.center
+                ),
+            ],
+            [pygame.event.Event(pygame.QUIT)],
+        ]
+    )
+    start_text_input = Mock()
+    stop_text_input = Mock()
+    clock = Mock()
+    clock.tick.return_value = 0
+
+    monkeypatch.setattr(
+        application, "ApplicationController", lambda **_kwargs: controller
+    )
+    monkeypatch.setattr(application, "create_display", _fake_display)
+    monkeypatch.setattr(application, "render_application", lambda *_args: None)
+    monkeypatch.setattr(pygame.event, "get", lambda: next(batches))
+    monkeypatch.setattr(pygame.display, "flip", lambda: None)
+    monkeypatch.setattr(pygame.time, "Clock", lambda: clock)
+    monkeypatch.setattr(pygame.key, "start_text_input", start_text_input)
+    monkeypatch.setattr(pygame.key, "stop_text_input", stop_text_input)
+
+    main()
+
+    start_text_input.assert_called_once_with()
+    stop_text_input.assert_called_once_with()
+
+
 @pytest.mark.parametrize("restart_key", [pygame.K_r, pygame.K_RETURN])
 def test_game_over_can_restart_inside_main_loop(
     monkeypatch: pytest.MonkeyPatch, restart_key: int
 ) -> None:
-    controller = ApplicationController(rng=Random(0))
+    controller = _active_controller()
     controller.start_game()
     assert controller.game is not None
     controller.game.snake = Snake(
@@ -203,7 +289,9 @@ def test_game_over_can_restart_inside_main_loop(
     clock = Mock()
     clock.tick.side_effect = [125, 5000]
 
-    monkeypatch.setattr(application, "ApplicationController", lambda rng: controller)
+    monkeypatch.setattr(
+        application, "ApplicationController", lambda **_kwargs: controller
+    )
     monkeypatch.setattr(application, "create_display", _fake_display)
     monkeypatch.setattr(pygame.event, "get", lambda: next(batches))
     monkeypatch.setattr(pygame.display, "flip", lambda: None)

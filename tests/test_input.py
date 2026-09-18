@@ -14,12 +14,17 @@ from snake_game.main import clamp_window_size, process_events
 from snake_game.screens import buttons_for_state
 from snake_game.snake import Direction, Snake
 from snake_game.ui import ButtonInteraction, UIAction
+from tests.support import FakeProfileStore, make_profile
 
 LAYOUT = GameLayout.from_size((1280, 720))
 
 
 def _controller_with_game(game: Game, state: AppState) -> ApplicationController:
-    controller = ApplicationController(rng=game.rng)
+    profile = make_profile()
+    controller = ApplicationController(
+        profile_store=FakeProfileStore([profile]), rng=game.rng
+    )
+    controller.active_profile = profile
     controller.game = game
     controller.state = state
     return controller
@@ -31,7 +36,9 @@ def _poll(
     events: list[pygame.event.Event],
 ) -> object:
     monkeypatch.setattr(pygame.event, "get", lambda: events)
-    buttons = buttons_for_state(controller.state, controller.style_tab, LAYOUT)
+    buttons = buttons_for_state(
+        controller.state, controller.style_tab, LAYOUT, controller
+    )
     return process_events(controller, buttons, ButtonInteraction())
 
 
@@ -123,15 +130,17 @@ def test_welcome_is_skipped_by_key_or_mouse(monkeypatch: pytest.MonkeyPatch) -> 
         pygame.event.Event(pygame.KEYDOWN, key=pygame.K_SPACE),
         pygame.event.Event(pygame.MOUSEBUTTONDOWN, button=1, pos=(20, 20)),
     ):
-        controller = ApplicationController(rng=Random(0))
+        controller = ApplicationController(
+            profile_store=FakeProfileStore(), rng=Random(0)
+        )
         _poll(monkeypatch, controller, [event])
-        assert controller.state is AppState.HOME
+        assert controller.state is AppState.PROFILE_SELECT
 
 
 def test_display_keys_keep_global_actions_and_skip_welcome(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    controller = ApplicationController(rng=Random(0))
+    controller = ApplicationController(profile_store=FakeProfileStore(), rng=Random(0))
 
     result = _poll(
         monkeypatch,
@@ -144,7 +153,7 @@ def test_display_keys_keep_global_actions_and_skip_welcome(
 
     assert result.toggle_fullscreen
     assert result.leave_fullscreen
-    assert controller.state is AppState.HOME
+    assert controller.state is AppState.PROFILE_SELECT
 
 
 def _click(
@@ -152,7 +161,9 @@ def _click(
     controller: ApplicationController,
     action: UIAction,
 ) -> object:
-    buttons = buttons_for_state(controller.state, controller.style_tab, LAYOUT)
+    buttons = buttons_for_state(
+        controller.state, controller.style_tab, LAYOUT, controller
+    )
     button = next(button for button in buttons if button.action is action)
     monkeypatch.setattr(
         pygame.event,
@@ -170,8 +181,12 @@ def _click(
 def test_mouse_navigates_home_style_tabs_and_back(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    controller = ApplicationController(rng=Random(0))
-    controller.skip_welcome()
+    profile = make_profile()
+    controller = ApplicationController(
+        profile_store=FakeProfileStore([profile]), rng=Random(0)
+    )
+    controller.active_profile = profile
+    controller.state = AppState.HOME
 
     _click(monkeypatch, controller, UIAction.STYLE)
     assert controller.state is AppState.STYLE
@@ -185,14 +200,94 @@ def test_mouse_navigates_home_style_tabs_and_back(
 
 
 def test_play_and_quit_buttons(monkeypatch: pytest.MonkeyPatch) -> None:
-    controller = ApplicationController(rng=Random(0))
-    controller.skip_welcome()
+    profile = make_profile()
+    controller = ApplicationController(
+        profile_store=FakeProfileStore([profile]), rng=Random(0)
+    )
+    controller.active_profile = profile
+    controller.state = AppState.HOME
 
     assert _click(monkeypatch, controller, UIAction.PLAY)
     assert controller.state is AppState.PLAYING
     assert controller.game is not None
 
     controller.state = AppState.HOME
+    assert not _click(monkeypatch, controller, UIAction.QUIT)
+
+
+def test_mouse_selects_existing_profile_by_payload(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    profile = make_profile(7, "Bia")
+    controller = ApplicationController(
+        profile_store=FakeProfileStore([profile]), rng=Random(0)
+    )
+    controller.skip_welcome()
+
+    _click(monkeypatch, controller, UIAction.SELECT_PROFILE)
+
+    assert controller.state is AppState.HOME
+    assert controller.active_profile is profile
+
+
+def test_mouse_opens_form_and_text_events_edit_profile_name(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    controller = ApplicationController(profile_store=FakeProfileStore(), rng=Random(0))
+    controller.skip_welcome()
+    _click(monkeypatch, controller, UIAction.NEW_PROFILE)
+
+    _poll(
+        monkeypatch,
+        controller,
+        [
+            pygame.event.Event(pygame.TEXTINPUT, text="Lía"),
+            pygame.event.Event(pygame.KEYDOWN, key=pygame.K_BACKSPACE),
+            pygame.event.Event(pygame.TEXTINPUT, text="a"),
+        ],
+    )
+    assert controller.profile_name_draft == "Lía"
+
+    _click(monkeypatch, controller, UIAction.CREATE_PROFILE)
+    assert controller.state is AppState.HOME
+    assert controller.active_profile is not None
+    assert controller.active_profile.name == "Lía"
+
+
+def test_mouse_paginates_and_switches_profile(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    profiles = [make_profile(index, f"Perfil {index}") for index in range(1, 6)]
+    controller = ApplicationController(
+        profile_store=FakeProfileStore(profiles), rng=Random(0)
+    )
+    controller.skip_welcome()
+
+    _click(monkeypatch, controller, UIAction.NEXT_PAGE)
+    assert controller.profile_page == 1
+    _click(monkeypatch, controller, UIAction.SELECT_PROFILE)
+    assert controller.state is AppState.HOME
+
+    _click(monkeypatch, controller, UIAction.SWITCH_PROFILE)
+    assert controller.state is AppState.PROFILE_SELECT
+    assert controller.active_profile is None
+
+
+def test_storage_error_buttons_retry_or_exit(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    controller = ApplicationController(
+        profile_store=FakeProfileStore(initialize_failures=1), rng=Random(0)
+    )
+    controller.skip_welcome()
+
+    assert _click(monkeypatch, controller, UIAction.RETRY_STORAGE)
+    assert controller.state is AppState.PROFILE_SELECT
+
+    controller = ApplicationController(
+        profile_store=FakeProfileStore(initialize_failures=1), rng=Random(0)
+    )
+    controller.skip_welcome()
     assert not _click(monkeypatch, controller, UIAction.QUIT)
 
 
@@ -221,7 +316,11 @@ def test_mouse_navigates_from_game_over(
 
 
 def test_mouse_does_not_control_active_game(monkeypatch: pytest.MonkeyPatch) -> None:
-    controller = ApplicationController(rng=Random(0))
+    profile = make_profile()
+    controller = ApplicationController(
+        profile_store=FakeProfileStore([profile]), rng=Random(0)
+    )
+    controller.active_profile = profile
     controller.start_game()
     assert controller.game is not None
     body = controller.game.snake.body.copy()
@@ -252,7 +351,7 @@ def test_resize_events_are_clamped(
     requested: tuple[int, int],
     expected: tuple[int, int],
 ) -> None:
-    controller = ApplicationController(rng=Random(0))
+    controller = ApplicationController(profile_store=FakeProfileStore(), rng=Random(0))
     result = _poll(
         monkeypatch,
         controller,
@@ -266,7 +365,7 @@ def test_resize_events_are_clamped(
 def test_quit_event_returns_stop_request(monkeypatch: pytest.MonkeyPatch) -> None:
     result = _poll(
         monkeypatch,
-        ApplicationController(rng=Random(0)),
+        ApplicationController(profile_store=FakeProfileStore(), rng=Random(0)),
         [pygame.event.Event(pygame.QUIT)],
     )
 

@@ -4,15 +4,17 @@
 
 This repository contains a Snake game implemented in Python using pygame-ce.
 
-The v0.1 MVP is complete. Specifications `001` through `007` cover the current
-game foundation, movement, food, collisions, score, restart, CI, and release
-readiness. Post-MVP work is described in `docs/FEATURE_ROADMAP.md` and must be
-delivered incrementally through new specifications.
+The v0.1 MVP is complete. Post-MVP specifications extend it with responsive
+fullscreen presentation, application navigation, and persistent local profiles.
+Future work is described in `docs/FEATURE_ROADMAP.md` and must be delivered
+incrementally through new specifications.
 
 ## Current State
 
-- `main` is the integration branch and contains the completed v0.1 MVP.
-- Specifications `001` through `007` are implemented and complete.
+- `main` is the integration branch for completed features.
+- Specifications `001` through `010` are implemented and complete.
+- The application includes fullscreen navigation and requires selection or
+  creation of a SQLite-backed local profile before Home.
 - The next feature specification must use the next available three-digit number.
 - Existing gameplay behavior must remain stable unless a new specification
   explicitly changes it.

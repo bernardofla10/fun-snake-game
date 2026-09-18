@@ -46,10 +46,19 @@ windowed sizes are kept at or above 800×600. Use the window's close button to e
 Running the application normally requires a graphical desktop environment.
 
 Each launch starts with a two-second welcome animation that can be skipped with
-any key or mouse click. The Home screen provides **Play**, **Style**, and **Sair**
-buttons operated with the mouse. Style currently previews the default Snake and
-apple through the **Animais** and **Comidas** tabs; additional cosmetics, purchases,
-and profiles belong to later features.
+any key or mouse click. The player must then select or create a local profile.
+Profile names contain 1–20 characters and are unique without case distinctions;
+the list supports any number of profiles through mouse-operated pagination. Home
+provides **Play**, **Style**, **Trocar perfil**, and **Sair**. Style currently
+previews the default Snake and apple through the **Animais** and **Comidas** tabs;
+additional cosmetics and purchases belong to later features.
+
+Profiles use a local SQLite database named `profiles.db`. On Linux it is stored
+under `$XDG_DATA_HOME/fun-snake-game` or `~/.local/share/fun-snake-game`; on
+Windows under `%LOCALAPPDATA%\fun-snake-game`; and on macOS under
+`~/Library/Application Support/fun-snake-game`. A new profile starts with zero
+coins and owns and equips the default Snake and apple. No password or online
+account is involved.
 
 A three-segment Snake starts near the center, moving right. Use arrow keys or
 WASD to turn; immediate reversals are ignored. The latest valid request takes
@@ -102,7 +111,8 @@ placement and growth, consumption and replacement, collisions, frozen game-over
 state, keyboard mapping, movement timing, scoring, restart and timing resets,
 grid, Snake and food drawing, score display, game-over feedback, display-mode
 transitions, application navigation, mouse-button semantics, responsive screen
-geometry, fullscreen startup, close-event handling, and pygame cleanup after an
+geometry, local profile validation, temporary SQLite databases, persistence
+recovery, fullscreen startup, close-event handling, and pygame cleanup after an
 error.
 
 ## Continuous integration
@@ -129,6 +139,7 @@ fixture.
 - `specs/007-mvp-release-readiness/`: CI and development workflow requirements.
 - `specs/008-responsive-fullscreen-board/`: responsive layout and fullscreen requirements.
 - `specs/009-screens-navigation/`: application screens and mouse navigation requirements.
+- `specs/010-local-profiles/`: local profiles and SQLite persistence requirements.
 - `docs/FEATURE_ROADMAP.md`: ordered post-MVP feature roadmap.
 - `docs/PRODUCT.md`: product vision and future scope.
 
