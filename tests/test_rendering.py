@@ -21,6 +21,7 @@ from snake_game.config import (
 from snake_game.grid import Position
 from snake_game.layout import GameLayout
 from snake_game.rendering import (
+    load_food_sprites,
     render_balance,
     render_food,
     render_game_over,
@@ -128,6 +129,56 @@ def test_food_renders_only_its_logical_cell() -> None:
     )
     assert screen.get_at((x + LAYOUT.cell_size, y))[:3] == GRID_COLOR
     assert FOOD_COLOR != SNAKE_COLOR
+
+
+def test_food_sprite_is_centered_inside_eighty_percent_of_cell() -> None:
+    screen = pygame.Surface(WINDOWED_SIZE)
+    render_grid(screen, LAYOUT)
+    sprite = pygame.Surface((80, 40), pygame.SRCALPHA)
+    sprite.fill((255, 0, 255, 255))
+    position = Position(5, 3)
+
+    render_food(screen, position, LAYOUT, sprite)
+
+    x, y = to_pixel(position, LAYOUT)
+    maximum = round(LAYOUT.cell_size * 0.8)
+    colored = [
+        (pixel_x, pixel_y)
+        for pixel_x in range(x, x + LAYOUT.cell_size)
+        for pixel_y in range(y, y + LAYOUT.cell_size)
+        if screen.get_at((pixel_x, pixel_y)).r > 200
+        and screen.get_at((pixel_x, pixel_y)).b > 200
+        and screen.get_at((pixel_x, pixel_y)).g < 50
+    ]
+    bounds = pygame.Rect(
+        min(point[0] for point in colored),
+        min(point[1] for point in colored),
+        max(point[0] for point in colored) - min(point[0] for point in colored) + 1,
+        max(point[1] for point in colored) - min(point[1] for point in colored) + 1,
+    )
+    assert bounds.width <= maximum
+    assert bounds.height <= maximum
+    assert bounds.center == pygame.Rect(x, y, LAYOUT.cell_size, LAYOUT.cell_size).center
+    assert screen.get_at((x, y))[:3] != (255, 0, 255)
+    assert screen.get_at((x + LAYOUT.cell_size, y))[:3] == GRID_COLOR
+
+
+def test_all_packaged_food_sprites_load_with_transparency() -> None:
+    sprites = load_food_sprites()
+
+    assert tuple(sprites) == (
+        "apple",
+        "strawberry",
+        "cheese",
+        "cupcake",
+        "pizza",
+        "sushi",
+    )
+    for sprite in sprites.values():
+        assert sprite.get_width() > 0
+        assert sprite.get_height() > 0
+        assert sprite.get_flags() & pygame.SRCALPHA
+        assert sprite.get_at((0, 0)).a == 0
 
 
 def test_no_food_leaves_rendering_unchanged() -> None:

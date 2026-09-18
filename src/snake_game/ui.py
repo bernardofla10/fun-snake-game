@@ -35,14 +35,17 @@ class UIAction(Enum):
     NEXT_PAGE = auto()
     SWITCH_PROFILE = auto()
     RETRY_STORAGE = auto()
+    SELECT_FOOD = auto()
+    CONFIRM_FOOD_PURCHASE = auto()
+    DISMISS_FOOD_DIALOG = auto()
 
 
 @dataclass(frozen=True)
 class UICommand:
-    """A semantic UI action with an optional integer payload."""
+    """A semantic UI action with an optional profile or catalog payload."""
 
     action: UIAction
-    value: int | None = None
+    value: int | str | None = None
 
 
 @dataclass(frozen=True)
@@ -54,7 +57,7 @@ class Button:
     rect: pygame.Rect
     enabled: bool = True
     selected: bool = False
-    value: int | None = None
+    value: int | str | None = None
 
     @property
     def command(self) -> UICommand:
