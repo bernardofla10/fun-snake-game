@@ -191,7 +191,7 @@ def create_fonts(layout: GameLayout) -> UIFonts:
 
 def update(game: Game, elapsed_ms: int) -> int:
     """Compatibility wrapper for direct game-timing callers."""
-    return advance_game(game, elapsed_ms)
+    return advance_game(game, elapsed_ms).remaining_ms
 
 
 def main() -> None:

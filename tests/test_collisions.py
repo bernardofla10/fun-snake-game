@@ -5,7 +5,7 @@ from random import Random
 import pytest
 
 from snake_game.config import COLUMNS, ROWS
-from snake_game.game import Game, GameState
+from snake_game.game import Game, GameState, StepOutcome
 from snake_game.grid import Position
 from snake_game.snake import Direction, Snake
 
@@ -29,10 +29,11 @@ def test_crossing_each_wall_ends_game(
     game = Game(snake, Random(0))
     assert game.state is GameState.RUNNING
 
-    game.step()
+    outcome = game.step()
 
     assert game.state is GameState.GAME_OVER
     assert snake.body[0] == expected
+    assert outcome is StepOutcome.COLLISION
 
 
 @pytest.mark.parametrize(
@@ -54,11 +55,12 @@ def test_moving_to_edge_cell_is_valid(
     game = Game(snake, Random(0))
     game.food = Position(0, 0)
 
-    game.step()
+    outcome = game.step()
 
     assert game.state is GameState.RUNNING
     assert snake.body[0] == expected
     assert len(snake.body) == 3
+    assert outcome is StepOutcome.MOVED
 
 
 def test_head_entering_remaining_body_ends_game() -> None:
@@ -75,11 +77,12 @@ def test_head_entering_remaining_body_ends_game() -> None:
     game = Game(snake, Random(0))
     game.request_direction(Direction.RIGHT)
 
-    game.step()
+    outcome = game.step()
 
     assert game.state is GameState.GAME_OVER
     assert snake.body[0] == Position(3, 2)
     assert snake.body[0] in snake.body[1:]
+    assert outcome is StepOutcome.COLLISION
 
 
 def test_entering_vacated_tail_cell_is_valid() -> None:
@@ -89,7 +92,7 @@ def test_entering_vacated_tail_cell_is_valid() -> None:
     game = Game(snake, Random(0))
     game.request_direction(Direction.RIGHT)
 
-    game.step()
+    outcome = game.step()
 
     assert game.state is GameState.RUNNING
     assert snake.body == [
@@ -98,6 +101,7 @@ def test_entering_vacated_tail_cell_is_valid() -> None:
         Position(2, 3),
         Position(3, 3),
     ]
+    assert outcome is StepOutcome.MOVED
 
 
 @pytest.mark.parametrize("collision", ["wall", "self"])
@@ -125,7 +129,7 @@ def test_fatal_collision_precedes_food_consumption(collision: str) -> None:
     original_length = len(snake.body)
     random_state = game.rng.getstate()
 
-    game.step()
+    outcome = game.step()
 
     assert game.state is GameState.GAME_OVER
     assert snake.body[0] == fatal_position
@@ -133,19 +137,20 @@ def test_fatal_collision_precedes_food_consumption(collision: str) -> None:
     assert game.food == fatal_position
     assert game.rng.getstate() == random_state
     assert game.score == 7
+    assert outcome is StepOutcome.COLLISION
 
 
 def test_game_over_ignores_steps_and_all_domain_direction_requests() -> None:
     snake = Snake([Position(0, 3), Position(1, 3), Position(2, 3)], Direction.LEFT)
     game = Game(snake, Random(0))
-    game.step()
+    assert game.step() is StepOutcome.COLLISION
     body = snake.body.copy()
     food = game.food
     random_state = game.rng.getstate()
 
     for direction in Direction:
         game.request_direction(direction)
-        game.step()
+        assert game.step() is StepOutcome.COLLISION
 
     assert game.state is GameState.GAME_OVER
     assert snake.body == body

@@ -1,6 +1,6 @@
 """Deterministic profile doubles shared by application tests."""
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 from snake_game.profiles import (
     DEFAULT_CHARACTER_ID,
@@ -14,12 +14,14 @@ from snake_game.profiles import (
 )
 
 
-def make_profile(profile_id: int = 1, name: str = "Ana") -> PlayerProfile:
+def make_profile(
+    profile_id: int = 1, name: str = "Ana", coins: int = 0
+) -> PlayerProfile:
     """Create a complete default profile for application tests."""
     return PlayerProfile(
         id=profile_id,
         name=name,
-        coins=0,
+        coins=coins,
         equipped_character=DEFAULT_CHARACTER_ID,
         equipped_food=DEFAULT_FOOD_ID,
         created_at="2026-09-18T20:00:00+00:00",
@@ -41,6 +43,8 @@ class FakeProfileStore:
     create_failures: int = 0
     initialize_calls: int = 0
     create_calls: int = 0
+    credit_failures: int = 0
+    credit_calls: list[tuple[int, int]] = field(default_factory=list)
 
     def initialize(self) -> None:
         self.initialize_calls += 1
@@ -75,3 +79,15 @@ class FakeProfileStore:
         )
         self.profiles.append(profile)
         return profile
+
+    def credit_coins(self, profile_id: int, amount: int) -> PlayerProfile:
+        self.credit_calls.append((profile_id, amount))
+        if self.credit_failures > 0:
+            self.credit_failures -= 1
+            raise ProfileStorageError("failed")
+        for index, profile in enumerate(self.profiles):
+            if profile.id == profile_id:
+                updated = replace(profile, coins=profile.coins + amount)
+                self.profiles[index] = updated
+                return updated
+        raise ProfileStorageError("missing")

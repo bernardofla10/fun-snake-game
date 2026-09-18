@@ -1,16 +1,22 @@
 """Verify responsive navigation geometry and screen rendering."""
 
 from random import Random
+from unittest.mock import Mock, call
 
 import pygame
 import pytest
 
 from snake_game.app import ApplicationController, AppState, StyleTab
+from snake_game.config import UI_MUTED_TEXT_COLOR, UI_TEXT_COLOR
 from snake_game.layout import GameLayout
 from snake_game.screens import (
+    UIFonts,
     buttons_for_state,
     create_ui_fonts,
     render_application,
+    render_game_over_screen,
+    render_home,
+    render_style,
     welcome_opacity,
 )
 from snake_game.ui import ButtonInteraction, UIAction
@@ -124,3 +130,69 @@ def test_every_application_screen_renders(state: AppState) -> None:
         assert any(pygame.image.tobytes(screen, "RGB"))
     finally:
         pygame.font.quit()
+
+
+def test_balance_and_match_coins_are_rendered_on_specified_screens() -> None:
+    layout = GameLayout.from_size((1280, 720))
+    screen = pygame.Surface(layout.screen_size)
+    profile = make_profile(coins=7)
+    controller = ApplicationController(
+        profile_store=FakeProfileStore([profile]), rng=Random(0)
+    )
+    controller.active_profile = profile
+    controller.state = AppState.HOME
+    fonts = _mock_fonts()
+
+    render_home(screen, fonts, (), ButtonInteraction(), (-1, -1), controller)
+    assert (
+        call("Perfil: Ana · 7 moedas", True, UI_MUTED_TEXT_COLOR)
+        in fonts.body.render.call_args_list
+    )
+
+    controller.state = AppState.STYLE
+    render_style(
+        screen,
+        fonts,
+        controller.style_tab,
+        (),
+        ButtonInteraction(),
+        (-1, -1),
+        controller,
+    )
+    assert (
+        call("Perfil: Ana · 7 moedas", True, UI_MUTED_TEXT_COLOR)
+        in fonts.body.render.call_args_list
+    )
+
+    controller.start_game()
+    assert controller.game is not None
+    controller.game.score = 3
+    controller.match_coins = 2
+    controller.state = AppState.GAME_OVER
+    render_game_over_screen(
+        screen,
+        layout,
+        fonts,
+        controller,
+        (),
+        ButtonInteraction(),
+        (-1, -1),
+    )
+    fonts.heading.render.assert_any_call("Score final: 3", True, UI_TEXT_COLOR)
+    fonts.body.render.assert_any_call("Moedas nesta partida: 2", True, UI_TEXT_COLOR)
+    fonts.body.render.assert_any_call("Saldo total: 7", True, UI_TEXT_COLOR)
+
+
+def _mock_fonts() -> UIFonts:
+    def font() -> Mock:
+        result = Mock(spec=pygame.font.Font)
+        result.render.return_value = pygame.Surface((20, 10), pygame.SRCALPHA)
+        return result
+
+    return UIFonts(
+        title=font(),
+        heading=font(),
+        body=font(),
+        button=font(),
+        score=font(),
+    )
