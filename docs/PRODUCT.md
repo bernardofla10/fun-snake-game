@@ -90,6 +90,16 @@ The game now:
 * gives each new profile the default Snake and apple;
 * supports switching profiles from Home and retrying storage failures.
 
+### 011 — Coins and Purchases
+
+The game now:
+
+* grants one persistent profile coin for every food consumed;
+* distinguishes current score, match earnings, and total saved balance;
+* shows the balance throughout menus, gameplay, and Game Over;
+* supports atomic purchases with typed failure results and no negative balances;
+* recovers failed coin credits without duplicating rewards.
+
 ---
 
 ## 6. Future Features
