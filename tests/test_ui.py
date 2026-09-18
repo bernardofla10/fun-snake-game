@@ -124,6 +124,22 @@ def test_disabled_button_never_starts_a_click() -> None:
     assert interaction.pressed_action is None
 
 
+@pytest.mark.parametrize("action", [UIAction.SELECT_FOOD, UIAction.SELECT_CHARACTER])
+def test_catalog_button_emits_string_character_or_food_id(action: UIAction) -> None:
+    button = Button(action, "", pygame.Rect(10, 10, 120, 80), value="catalog-id")
+    interaction = ButtonInteraction()
+
+    interaction.handle(
+        pygame.event.Event(pygame.MOUSEBUTTONDOWN, button=1, pos=(20, 20)),
+        (button,),
+    )
+
+    assert interaction.handle(
+        pygame.event.Event(pygame.MOUSEBUTTONUP, button=1, pos=(20, 20)),
+        (button,),
+    ) == UICommand(action, "catalog-id")
+
+
 @pytest.mark.parametrize(
     ("enabled", "selected", "mouse", "pressed", "expected"),
     [

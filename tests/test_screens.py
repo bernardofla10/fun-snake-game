@@ -9,11 +9,12 @@ import pytest
 from snake_game.app import (
     ApplicationController,
     AppState,
+    CharacterDialog,
     FoodDialog,
     FoodDialogKind,
     StyleTab,
 )
-from snake_game.catalog import FOOD_CATALOG
+from snake_game.catalog import CHARACTER_CATALOG, FOOD_CATALOG
 from snake_game.config import UI_MUTED_TEXT_COLOR, UI_TEXT_COLOR
 from snake_game.layout import GameLayout
 from snake_game.screens import (
@@ -97,6 +98,34 @@ def test_food_cards_show_every_catalog_item_without_overlap(
             assert not card.rect.colliderect(other.rect)
 
 
+@pytest.mark.parametrize("size", [(800, 600), (1280, 720), (1920, 1080)])
+def test_animal_cards_show_every_catalog_item_without_overlap(
+    size: tuple[int, int],
+) -> None:
+    profile = make_profile(coins=100)
+    controller = ApplicationController(
+        profile_store=FakeProfileStore([profile]), rng=Random(0)
+    )
+    controller.active_profile = profile
+    controller.state = AppState.STYLE
+    controller.style_tab = StyleTab.ANIMALS
+
+    buttons = buttons_for_state(
+        controller.state,
+        controller.style_tab,
+        GameLayout.from_size(size),
+        controller,
+    )
+    cards = [button for button in buttons if button.action is UIAction.SELECT_CHARACTER]
+
+    assert [button.value for button in cards] == [item.id for item in CHARACTER_CATALOG]
+    assert len(cards) == 4
+    for index, card in enumerate(cards):
+        assert pygame.Rect((0, 0), size).contains(card.rect)
+        for other in cards[index + 1 :]:
+            assert not card.rect.colliderect(other.rect)
+
+
 @pytest.mark.parametrize(
     ("kind", "expected_actions"),
     [
@@ -128,6 +157,44 @@ def test_food_dialog_disables_underlying_controls(
     enabled = {button.action for button in buttons if button.enabled}
 
     assert enabled == expected_actions
+
+
+@pytest.mark.parametrize(
+    ("kind", "expected_actions"),
+    [
+        (
+            FoodDialogKind.PURCHASE,
+            {
+                UIAction.CONFIRM_CHARACTER_PURCHASE,
+                UIAction.DISMISS_CHARACTER_DIALOG,
+            },
+        ),
+        (
+            FoodDialogKind.INSUFFICIENT_FUNDS,
+            {UIAction.DISMISS_CHARACTER_DIALOG},
+        ),
+    ],
+)
+def test_character_dialog_disables_underlying_controls(
+    kind: FoodDialogKind, expected_actions: set[UIAction]
+) -> None:
+    profile = make_profile(coins=20)
+    controller = ApplicationController(
+        profile_store=FakeProfileStore([profile]), rng=Random(0)
+    )
+    controller.active_profile = profile
+    controller.state = AppState.STYLE
+    controller.style_tab = StyleTab.ANIMALS
+    controller.character_dialog = CharacterDialog("worm", kind)
+
+    buttons = buttons_for_state(
+        controller.state,
+        controller.style_tab,
+        GameLayout.from_size((800, 600)),
+        controller,
+    )
+
+    assert {button.action for button in buttons if button.enabled} == expected_actions
 
 
 @pytest.mark.parametrize("size", [(800, 600), (1280, 720), (1920, 1080)])

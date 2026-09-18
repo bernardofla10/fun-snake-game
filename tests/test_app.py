@@ -13,7 +13,7 @@ from snake_game.app import (
     StorageOperation,
     StyleTab,
 )
-from snake_game.catalog import FOOD_CATALOG
+from snake_game.catalog import CHARACTER_CATALOG, FOOD_CATALOG
 from snake_game.game import GameState
 from snake_game.grid import Position
 from snake_game.snake import Direction, Snake
@@ -221,6 +221,35 @@ def test_every_food_style_keeps_one_point_and_one_coin_reward(food_id: str) -> N
     assert controller.match_coins == 1
     assert controller.active_profile is not None
     assert controller.active_profile.coins == 1
+
+
+@pytest.mark.parametrize("character_id", [item.id for item in CHARACTER_CATALOG])
+def test_every_character_style_keeps_gameplay_and_rewards_unchanged(
+    character_id: str,
+) -> None:
+    profile = make_profile(
+        equipped_character=character_id,
+        owned_characters=tuple({"snake", character_id}),
+    )
+    controller = ApplicationController(
+        profile_store=FakeProfileStore([profile]), rng=Random(0)
+    )
+    controller.active_profile = profile
+    controller.state = AppState.HOME
+    controller.start_game()
+    assert controller.game is not None
+    controller.game.food = Position(17, 12)
+
+    controller.update(125)
+
+    assert controller.game.score == 1
+    assert controller.match_coins == 1
+    assert controller.game.snake.body == [
+        Position(17, 12),
+        Position(16, 12),
+        Position(15, 12),
+        Position(14, 12),
+    ]
 
 
 def test_multiple_foods_in_one_frame_are_credited_together(
