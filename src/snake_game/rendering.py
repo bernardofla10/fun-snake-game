@@ -6,7 +6,8 @@ from io import BytesIO
 
 import pygame
 
-from snake_game.catalog import FOOD_CATALOG
+from snake_game.catalog import CHARACTER_CATALOG, FOOD_CATALOG
+from snake_game.character import SegmentAppearance, SegmentPart, classify_segments
 from snake_game.config import (
     BACKGROUND_COLOR,
     COLUMNS,
@@ -102,15 +103,85 @@ def render_grid(screen: pygame.Surface, layout: GameLayout) -> None:
 
 
 def render_snake(
-    screen: pygame.Surface, body: Sequence[Position], layout: GameLayout
+    screen: pygame.Surface,
+    body: Sequence[Position],
+    layout: GameLayout,
+    character_sprites: "CharacterSpriteLibrary | None" = None,
+    character_id: str = "snake",
 ) -> None:
     """Draw cell-sized Snake segments clipped to the logical board."""
+    if character_sprites is not None:
+        render_character(
+            screen,
+            body,
+            (layout.board_rect.x, layout.board_rect.y),
+            layout.cell_size,
+            character_id,
+            character_sprites,
+            _pygame_rect(layout.board_rect),
+        )
+        return
     board = _pygame_rect(layout.board_rect)
     for position in body:
         x, y = to_pixel(position, layout)
         segment = pygame.Rect(x, y, layout.cell_size, layout.cell_size).clip(board)
         if segment.width and segment.height:
             pygame.draw.rect(screen, SNAKE_COLOR, segment)
+
+
+class CharacterSpriteLibrary:
+    """Store original character parts and cache their rendered transforms."""
+
+    def __init__(self, sprites: dict[tuple[str, SegmentPart], pygame.Surface]) -> None:
+        self._sprites = sprites
+        self._transformed: dict[tuple[str, SegmentPart, int, int], pygame.Surface] = {}
+
+    def get(
+        self,
+        character_id: str,
+        appearance: SegmentAppearance,
+        size: int,
+    ) -> pygame.Surface:
+        """Return one scaled and rotated part, reusing previous transforms."""
+        key = (character_id, appearance.part, appearance.rotation.value, size)
+        if key not in self._transformed:
+            source = self._sprites[(character_id, appearance.part)]
+            rotated = pygame.transform.rotate(source, appearance.rotation.value)
+            scale = min(size / rotated.get_width(), size / rotated.get_height())
+            scaled = pygame.transform.smoothscale(
+                rotated,
+                (
+                    max(1, round(rotated.get_width() * scale)),
+                    max(1, round(rotated.get_height() * scale)),
+                ),
+            )
+            cell = pygame.Surface((size, size), pygame.SRCALPHA)
+            cell.blit(scaled, scaled.get_rect(center=cell.get_rect().center))
+            self._transformed[key] = cell
+        return self._transformed[key]
+
+
+def render_character(
+    screen: pygame.Surface,
+    body: Sequence[Position],
+    origin: tuple[int, int],
+    cell_size: int,
+    character_id: str,
+    sprites: CharacterSpriteLibrary,
+    clip: pygame.Rect,
+) -> None:
+    """Draw one segmented character in cells, from tail to head."""
+    appearances = classify_segments(tuple(body))
+    for position, appearance in reversed(tuple(zip(body, appearances, strict=True))):
+        cell = pygame.Rect(
+            origin[0] + position.x * cell_size,
+            origin[1] + position.y * cell_size,
+            cell_size,
+            cell_size,
+        )
+        if clip.contains(cell):
+            sprite = sprites.get(character_id, appearance, cell_size)
+            screen.blit(sprite, sprite.get_rect(center=cell.center))
 
 
 def render_food(
@@ -152,6 +223,29 @@ def load_food_sprites() -> dict[str, pygame.Surface]:
                 f"Não foi possível carregar o sprite de {item.name}: {item.asset_name}"
             ) from error
     return sprites
+
+
+def load_character_sprites() -> CharacterSpriteLibrary:
+    """Load every character part once from installed package resources."""
+    character_assets = resources.files("snake_game").joinpath("assets", "characters")
+    sprites: dict[tuple[str, SegmentPart], pygame.Surface] = {}
+    for character in CHARACTER_CATALOG:
+        for part in SegmentPart:
+            asset_name = f"{part.value}.png"
+            asset = character_assets.joinpath(character.asset_directory, asset_name)
+            try:
+                data = asset.read_bytes()
+                loaded = pygame.image.load(BytesIO(data), asset_name)
+                visible = loaded.get_bounding_rect(min_alpha=8)
+                if not visible.width or not visible.height:
+                    raise pygame.error("empty character sprite")
+                sprites[(character.id, part)] = loaded.subsurface(visible).copy()
+            except (OSError, pygame.error) as error:
+                raise RuntimeError(
+                    "Não foi possível carregar o sprite de "
+                    f"{character.name}: {asset_name}"
+                ) from error
+    return CharacterSpriteLibrary(sprites)
 
 
 def render_game_over(

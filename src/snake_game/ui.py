@@ -38,6 +38,9 @@ class UIAction(Enum):
     SELECT_FOOD = auto()
     CONFIRM_FOOD_PURCHASE = auto()
     DISMISS_FOOD_DIALOG = auto()
+    SELECT_CHARACTER = auto()
+    CONFIRM_CHARACTER_PURCHASE = auto()
+    DISMISS_CHARACTER_DIALOG = auto()
 
 
 @dataclass(frozen=True)

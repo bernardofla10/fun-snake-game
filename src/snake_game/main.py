@@ -15,7 +15,7 @@ from snake_game.config import FPS, MIN_WINDOW_SIZE, WINDOW_TITLE, WINDOWED_SIZE
 from snake_game.game import Game
 from snake_game.layout import GameLayout
 from snake_game.profiles import ProfileStore, default_database_path
-from snake_game.rendering import load_food_sprites
+from snake_game.rendering import load_character_sprites, load_food_sprites
 from snake_game.screens import (
     UIFonts,
     buttons_for_state,
@@ -96,6 +96,12 @@ def _apply_ui_command(controller: ApplicationController, command: UICommand) -> 
         controller.confirm_food_purchase()
     elif action is UIAction.DISMISS_FOOD_DIALOG:
         controller.dismiss_food_dialog()
+    elif action is UIAction.SELECT_CHARACTER and isinstance(command.value, str):
+        controller.select_character(command.value)
+    elif action is UIAction.CONFIRM_CHARACTER_PURCHASE:
+        controller.confirm_character_purchase()
+    elif action is UIAction.DISMISS_CHARACTER_DIALOG:
+        controller.dismiss_character_dialog()
     return True
 
 
@@ -212,6 +218,7 @@ def main() -> None:
         pygame.display.set_caption(WINDOW_TITLE)
         fonts = create_fonts(layout)
         food_sprites = load_food_sprites()
+        character_sprites = load_character_sprites()
         clock = pygame.time.Clock()
         controller = ApplicationController(
             profile_store=ProfileStore(default_database_path()),
@@ -279,6 +286,7 @@ def main() -> None:
                 interaction,
                 pygame.mouse.get_pos(),
                 food_sprites,
+                character_sprites,
             )
             pygame.display.flip()
     finally:

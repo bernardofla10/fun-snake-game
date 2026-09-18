@@ -12,13 +12,20 @@ from snake_game.app import (
     FoodDialogKind,
     StyleTab,
 )
-from snake_game.catalog import FOOD_CATALOG, FOODS_BY_ID, FoodCatalogItem
+from snake_game.catalog import (
+    CHARACTER_CATALOG,
+    CHARACTERS_BY_ID,
+    FOOD_CATALOG,
+    FOODS_BY_ID,
+    CharacterCatalogItem,
+    FoodCatalogItem,
+)
+from snake_game.character import PREVIEW_BODY
 from snake_game.config import (
     FRAME_COLOR,
     GARDEN_ACCENT_COLOR,
     GARDEN_BACKGROUND_COLOR,
     GARDEN_LEAF_COLOR,
-    SNAKE_COLOR,
     UI_BUTTON_DISABLED_COLOR,
     UI_BUTTON_SELECTED_COLOR,
     UI_MUTED_TEXT_COLOR,
@@ -28,7 +35,9 @@ from snake_game.config import (
 from snake_game.layout import GameLayout
 from snake_game.profiles import ItemType, OwnedItem, PlayerProfile
 from snake_game.rendering import (
+    CharacterSpriteLibrary,
     render_balance,
+    render_character,
     render_food,
     render_grid,
     render_score,
@@ -210,32 +219,45 @@ def buttons_for_state(
                 (width, height),
             ),
         )
-        if style_tab is not StyleTab.FOODS:
-            return base_buttons
         if controller is None or controller.active_profile is None:
             return base_buttons
 
         panel = _style_panel_rect(layout.screen_size)
         gap = max(8, min(16, screen_width // 80))
-        card_width = (panel.width - gap * 4) // 3
+        columns = 2 if style_tab is StyleTab.ANIMALS else 3
+        catalog = CHARACTER_CATALOG if style_tab is StyleTab.ANIMALS else FOOD_CATALOG
+        action = (
+            UIAction.SELECT_CHARACTER
+            if style_tab is StyleTab.ANIMALS
+            else UIAction.SELECT_FOOD
+        )
+        card_width = (panel.width - gap * (columns + 1)) // columns
         card_height = (panel.height - gap * 3) // 2
         cards = tuple(
             _centered_button(
-                UIAction.SELECT_FOOD,
+                action,
                 "",
                 (
-                    panel.x + gap + card_width // 2 + (index % 3) * (card_width + gap),
+                    panel.x
+                    + gap
+                    + card_width // 2
+                    + (index % columns) * (card_width + gap),
                     panel.y
                     + gap
                     + card_height // 2
-                    + (index // 3) * (card_height + gap),
+                    + (index // columns) * (card_height + gap),
                 ),
                 (card_width, card_height),
                 value=item.id,
             )
-            for index, item in enumerate(FOOD_CATALOG)
+            for index, item in enumerate(catalog)
         )
-        if controller.food_dialog is None:
+        dialog = (
+            controller.character_dialog
+            if style_tab is StyleTab.ANIMALS
+            else controller.food_dialog
+        )
+        if dialog is None:
             return base_buttons + cards
 
         disabled = tuple(
@@ -248,16 +270,22 @@ def buttons_for_state(
         dialog_button_width = min(210, (modal.width - 60) // 2)
         dialog_button_height = min(56, height)
         dialog_y = modal.bottom - 45
-        if controller.food_dialog.kind is FoodDialogKind.PURCHASE:
+        if style_tab is StyleTab.ANIMALS:
+            confirm_action = UIAction.CONFIRM_CHARACTER_PURCHASE
+            dismiss_action = UIAction.DISMISS_CHARACTER_DIALOG
+        else:
+            confirm_action = UIAction.CONFIRM_FOOD_PURCHASE
+            dismiss_action = UIAction.DISMISS_FOOD_DIALOG
+        if dialog.kind is FoodDialogKind.PURCHASE:
             dialog_buttons = (
                 _centered_button(
-                    UIAction.CONFIRM_FOOD_PURCHASE,
+                    confirm_action,
                     "COMPRAR",
                     (modal.centerx - dialog_button_width // 2 - 10, dialog_y),
                     (dialog_button_width, dialog_button_height),
                 ),
                 _centered_button(
-                    UIAction.DISMISS_FOOD_DIALOG,
+                    dismiss_action,
                     "CANCELAR",
                     (modal.centerx + dialog_button_width // 2 + 10, dialog_y),
                     (dialog_button_width, dialog_button_height),
@@ -266,7 +294,7 @@ def buttons_for_state(
         else:
             dialog_buttons = (
                 _centered_button(
-                    UIAction.DISMISS_FOOD_DIALOG,
+                    dismiss_action,
                     "ENTENDI",
                     (modal.centerx, dialog_y),
                     (dialog_button_width, dialog_button_height),
@@ -415,8 +443,9 @@ def render_style(
     mouse_position: tuple[int, int],
     controller: ApplicationController,
     food_sprites: Mapping[str, pygame.Surface] | None = None,
+    character_sprites: CharacterSpriteLibrary | None = None,
 ) -> None:
-    """Render Style tabs, the food catalog, and purchase dialogs."""
+    """Render Style catalogs and their purchase dialogs."""
     _render_background(screen)
     center_x = screen.get_width() // 2
     title = fonts.title.render("Style", True, UI_TEXT_COLOR)
@@ -440,27 +469,15 @@ def render_style(
     pygame.draw.rect(screen, FRAME_COLOR, panel, width=3, border_radius=24)
 
     if tab is StyleTab.ANIMALS:
-        segment = max(24, min(52, panel.height // 6))
-        start_x = panel.centerx - segment * 2
-        y = panel.centery - segment
-        for offset in range(4):
-            pygame.draw.rect(
-                screen,
-                SNAKE_COLOR,
-                (start_x + offset * segment, y, segment, segment),
-                border_radius=max(4, segment // 5),
-            )
-        label_surface = fonts.heading.render("Cobra padrão", True, UI_TEXT_COLOR)
-        screen.blit(
-            label_surface,
-            label_surface.get_rect(center=(panel.centerx, panel.bottom - 70)),
+        _render_character_cards(
+            screen,
+            fonts,
+            buttons,
+            interaction,
+            mouse_position,
+            controller.active_profile,
+            character_sprites,
         )
-        helper = fonts.body.render(
-            "Novos animais serão adicionados nas próximas etapas.",
-            True,
-            UI_MUTED_TEXT_COLOR,
-        )
-        screen.blit(helper, helper.get_rect(center=(panel.centerx, panel.bottom - 36)))
     else:
         _render_food_cards(
             screen,
@@ -480,6 +497,9 @@ def render_style(
             UIAction.SELECT_FOOD,
             UIAction.CONFIRM_FOOD_PURCHASE,
             UIAction.DISMISS_FOOD_DIALOG,
+            UIAction.SELECT_CHARACTER,
+            UIAction.CONFIRM_CHARACTER_PURCHASE,
+            UIAction.DISMISS_CHARACTER_DIALOG,
         )
     )
     _render_buttons(screen, fonts, underlying, interaction, mouse_position)
@@ -492,6 +512,107 @@ def render_style(
             interaction,
             mouse_position,
         )
+    if controller.character_dialog is not None:
+        _render_character_dialog(
+            screen,
+            fonts,
+            controller,
+            buttons,
+            interaction,
+            mouse_position,
+        )
+
+
+def _render_character_cards(
+    screen: pygame.Surface,
+    fonts: UIFonts,
+    buttons: tuple[Button, ...],
+    interaction: ButtonInteraction,
+    mouse_position: tuple[int, int],
+    profile: PlayerProfile | None,
+    character_sprites: CharacterSpriteLibrary | None,
+) -> None:
+    """Draw animal details and their larger six-segment previews."""
+    if profile is None:
+        return
+    game_cell_size = GameLayout.from_size(screen.get_size()).cell_size
+    for button in buttons:
+        if button.action is not UIAction.SELECT_CHARACTER or not isinstance(
+            button.value, str
+        ):
+            continue
+        item = CHARACTERS_BY_ID[button.value]
+        owned = OwnedItem(ItemType.CHARACTER, item.id) in profile.owned_items
+        equipped = profile.equipped_character == item.id
+        render_button(
+            screen,
+            fonts.button,
+            replace(button, selected=equipped),
+            mouse_position,
+            interaction.pressed_command,
+        )
+
+        text_space = max(52, fonts.body.get_linesize() * 2 + 8)
+        preview_height = max(28, button.rect.height - text_space)
+        maximum_cell = min(button.rect.width // 6, preview_height // 2)
+        preview_cell = max(1, min(game_cell_size + 4, maximum_cell))
+        preview_width = 5 * preview_cell
+        preview_pixel_height = 2 * preview_cell
+        preview_left = button.rect.centerx - preview_width // 2
+        preview_top = button.rect.y + max(
+            3, (preview_height - preview_pixel_height) // 2
+        )
+        if character_sprites is not None:
+            render_character(
+                screen,
+                PREVIEW_BODY,
+                (preview_left, preview_top),
+                preview_cell,
+                item.id,
+                character_sprites,
+                button.rect,
+            )
+
+        name = fonts.body.render(item.name, True, UI_TEXT_COLOR)
+        price_label = "GRÁTIS" if item.price == 0 else f"{item.price} moedas"
+        state_label, state_color = _character_card_state(item, profile, owned, equipped)
+        details = fonts.body.render(f"{price_label} · {state_label}", True, state_color)
+        maximum_width = button.rect.width - 20
+        if details.get_width() > maximum_width:
+            details = pygame.transform.smoothscale(
+                details,
+                (
+                    maximum_width,
+                    max(
+                        1,
+                        round(
+                            details.get_height() * maximum_width / details.get_width()
+                        ),
+                    ),
+                ),
+            )
+        details_y = button.rect.bottom - 7 - details.get_height() // 2
+        name_y = details_y - details.get_height() // 2 - 3 - name.get_height() // 2
+        screen.blit(name, name.get_rect(center=(button.rect.centerx, name_y)))
+        screen.blit(
+            details,
+            details.get_rect(center=(button.rect.centerx, details_y)),
+        )
+
+
+def _character_card_state(
+    item: CharacterCatalogItem,
+    profile: PlayerProfile,
+    owned: bool,
+    equipped: bool,
+) -> tuple[str, tuple[int, int, int]]:
+    if equipped:
+        return "EQUIPADO", UI_TEXT_COLOR
+    if owned:
+        return "ADQUIRIDO", UI_BUTTON_SELECTED_COLOR
+    if profile.coins >= item.price:
+        return "DISPONÍVEL", UI_TEXT_COLOR
+    return f"FALTAM {item.price - profile.coins}", UI_BUTTON_DISABLED_COLOR
 
 
 def _render_food_cards(
@@ -634,6 +755,68 @@ def _render_food_dialog(
     _render_buttons(screen, fonts, dialog_buttons, interaction, mouse_position)
 
 
+def _render_character_dialog(
+    screen: pygame.Surface,
+    fonts: UIFonts,
+    controller: ApplicationController,
+    buttons: tuple[Button, ...],
+    interaction: ButtonInteraction,
+    mouse_position: tuple[int, int],
+) -> None:
+    dialog = controller.character_dialog
+    profile = controller.active_profile
+    if dialog is None or profile is None:
+        return
+    item = CHARACTERS_BY_ID[dialog.character_id]
+    overlay = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
+    overlay.fill((0, 0, 0, 165))
+    screen.blit(overlay, (0, 0))
+
+    panel = pygame.Rect(
+        0,
+        0,
+        min(560, screen.get_width() - 80),
+        min(280, screen.get_height() - 100),
+    )
+    panel.center = screen.get_rect().center
+    pygame.draw.rect(screen, UI_PANEL_COLOR, panel, border_radius=24)
+    pygame.draw.rect(screen, FRAME_COLOR, panel, width=3, border_radius=24)
+
+    if dialog.kind is FoodDialogKind.PURCHASE:
+        title_text = f"Comprar {item.name}?"
+        details = (
+            f"Preço: {item.price} moedas",
+            f"Saldo atual: {profile.coins} moedas",
+            f"Saldo restante: {profile.coins - item.price} moedas",
+        )
+    else:
+        missing = max(0, item.price - profile.coins)
+        title_text = "Ainda faltam moedas"
+        details = (
+            f"{item.name} custa {item.price} moedas.",
+            f"Seu saldo: {profile.coins} moedas",
+            f"Faltam {missing} moedas para comprar.",
+        )
+    title = fonts.heading.render(title_text, True, UI_TEXT_COLOR)
+    screen.blit(title, title.get_rect(center=(panel.centerx, panel.y + 48)))
+    for index, line in enumerate(details):
+        text = fonts.body.render(line, True, UI_MUTED_TEXT_COLOR)
+        screen.blit(
+            text,
+            text.get_rect(center=(panel.centerx, panel.y + 92 + index * 30)),
+        )
+    dialog_buttons = tuple(
+        button
+        for button in buttons
+        if button.action
+        in (
+            UIAction.CONFIRM_CHARACTER_PURCHASE,
+            UIAction.DISMISS_CHARACTER_DIALOG,
+        )
+    )
+    _render_buttons(screen, fonts, dialog_buttons, interaction, mouse_position)
+
+
 def render_profile_select(
     screen: pygame.Surface,
     fonts: UIFonts,
@@ -727,6 +910,7 @@ def _render_game(
     controller: ApplicationController,
     fonts: UIFonts,
     food_sprites: Mapping[str, pygame.Surface] | None = None,
+    character_sprites: CharacterSpriteLibrary | None = None,
 ) -> None:
     game = controller.game
     if game is None:
@@ -739,7 +923,18 @@ def _render_game(
     )
     sprite = food_sprites.get(food_id) if food_sprites is not None else None
     render_food(screen, game.food, layout, sprite)
-    render_snake(screen, game.snake.body, layout)
+    character_id = (
+        controller.active_profile.equipped_character
+        if controller.active_profile is not None
+        else "snake"
+    )
+    render_snake(
+        screen,
+        game.snake.body,
+        layout,
+        character_sprites,
+        character_id,
+    )
     render_score(screen, fonts.score, game.score, layout)
     if controller.active_profile is None:
         raise RuntimeError("game screen requires an active profile")
@@ -755,9 +950,10 @@ def render_game_over_screen(
     interaction: ButtonInteraction,
     mouse_position: tuple[int, int],
     food_sprites: Mapping[str, pygame.Surface] | None = None,
+    character_sprites: CharacterSpriteLibrary | None = None,
 ) -> None:
     """Render the frozen board with score and mouse navigation."""
-    _render_game(screen, layout, controller, fonts, food_sprites)
+    _render_game(screen, layout, controller, fonts, food_sprites, character_sprites)
     overlay = pygame.Surface(
         (layout.board_rect.width, layout.board_rect.height), pygame.SRCALPHA
     )
@@ -791,6 +987,7 @@ def render_application(
     interaction: ButtonInteraction,
     mouse_position: tuple[int, int],
     food_sprites: Mapping[str, pygame.Surface] | None = None,
+    character_sprites: CharacterSpriteLibrary | None = None,
 ) -> None:
     """Render the screen selected by the application controller."""
     if controller.state is AppState.WELCOME:
@@ -816,9 +1013,10 @@ def render_application(
             mouse_position,
             controller,
             food_sprites,
+            character_sprites,
         )
     elif controller.state is AppState.PLAYING:
-        _render_game(screen, layout, controller, fonts, food_sprites)
+        _render_game(screen, layout, controller, fonts, food_sprites, character_sprites)
     elif controller.state is AppState.GAME_OVER:
         render_game_over_screen(
             screen,
@@ -829,6 +1027,7 @@ def render_application(
             interaction,
             mouse_position,
             food_sprites,
+            character_sprites,
         )
     else:
         render_storage_error(

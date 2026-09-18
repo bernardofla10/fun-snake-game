@@ -20,7 +20,7 @@ snake-game = "snake_game.main:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-snake_game = ["assets/foods/*.png"]
+snake_game = ["assets/foods/*.png", "assets/characters/*/*.png"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
