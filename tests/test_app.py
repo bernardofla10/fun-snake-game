@@ -13,7 +13,7 @@ from snake_game.app import (
     StorageOperation,
     StyleTab,
 )
-from snake_game.catalog import FOOD_CATALOG
+from snake_game.catalog import CHARACTER_CATALOG, FOOD_CATALOG
 from snake_game.game import GameState
 from snake_game.grid import Position
 from snake_game.snake import Direction, Snake
@@ -223,6 +223,35 @@ def test_every_food_style_keeps_one_point_and_one_coin_reward(food_id: str) -> N
     assert controller.active_profile.coins == 1
 
 
+@pytest.mark.parametrize("character_id", [item.id for item in CHARACTER_CATALOG])
+def test_every_character_style_keeps_gameplay_and_rewards_unchanged(
+    character_id: str,
+) -> None:
+    profile = make_profile(
+        equipped_character=character_id,
+        owned_characters=tuple({"snake", character_id}),
+    )
+    controller = ApplicationController(
+        profile_store=FakeProfileStore([profile]), rng=Random(0)
+    )
+    controller.active_profile = profile
+    controller.state = AppState.HOME
+    controller.start_game()
+    assert controller.game is not None
+    controller.game.food = Position(17, 12)
+
+    controller.update(125)
+
+    assert controller.game.score == 1
+    assert controller.match_coins == 1
+    assert controller.game.snake.body == [
+        Position(17, 12),
+        Position(16, 12),
+        Position(15, 12),
+        Position(14, 12),
+    ]
+
+
 def test_multiple_foods_in_one_frame_are_credited_together(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -405,3 +434,85 @@ def test_equipment_failure_retries_without_spending_coins() -> None:
     assert controller.active_profile is not None
     assert controller.active_profile.equipped_food == "strawberry"
     assert controller.active_profile.coins == 9
+
+
+def test_owned_character_is_equipped_immediately_without_spending() -> None:
+    profile = make_profile(
+        coins=25,
+        owned_characters=("snake", "worm"),
+    )
+    store = FakeProfileStore([profile])
+    controller = ApplicationController(profile_store=store, rng=Random(0))
+    controller.active_profile = profile
+    controller.profiles = (profile,)
+    controller.state = AppState.STYLE
+    controller.style_tab = StyleTab.ANIMALS
+
+    controller.select_character("worm")
+
+    assert store.character_equipment_calls == [(profile.id, "worm")]
+    assert controller.active_profile is not None
+    assert controller.active_profile.equipped_character == "worm"
+    assert controller.active_profile.coins == 25
+
+
+def test_affordable_character_confirms_then_buys_and_equips() -> None:
+    profile = make_profile(coins=45)
+    store = FakeProfileStore([profile])
+    controller = ApplicationController(profile_store=store, rng=Random(0))
+    controller.active_profile = profile
+    controller.profiles = (profile,)
+    controller.state = AppState.STYLE
+    controller.style_tab = StyleTab.ANIMALS
+
+    controller.select_character("caterpillar")
+    assert controller.character_dialog is not None
+    assert controller.character_dialog.kind is FoodDialogKind.PURCHASE
+
+    controller.confirm_character_purchase()
+
+    assert store.character_purchase_calls == [(profile.id, "caterpillar")]
+    assert controller.active_profile is not None
+    assert controller.active_profile.coins == 5
+    assert controller.active_profile.equipped_character == "caterpillar"
+    assert controller.character_dialog is None
+
+
+def test_unaffordable_character_shows_notice_without_purchase() -> None:
+    profile = make_profile(coins=19)
+    store = FakeProfileStore([profile])
+    controller = ApplicationController(profile_store=store, rng=Random(0))
+    controller.active_profile = profile
+    controller.state = AppState.STYLE
+    controller.style_tab = StyleTab.ANIMALS
+
+    controller.select_character("worm")
+
+    assert controller.character_dialog is not None
+    assert controller.character_dialog.kind is FoodDialogKind.INSUFFICIENT_FUNDS
+    controller.confirm_character_purchase()
+    assert store.character_purchase_calls == []
+
+
+def test_character_purchase_failure_retries_and_returns_to_style() -> None:
+    profile = make_profile(coins=25)
+    store = FakeProfileStore([profile], character_purchase_failures=1)
+    controller = ApplicationController(profile_store=store, rng=Random(0))
+    controller.active_profile = profile
+    controller.profiles = (profile,)
+    controller.state = AppState.STYLE
+    controller.style_tab = StyleTab.ANIMALS
+    controller.select_character("worm")
+
+    controller.confirm_character_purchase()
+
+    assert controller.state is AppState.STORAGE_ERROR
+    assert controller.failed_storage_operation is StorageOperation.PURCHASE_CHARACTER
+    assert controller.pending_character_id == "worm"
+
+    controller.retry_storage()
+
+    assert store.character_purchase_calls == [(profile.id, "worm")] * 2
+    assert controller.state is AppState.STYLE
+    assert controller.active_profile is not None
+    assert controller.active_profile.equipped_character == "worm"

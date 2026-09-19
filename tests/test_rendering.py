@@ -5,6 +5,13 @@ from unittest.mock import Mock, call
 import pygame
 import pytest
 
+from snake_game.catalog import CHARACTER_CATALOG
+from snake_game.character import (
+    PREVIEW_BODY,
+    QuarterTurn,
+    SegmentAppearance,
+    SegmentPart,
+)
 from snake_game.config import (
     BACKGROUND_COLOR,
     COLUMNS,
@@ -21,8 +28,10 @@ from snake_game.config import (
 from snake_game.grid import Position
 from snake_game.layout import GameLayout
 from snake_game.rendering import (
+    load_character_sprites,
     load_food_sprites,
     render_balance,
+    render_character,
     render_food,
     render_game_over,
     render_grid,
@@ -179,6 +188,42 @@ def test_all_packaged_food_sprites_load_with_transparency() -> None:
         assert sprite.get_height() > 0
         assert sprite.get_flags() & pygame.SRCALPHA
         assert sprite.get_at((0, 0)).a == 0
+
+
+def test_all_character_parts_load_with_transparency_and_cache_transforms() -> None:
+    sprites = load_character_sprites()
+    appearance = SegmentAppearance(SegmentPart.HEAD, QuarterTurn.LEFT)
+
+    first = sprites.get("snake", appearance, 40)
+    second = sprites.get("snake", appearance, 40)
+
+    assert first is second
+    assert first.get_size() == (40, 40)
+    assert first.get_flags() & pygame.SRCALPHA
+    for character in CHARACTER_CATALOG:
+        for part in SegmentPart:
+            sprite = sprites.get(
+                character.id,
+                SegmentAppearance(part, QuarterTurn.NONE),
+                48,
+            )
+            assert sprite.get_size() == (48, 48)
+            assert sprite.get_flags() & pygame.SRCALPHA
+            assert sprite.get_at((0, 0)).a == 0
+
+
+@pytest.mark.parametrize("character_id", [item.id for item in CHARACTER_CATALOG])
+def test_character_preview_stays_inside_its_cells(character_id: str) -> None:
+    screen = pygame.Surface((300, 140), pygame.SRCALPHA)
+    sprites = load_character_sprites()
+    clip = pygame.Rect(20, 20, 250, 100)
+
+    render_character(screen, PREVIEW_BODY, (20, 20), 40, character_id, sprites, clip)
+
+    assert screen.get_bounding_rect().union(clip) == clip
+    for position in PREVIEW_BODY:
+        cell = pygame.Rect(20 + position.x * 40, 20 + position.y * 40, 40, 40)
+        assert screen.subsurface(cell).get_bounding_rect().width > 0
 
 
 def test_no_food_leaves_rendering_unchanged() -> None:

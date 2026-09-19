@@ -5,7 +5,7 @@ from enum import Enum, auto
 from random import Random
 from typing import Protocol
 
-from snake_game.catalog import FOODS_BY_ID
+from snake_game.catalog import CHARACTERS_BY_ID, FOODS_BY_ID
 from snake_game.config import SNAKE_MOVE_INTERVAL_MS
 from snake_game.game import Game, GameState, StepOutcome
 from snake_game.profiles import (
@@ -60,6 +60,14 @@ class FoodDialog:
     kind: FoodDialogKind
 
 
+@dataclass(frozen=True)
+class CharacterDialog:
+    """The selected character and the modal interaction it requires."""
+
+    character_id: str
+    kind: FoodDialogKind
+
+
 class StorageOperation(Enum):
     """A failed persistence operation available for retry."""
 
@@ -68,6 +76,8 @@ class StorageOperation(Enum):
     CREDIT_COINS = auto()
     EQUIP_FOOD = auto()
     PURCHASE_FOOD = auto()
+    EQUIP_CHARACTER = auto()
+    PURCHASE_CHARACTER = auto()
 
 
 class ProfileRepository(Protocol):
@@ -85,6 +95,14 @@ class ProfileRepository(Protocol):
 
     def purchase_and_equip_food(
         self, profile_id: int, food_id: str
+    ) -> PurchaseResult: ...
+
+    def equip_character(
+        self, profile_id: int, character_id: str
+    ) -> EquipmentResult: ...
+
+    def purchase_and_equip_character(
+        self, profile_id: int, character_id: str
     ) -> PurchaseResult: ...
 
 
@@ -135,6 +153,8 @@ class ApplicationController:
     storage_return_state: AppState | None = field(init=False, default=None)
     food_dialog: FoodDialog | None = field(init=False, default=None)
     pending_food_id: str | None = field(init=False, default=None)
+    character_dialog: CharacterDialog | None = field(init=False, default=None)
+    pending_character_id: str | None = field(init=False, default=None)
 
     def update(self, elapsed_ms: int) -> None:
         """Advance only the behavior belonging to the current screen."""
@@ -189,6 +209,8 @@ class ApplicationController:
         self.style_tab = StyleTab.ANIMALS
         self.food_dialog = None
         self.pending_food_id = None
+        self.character_dialog = None
+        self.pending_character_id = None
         self.state = AppState.STYLE
 
     def select_style_tab(self, tab: StyleTab) -> None:
@@ -196,13 +218,58 @@ class ApplicationController:
         if self.state is AppState.STYLE:
             self.style_tab = tab
             self.food_dialog = None
+            self.character_dialog = None
 
     def go_home(self) -> None:
         """Return to Home from a navigable non-playing screen."""
         if self.state in (AppState.STYLE, AppState.GAME_OVER):
             self.food_dialog = None
             self.pending_food_id = None
+            self.character_dialog = None
+            self.pending_character_id = None
             self.state = AppState.HOME
+
+    def select_character(self, character_id: str) -> None:
+        """Equip an owned character or show the applicable purchase dialog."""
+        if (
+            self.state is not AppState.STYLE
+            or self.style_tab is not StyleTab.ANIMALS
+            or self.active_profile is None
+        ):
+            return
+        item = CHARACTERS_BY_ID.get(character_id)
+        if item is None:
+            return
+        owned = (
+            OwnedItem(ItemType.CHARACTER, character_id)
+            in self.active_profile.owned_items
+        )
+        if owned:
+            self.pending_character_id = character_id
+            self.character_dialog = None
+            self._equip_character(character_id)
+            return
+        kind = (
+            FoodDialogKind.PURCHASE
+            if self.active_profile.coins >= item.price
+            else FoodDialogKind.INSUFFICIENT_FUNDS
+        )
+        self.character_dialog = CharacterDialog(character_id, kind)
+
+    def confirm_character_purchase(self) -> None:
+        """Buy and equip the character selected by the confirmation dialog."""
+        if (
+            self.state is AppState.STYLE
+            and self.character_dialog is not None
+            and self.character_dialog.kind is FoodDialogKind.PURCHASE
+        ):
+            self.pending_character_id = self.character_dialog.character_id
+            self._purchase_character(self.character_dialog.character_id)
+
+    def dismiss_character_dialog(self) -> None:
+        """Close the active character dialog."""
+        if self.state is AppState.STYLE:
+            self.character_dialog = None
 
     def select_food(self, food_id: str) -> None:
         """Equip an owned food or show the applicable purchase dialog."""
@@ -366,6 +433,18 @@ class ApplicationController:
         ):
             self.state = AppState.STYLE
             self._purchase_food(self.pending_food_id)
+        elif (
+            self.failed_storage_operation is StorageOperation.EQUIP_CHARACTER
+            and self.pending_character_id is not None
+        ):
+            self.state = AppState.STYLE
+            self._equip_character(self.pending_character_id)
+        elif (
+            self.failed_storage_operation is StorageOperation.PURCHASE_CHARACTER
+            and self.pending_character_id is not None
+        ):
+            self.state = AppState.STYLE
+            self._purchase_character(self.pending_character_id)
 
     def _load_profiles(self) -> None:
         try:
@@ -452,6 +531,47 @@ class ApplicationController:
     def _finish_food_operation(self) -> None:
         self.food_dialog = None
         self.pending_food_id = None
+        self.failed_storage_operation = None
+        self.storage_message = None
+        self.state = AppState.STYLE
+
+    def _equip_character(self, character_id: str) -> None:
+        if self.active_profile is None:
+            raise RuntimeError("character equipment requires an active profile")
+        result = self.profile_store.equip_character(
+            self.active_profile.id, character_id
+        )
+        if result.status is EquipmentStatus.PERSISTENCE_ERROR:
+            self.pending_character_id = character_id
+            self._show_storage_error(StorageOperation.EQUIP_CHARACTER)
+            return
+        if result.status is EquipmentStatus.SUCCESS and result.profile is not None:
+            self._replace_active_profile(result.profile)
+        self._finish_character_operation()
+
+    def _purchase_character(self, character_id: str) -> None:
+        if self.active_profile is None:
+            raise RuntimeError("character purchase requires an active profile")
+        result = self.profile_store.purchase_and_equip_character(
+            self.active_profile.id, character_id
+        )
+        if result.status is PurchaseStatus.PERSISTENCE_ERROR:
+            self.pending_character_id = character_id
+            self._show_storage_error(StorageOperation.PURCHASE_CHARACTER)
+            return
+        if result.status is PurchaseStatus.INSUFFICIENT_FUNDS:
+            self.character_dialog = CharacterDialog(
+                character_id, FoodDialogKind.INSUFFICIENT_FUNDS
+            )
+            self.pending_character_id = None
+            return
+        if result.status is PurchaseStatus.SUCCESS and result.profile is not None:
+            self._replace_active_profile(result.profile)
+        self._finish_character_operation()
+
+    def _finish_character_operation(self) -> None:
+        self.character_dialog = None
+        self.pending_character_id = None
         self.failed_storage_operation = None
         self.storage_message = None
         self.state = AppState.STYLE

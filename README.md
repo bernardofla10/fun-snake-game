@@ -54,14 +54,18 @@ in Style shows apple, strawberry, cheese, cupcake, pizza, and sushi cards with
 their price and availability. Click an acquired food to equip it, or click an
 unowned food to review its price and remaining balance before buying. An item
 without sufficient balance stays visible and explains how many coins are missing.
-The **Animais** tab still previews the default Snake.
+The **Animais** tab shows six-segment previews of the Snake, Worm, Caterpillar,
+and Axolotl. Each animal card shows its price and availability. Acquired animals
+equip immediately when clicked; affordable animals are purchased after
+confirmation and then equipped automatically.
 
 Profiles use a local SQLite database named `profiles.db`. On Linux it is stored
 under `$XDG_DATA_HOME/fun-snake-game` or `~/.local/share/fun-snake-game`; on
 Windows under `%LOCALAPPDATA%\fun-snake-game`; and on macOS under
 `~/Library/Application Support/fun-snake-game`. A new profile starts with zero
 coins and owns and equips the default Snake and apple. No password or online
-account is involved.
+account is involved. Food and animal ownership and equipment are stored
+independently for each profile.
 
 A three-segment Snake starts near the center, moving right. Use arrow keys or
 WASD to turn; immediate reversals are ignored. The latest valid request takes
@@ -69,9 +73,12 @@ effect at the next movement step, checked against the last movement direction.
 Each food eaten adds one segment, one score point, and one persistent coin to the
 active profile, regardless of its visual style, then places new food on an
 unoccupied grid cell. The equipped food remains selected after restarting the
-application and its transparent sprite stays inside one logical cell. Total coins are
-shown on Home, Style, and the gameplay HUD. Moving outside the grid or into the
-remaining Snake body ends the game.
+application and its transparent sprite stays inside one logical cell. The
+equipped animal uses directional head, straight-body, curve, and tail sprites
+within the same logical cells; changing it does not affect movement, growth,
+collisions, score, or coins. Total coins are shown on Home, Style, and the
+gameplay HUD. Moving outside the grid or into the remaining Snake body ends the
+game.
 The final board stays on screen with a **Game Over** message, and direction keys
 no longer affect the Snake. The score remains visible below the board while
 running and after game over. The Game Over summary shows the final score, coins
@@ -122,7 +129,9 @@ transitions, application navigation, mouse-button semantics, responsive screen
 geometry, local profile validation, temporary SQLite databases, persistence
 recovery, typed step outcomes, persistent coin credit, atomic purchase results,
 food catalog cards, persistent food equipment, packaged sprite loading and bounds,
-fullscreen startup, close-event handling, and pygame cleanup after an error.
+animal segment classification and rotation, persistent animal equipment,
+six-segment previews, cosmetic gameplay equivalence, fullscreen startup,
+close-event handling, and pygame cleanup after an error.
 
 ## Continuous integration
 
@@ -151,6 +160,7 @@ fixture.
 - `specs/010-local-profiles/`: local profiles and SQLite persistence requirements.
 - `specs/011-coins-purchases/`: persistent coins and atomic purchase requirements.
 - `specs/012-food-shop-styles/`: cosmetic food shop and sprite requirements.
+- `specs/013-cute-animals/`: animal shop, segmented sprites, and preview requirements.
 - `docs/FEATURE_ROADMAP.md`: ordered post-MVP feature roadmap.
 - `docs/PRODUCT.md`: product vision and future scope.
 

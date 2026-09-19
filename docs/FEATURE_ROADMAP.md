@@ -544,16 +544,16 @@ Todos os animais deverão:
 
 ### Tarefas
 
-- [ ] Criar os cartões de animais.
-- [ ] Implementar compra e seleção de animal.
-- [ ] Identificar cabeça, corpo, curva e cauda na renderização.
-- [ ] Calcular a rotação de cada parte.
-- [ ] Criar os sprites dos quatro animais.
-- [ ] Implementar as prévias com seis segmentos.
-- [ ] Integrar o animal equipado à partida.
-- [ ] Adicionar testes das orientações dos segmentos.
-- [ ] Adicionar testes de equivalência das regras.
-- [ ] Executar a validação completa.
+- [x] Criar os cartões de animais.
+- [x] Implementar compra e seleção de animal.
+- [x] Identificar cabeça, corpo, curva e cauda na renderização.
+- [x] Calcular a rotação de cada parte.
+- [x] Criar os sprites dos quatro animais.
+- [x] Implementar as prévias com seis segmentos.
+- [x] Integrar o animal equipado à partida.
+- [x] Adicionar testes das orientações dos segmentos.
+- [x] Adicionar testes de equivalência das regras.
+- [x] Executar a validação completa.
 
 ---
 

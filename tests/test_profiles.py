@@ -335,3 +335,61 @@ def test_food_purchases_and_equipment_are_isolated_by_profile(tmp_path: Path) ->
     assert OwnedItem(ItemType.FOOD, "strawberry") in profiles["Ana"].owned_items
     assert profiles["Bia"].equipped_food == DEFAULT_FOOD_ID
     assert profiles["Bia"].owned_items == bia.owned_items
+
+
+def test_character_purchase_equips_atomically_and_persists(tmp_path: Path) -> None:
+    database = tmp_path / "profiles.db"
+    store = ProfileStore(database)
+    store.initialize()
+    profile = store.create_profile("Ana")
+    store.credit_coins(profile.id, 50)
+
+    result = store.purchase_and_equip_character(profile.id, "caterpillar")
+    repeated = store.purchase_and_equip_character(profile.id, "caterpillar")
+
+    assert result.status is PurchaseStatus.SUCCESS
+    assert repeated.status is PurchaseStatus.SUCCESS
+    assert repeated.profile is not None
+    assert repeated.profile.coins == 10
+    assert repeated.profile.equipped_character == "caterpillar"
+    assert OwnedItem(ItemType.CHARACTER, "caterpillar") in repeated.profile.owned_items
+    assert ProfileStore(database).list_profiles()[0] == repeated.profile
+
+
+def test_character_equipment_rejects_unknown_and_unowned_items(tmp_path: Path) -> None:
+    store = ProfileStore(tmp_path / "profiles.db")
+    store.initialize()
+    profile = store.create_profile("Ana")
+
+    unknown = store.equip_character(profile.id, "unknown")
+    unowned = store.equip_character(profile.id, "worm")
+
+    assert unknown.status is EquipmentStatus.ITEM_NOT_FOUND
+    assert unowned.status is EquipmentStatus.NOT_OWNED
+    assert store.list_profiles()[0].equipped_character == DEFAULT_CHARACTER_ID
+
+
+def test_character_purchase_rolls_back_balance_ownership_and_equipment(
+    tmp_path: Path,
+) -> None:
+    database = tmp_path / "profiles.db"
+    store = ProfileStore(database)
+    store.initialize()
+    profile = store.create_profile("Ana")
+    store.credit_coins(profile.id, 30)
+    with sqlite3.connect(database) as connection:
+        connection.execute(
+            """
+            CREATE TRIGGER reject_character BEFORE UPDATE OF equipped_character
+            ON profiles WHEN NEW.equipped_character = 'worm'
+            BEGIN SELECT RAISE(ABORT, 'rejected'); END
+            """
+        )
+
+    result = store.purchase_and_equip_character(profile.id, "worm")
+
+    assert result.status is PurchaseStatus.PERSISTENCE_ERROR
+    unchanged = store.list_profiles()[0]
+    assert unchanged.coins == 30
+    assert unchanged.equipped_character == DEFAULT_CHARACTER_ID
+    assert OwnedItem(ItemType.CHARACTER, "worm") not in unchanged.owned_items
