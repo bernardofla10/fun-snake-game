@@ -5,7 +5,7 @@ from unittest.mock import Mock, call
 import pygame
 import pytest
 
-from snake_game.catalog import CHARACTER_CATALOG
+from snake_game.catalog import CHARACTER_CATALOG, FOOD_CATALOG
 from snake_game.character import (
     PREVIEW_BODY,
     QuarterTurn,
@@ -175,14 +175,7 @@ def test_food_sprite_is_centered_inside_eighty_percent_of_cell() -> None:
 def test_all_packaged_food_sprites_load_with_transparency() -> None:
     sprites = load_food_sprites()
 
-    assert tuple(sprites) == (
-        "apple",
-        "strawberry",
-        "cheese",
-        "cupcake",
-        "pizza",
-        "sushi",
-    )
+    assert tuple(sprites) == tuple(item.id for item in FOOD_CATALOG)
     for sprite in sprites.values():
         assert sprite.get_width() > 0
         assert sprite.get_height() > 0

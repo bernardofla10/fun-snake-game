@@ -146,19 +146,41 @@ class CharacterSpriteLibrary:
         key = (character_id, appearance.part, appearance.rotation.value, size)
         if key not in self._transformed:
             source = self._sprites[(character_id, appearance.part)]
-            rotated = pygame.transform.rotate(source, appearance.rotation.value)
-            scale = min(size / rotated.get_width(), size / rotated.get_height())
+            scale = min(size / source.get_width(), size / source.get_height())
             scaled = pygame.transform.smoothscale(
-                rotated,
+                source,
                 (
-                    max(1, round(rotated.get_width() * scale)),
-                    max(1, round(rotated.get_height() * scale)),
+                    max(1, round(source.get_width() * scale)),
+                    max(1, round(source.get_height() * scale)),
                 ),
             )
             cell = pygame.Surface((size, size), pygame.SRCALPHA)
             cell.blit(scaled, scaled.get_rect(center=cell.get_rect().center))
-            self._transformed[key] = cell
+            straight = self._sprites[(character_id, SegmentPart.STRAIGHT)]
+            color = straight.get_at((0, straight.get_height() // 2))
+            _finish_connector_edges(cell, appearance.part, color)
+            self._transformed[key] = pygame.transform.rotate(
+                cell, appearance.rotation.value
+            )
         return self._transformed[key]
+
+
+def _finish_connector_edges(
+    cell: pygame.Surface, part: SegmentPart, color: pygame.Color
+) -> None:
+    """Restore identical edge pixels after smooth scaling mixes nearby textures."""
+    size = cell.get_width()
+    low = round(size * 0.3)
+    thickness = size - 2 * low
+    if part is not SegmentPart.TAIL:
+        cell.fill((0, 0, 0, 0), (0, 0, 1, size))
+        cell.fill(color, (0, low, 1, thickness))
+    if part in (SegmentPart.STRAIGHT, SegmentPart.TAIL):
+        cell.fill((0, 0, 0, 0), (size - 1, 0, 1, size))
+        cell.fill(color, (size - 1, low, 1, thickness))
+    elif part is SegmentPart.CURVE:
+        cell.fill((0, 0, 0, 0), (0, size - 1, size, 1))
+        cell.fill(color, (low, size - 1, thickness, 1))
 
 
 def render_character(
@@ -217,7 +239,15 @@ def load_food_sprites() -> dict[str, pygame.Surface]:
         asset = food_assets.joinpath(item.asset_name)
         try:
             data = asset.read_bytes()
-            sprites[item.id] = pygame.image.load(BytesIO(data), item.asset_name)
+            loaded = pygame.image.load(BytesIO(data), item.asset_name)
+            scale = min(1.0, 256 / loaded.get_width(), 256 / loaded.get_height())
+            sprites[item.id] = pygame.transform.smoothscale(
+                loaded,
+                (
+                    max(1, round(loaded.get_width() * scale)),
+                    max(1, round(loaded.get_height() * scale)),
+                ),
+            )
         except (OSError, pygame.error) as error:
             raise RuntimeError(
                 f"Não foi possível carregar o sprite de {item.name}: {item.asset_name}"
@@ -236,16 +266,116 @@ def load_character_sprites() -> CharacterSpriteLibrary:
             try:
                 data = asset.read_bytes()
                 loaded = pygame.image.load(BytesIO(data), asset_name)
-                visible = loaded.get_bounding_rect(min_alpha=8)
-                if not visible.width or not visible.height:
+                if loaded.get_width() != loaded.get_height():
+                    raise pygame.error("character sprite canvas must be square")
+                if not loaded.get_bounding_rect(min_alpha=8).width:
                     raise pygame.error("empty character sprite")
-                sprites[(character.id, part)] = loaded.subsurface(visible).copy()
+                sprites[(character.id, part)] = pygame.transform.smoothscale(
+                    loaded, (256, 256)
+                )
             except (OSError, pygame.error) as error:
                 raise RuntimeError(
                     "Não foi possível carregar o sprite de "
                     f"{character.name}: {asset_name}"
                 ) from error
+        straight = sprites[(character.id, SegmentPart.STRAIGHT)]
+        color = _character_connector_color(straight)
+        for part in SegmentPart:
+            sprites[(character.id, part)] = _normalize_character_part(
+                sprites[(character.id, part)], part, color
+            )
     return CharacterSpriteLibrary(sprites)
+
+
+def _character_connector_color(sprite: pygame.Surface) -> pygame.Color:
+    """Choose the generated species color used on every cell boundary."""
+    size = sprite.get_width()
+    samples = [
+        sprite.get_at((x, y))
+        for x in (size // 4, size // 2, size * 3 // 4)
+        for y in (size * 2 // 5, size // 2, size * 3 // 5)
+        if sprite.get_at((x, y)).a >= 128
+    ]
+    if not samples:
+        raise RuntimeError("character body has no opaque center color")
+    return pygame.Color(
+        *(
+            round(sum(color[channel] for color in samples) / len(samples))
+            for channel in range(3)
+        ),
+        255,
+    )
+
+
+def _normalize_character_part(
+    artwork: pygame.Surface,
+    part: SegmentPart,
+    color: pygame.Color,
+) -> pygame.Surface:
+    """Keep artwork on its full canvas and enforce seamless canonical joins."""
+    size = artwork.get_width()
+    low = round(size * 0.3)
+    high = size - low
+    thickness = high - low
+    result = pygame.Surface((size, size), pygame.SRCALPHA)
+    mask = pygame.Surface((size, size), pygame.SRCALPHA)
+    connector = pygame.Rect(0, low, size, thickness)
+    if part is SegmentPart.STRAIGHT:
+        pygame.draw.rect(mask, (255, 255, 255, 255), connector)
+    elif part is SegmentPart.CURVE:
+        pygame.draw.circle(mask, (255, 255, 255, 255), (0, size), high)
+        pygame.draw.circle(mask, (0, 0, 0, 0), (0, size), low)
+    else:
+        connector.width = round(size * 0.3)
+        if part is SegmentPart.TAIL:
+            connector.right = size
+        pygame.draw.rect(result, color, connector)
+        result.blit(artwork, (0, 0))
+        _soften_character_join(result, color, part)
+        # Restrict the first few pixels to the shared connector cross-section.
+        edge = round(size * 0.04)
+        edge_x = 0 if part is SegmentPart.HEAD else size - edge
+        result.fill((0, 0, 0, 0), (edge_x, 0, edge, size))
+        result.fill(color, (edge_x, low, edge, thickness))
+        return result
+
+    result.fill(color)
+    result.blit(artwork, (0, 0))
+    _soften_character_join(result, color, part)
+    result.blit(mask, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
+    # A common color at open connectors removes texture seams between tiles.
+    edge = round(size * 0.04)
+    result.fill((0, 0, 0, 0), (0, 0, edge, size))
+    result.fill(color, (0, low, edge, thickness))
+    if part is SegmentPart.STRAIGHT:
+        result.fill((0, 0, 0, 0), (size - edge, 0, edge, size))
+        result.fill(color, (size - edge, low, edge, thickness))
+    else:
+        result.fill((0, 0, 0, 0), (0, size - edge, size, edge))
+        result.fill(color, (low, size - edge, thickness, edge))
+    return result
+
+
+def _soften_character_join(
+    surface: pygame.Surface, color: pygame.Color, part: SegmentPart
+) -> None:
+    """Blend generated textures into common connectors instead of drawing seams."""
+    size = surface.get_width()
+    low = round(size * 0.3)
+    thickness = size - 2 * low
+    solid = round(size * 0.04)
+    fade = round(size * 0.16)
+    overlay = pygame.Surface(surface.get_size(), pygame.SRCALPHA)
+    for index in range(fade):
+        alpha = round(255 * (1 - max(0, index - solid) / (fade - solid)) ** 2)
+        tint = (*color[:3], alpha)
+        if part is not SegmentPart.TAIL:
+            overlay.fill(tint, (index, low, 1, thickness))
+        if part in (SegmentPart.STRAIGHT, SegmentPart.TAIL):
+            overlay.fill(tint, (size - 1 - index, low, 1, thickness))
+        elif part is SegmentPart.CURVE:
+            overlay.fill(tint, (low, size - 1 - index, thickness, 1))
+    surface.blit(overlay, (0, 0))
 
 
 def render_game_over(

@@ -13,9 +13,7 @@ from snake_game.app import (
     StyleTab,
 )
 from snake_game.catalog import (
-    CHARACTER_CATALOG,
     CHARACTERS_BY_ID,
-    FOOD_CATALOG,
     FOODS_BY_ID,
     CharacterCatalogItem,
     FoodCatalogItem,
@@ -26,8 +24,7 @@ from snake_game.config import (
     GARDEN_ACCENT_COLOR,
     GARDEN_BACKGROUND_COLOR,
     GARDEN_LEAF_COLOR,
-    UI_BUTTON_DISABLED_COLOR,
-    UI_BUTTON_SELECTED_COLOR,
+    UI_BUTTON_TEXT_COLOR,
     UI_MUTED_TEXT_COLOR,
     UI_PANEL_COLOR,
     UI_TEXT_COLOR,
@@ -225,14 +222,19 @@ def buttons_for_state(
         panel = _style_panel_rect(layout.screen_size)
         gap = max(8, min(16, screen_width // 80))
         columns = 2 if style_tab is StyleTab.ANIMALS else 3
-        catalog = CHARACTER_CATALOG if style_tab is StyleTab.ANIMALS else FOOD_CATALOG
+        catalog = (
+            controller.visible_characters
+            if style_tab is StyleTab.ANIMALS
+            else controller.visible_foods
+        )
         action = (
             UIAction.SELECT_CHARACTER
             if style_tab is StyleTab.ANIMALS
             else UIAction.SELECT_FOOD
         )
         card_width = (panel.width - gap * (columns + 1)) // columns
-        card_height = (panel.height - gap * 3) // 2
+        footer_height = 44
+        card_height = (panel.height - footer_height - gap * 3) // 2
         cards = tuple(
             _centered_button(
                 action,
@@ -252,6 +254,25 @@ def buttons_for_state(
             )
             for index, item in enumerate(catalog)
         )
+        page_button_width = min(160, panel.width // 4)
+        page_y = panel.bottom - footer_height // 2
+        navigation = (
+            _centered_button(
+                UIAction.PREVIOUS_STYLE_PAGE,
+                "ANTERIOR",
+                (panel.x + gap + page_button_width // 2, page_y),
+                (page_button_width, 32),
+                enabled=controller.style_page > 0,
+            ),
+            _centered_button(
+                UIAction.NEXT_STYLE_PAGE,
+                "PRÓXIMA",
+                (panel.right - gap - page_button_width // 2, page_y),
+                (page_button_width, 32),
+                enabled=controller.style_page < controller.style_page_count - 1,
+            ),
+        )
+        base_buttons += navigation
         dialog = (
             controller.character_dialog
             if style_tab is StyleTab.ANIMALS
@@ -503,6 +524,18 @@ def render_style(
         )
     )
     _render_buttons(screen, fonts, underlying, interaction, mouse_position)
+    if controller.active_profile is not None:
+        page_text = fonts.body.render(
+            f"Página {controller.style_page + 1} de {controller.style_page_count}",
+            True,
+            UI_TEXT_COLOR,
+        )
+        maximum = panel.width - 2 * min(160, panel.width // 4) - 40
+        page_text = _fit_text(page_text, maximum, 28)
+        screen.blit(
+            page_text,
+            page_text.get_rect(center=(panel.centerx, panel.bottom - 22)),
+        )
     if controller.food_dialog is not None:
         _render_food_dialog(
             screen,
@@ -573,24 +606,18 @@ def _render_character_cards(
                 button.rect,
             )
 
-        name = fonts.body.render(item.name, True, UI_TEXT_COLOR)
+        name = _fit_text(
+            fonts.body.render(item.name, True, UI_BUTTON_TEXT_COLOR),
+            button.rect.width - 20,
+            30,
+        )
         price_label = "GRÁTIS" if item.price == 0 else f"{item.price} moedas"
         state_label, state_color = _character_card_state(item, profile, owned, equipped)
-        details = fonts.body.render(f"{price_label} · {state_label}", True, state_color)
-        maximum_width = button.rect.width - 20
-        if details.get_width() > maximum_width:
-            details = pygame.transform.smoothscale(
-                details,
-                (
-                    maximum_width,
-                    max(
-                        1,
-                        round(
-                            details.get_height() * maximum_width / details.get_width()
-                        ),
-                    ),
-                ),
-            )
+        details = _fit_text(
+            fonts.body.render(f"{price_label} · {state_label}", True, state_color),
+            button.rect.width - 20,
+            26,
+        )
         details_y = button.rect.bottom - 12 - details.get_height() // 2
         name_y = details_y - details.get_height() // 2 - 3 - name.get_height() // 2
         screen.blit(name, name.get_rect(center=(button.rect.centerx, name_y)))
@@ -607,12 +634,12 @@ def _character_card_state(
     equipped: bool,
 ) -> tuple[str, tuple[int, int, int]]:
     if equipped:
-        return "EQUIPADO", UI_TEXT_COLOR
+        return "EQUIPADO", UI_BUTTON_TEXT_COLOR
     if owned:
-        return "ADQUIRIDO", UI_BUTTON_SELECTED_COLOR
+        return "ADQUIRIDO", UI_BUTTON_TEXT_COLOR
     if profile.coins >= item.price:
-        return "DISPONÍVEL", UI_TEXT_COLOR
-    return f"FALTAM {item.price - profile.coins}", UI_BUTTON_DISABLED_COLOR
+        return "DISPONÍVEL", UI_BUTTON_TEXT_COLOR
+    return f"FALTAM {item.price - profile.coins}", UI_BUTTON_TEXT_COLOR
 
 
 def _render_food_cards(
@@ -649,21 +676,22 @@ def _render_food_cards(
             button.rect.x,
             button.rect.y + 5,
             button.rect.width,
-            max(32, button.rect.height // 2 - 4),
+            max(24, button.rect.height // 2 - fonts.body.get_height() // 2 - 10),
         )
         if sprite is not None:
             maximum = max(24, min(image_area.width, image_area.height) - 4)
             scaled = _scale_to_square(sprite, maximum)
             screen.blit(scaled, scaled.get_rect(center=image_area.center))
 
-        name = fonts.body.render(item.name, True, UI_TEXT_COLOR)
+        name = fonts.body.render(item.name, True, UI_BUTTON_TEXT_COLOR)
         price_label = "GRÁTIS" if item.price == 0 else f"{item.price} moedas"
-        price = fonts.body.render(price_label, True, UI_MUTED_TEXT_COLOR)
+        price = fonts.body.render(price_label, True, UI_BUTTON_TEXT_COLOR)
         state_label, state_color = _food_card_state(item, profile, owned, equipped)
         state = fonts.body.render(state_label, True, state_color)
         text_top = button.rect.y + button.rect.height // 2
         line_height = max(18, button.rect.height // 7)
         for offset, surface in enumerate((name, price, state)):
+            surface = _fit_text(surface, button.rect.width - 16, line_height - 2)
             screen.blit(
                 surface,
                 surface.get_rect(
@@ -679,12 +707,12 @@ def _food_card_state(
     equipped: bool,
 ) -> tuple[str, tuple[int, int, int]]:
     if equipped:
-        return "EQUIPADO", UI_TEXT_COLOR
+        return "EQUIPADO", UI_BUTTON_TEXT_COLOR
     if owned:
-        return "ADQUIRIDO", UI_BUTTON_SELECTED_COLOR
+        return "ADQUIRIDO", UI_BUTTON_TEXT_COLOR
     if profile.coins >= item.price:
-        return "DISPONÍVEL", UI_TEXT_COLOR
-    return f"FALTAM {item.price - profile.coins}", UI_BUTTON_DISABLED_COLOR
+        return "DISPONÍVEL", UI_BUTTON_TEXT_COLOR
+    return f"FALTAM {item.price - profile.coins}", UI_BUTTON_TEXT_COLOR
 
 
 def _scale_to_square(sprite: pygame.Surface, maximum: int) -> pygame.Surface:
@@ -694,6 +722,20 @@ def _scale_to_square(sprite: pygame.Surface, maximum: int) -> pygame.Surface:
         max(1, round(sprite.get_height() * scale)),
     )
     return pygame.transform.smoothscale(sprite, size)
+
+
+def _fit_text(text: pygame.Surface, width: int, height: int) -> pygame.Surface:
+    """Fit a complete label into its reserved area without truncation."""
+    scale = min(1.0, width / text.get_width(), height / text.get_height())
+    if scale == 1.0:
+        return text
+    return pygame.transform.smoothscale(
+        text,
+        (
+            max(1, round(text.get_width() * scale)),
+            max(1, round(text.get_height() * scale)),
+        ),
+    )
 
 
 def _render_food_dialog(

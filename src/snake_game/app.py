@@ -5,7 +5,14 @@ from enum import Enum, auto
 from random import Random
 from typing import Protocol
 
-from snake_game.catalog import CHARACTERS_BY_ID, FOODS_BY_ID
+from snake_game.catalog import (
+    CHARACTER_CATALOG,
+    CHARACTERS_BY_ID,
+    FOOD_CATALOG,
+    FOODS_BY_ID,
+    CharacterCatalogItem,
+    FoodCatalogItem,
+)
 from snake_game.config import SNAKE_MOVE_INTERVAL_MS
 from snake_game.game import Game, GameState, StepOutcome
 from snake_game.profiles import (
@@ -24,6 +31,8 @@ from snake_game.profiles import (
 
 WELCOME_DURATION_MS = 2000
 PROFILES_PER_PAGE = 4
+CHARACTERS_PER_PAGE = 4
+FOODS_PER_PAGE = 6
 
 
 class AppState(Enum):
@@ -155,6 +164,8 @@ class ApplicationController:
     pending_food_id: str | None = field(init=False, default=None)
     character_dialog: CharacterDialog | None = field(init=False, default=None)
     pending_character_id: str | None = field(init=False, default=None)
+    character_page: int = field(init=False, default=0)
+    food_page: int = field(init=False, default=0)
 
     def update(self, elapsed_ms: int) -> None:
         """Advance only the behavior belonging to the current screen."""
@@ -207,6 +218,16 @@ class ApplicationController:
         if self.active_profile is None:
             raise RuntimeError("STYLE requires an active profile")
         self.style_tab = StyleTab.ANIMALS
+        self.character_page = next(
+            index // CHARACTERS_PER_PAGE
+            for index, item in enumerate(CHARACTER_CATALOG)
+            if item.id == self.active_profile.equipped_character
+        )
+        self.food_page = next(
+            index // FOODS_PER_PAGE
+            for index, item in enumerate(FOOD_CATALOG)
+            if item.id == self.active_profile.equipped_food
+        )
         self.food_dialog = None
         self.pending_food_id = None
         self.character_dialog = None
@@ -215,13 +236,67 @@ class ApplicationController:
 
     def select_style_tab(self, tab: StyleTab) -> None:
         """Select a Style section while Style is active."""
-        if self.state is AppState.STYLE:
+        if self.state is AppState.STYLE and not self.style_dialog_open:
             self.style_tab = tab
             self.food_dialog = None
             self.character_dialog = None
 
+    @property
+    def style_dialog_open(self) -> bool:
+        """Return whether a modal blocks catalog navigation."""
+        return self.food_dialog is not None or self.character_dialog is not None
+
+    @property
+    def style_page(self) -> int:
+        """Return the page index for the visible Style tab."""
+        return (
+            self.character_page
+            if self.style_tab is StyleTab.ANIMALS
+            else self.food_page
+        )
+
+    @property
+    def style_page_count(self) -> int:
+        """Return the number of pages for the visible Style tab."""
+        if self.style_tab is StyleTab.ANIMALS:
+            return (
+                len(CHARACTER_CATALOG) + CHARACTERS_PER_PAGE - 1
+            ) // CHARACTERS_PER_PAGE
+        return (len(FOOD_CATALOG) + FOODS_PER_PAGE - 1) // FOODS_PER_PAGE
+
+    @property
+    def visible_characters(self) -> tuple[CharacterCatalogItem, ...]:
+        """Return the character entries on the current animal page."""
+        start = self.character_page * CHARACTERS_PER_PAGE
+        return CHARACTER_CATALOG[start : start + CHARACTERS_PER_PAGE]
+
+    @property
+    def visible_foods(self) -> tuple[FoodCatalogItem, ...]:
+        """Return the food entries on the current food page."""
+        start = self.food_page * FOODS_PER_PAGE
+        return FOOD_CATALOG[start : start + FOODS_PER_PAGE]
+
+    def previous_style_page(self) -> None:
+        """Move one page back without leaving the current tab."""
+        self._change_style_page(-1)
+
+    def next_style_page(self) -> None:
+        """Move one page forward without leaving the current tab."""
+        self._change_style_page(1)
+
+    def _change_style_page(self, delta: int) -> None:
+        if self.state is not AppState.STYLE or self.style_dialog_open:
+            return
+        page = max(0, min(self.style_page_count - 1, self.style_page + delta))
+        if self.style_tab is StyleTab.ANIMALS:
+            self.character_page = page
+        else:
+            self.food_page = page
+
     def go_home(self) -> None:
         """Return to Home from a navigable non-playing screen."""
+        if self.state is AppState.STYLE and self.style_dialog_open:
+            return
         if self.state in (AppState.STYLE, AppState.GAME_OVER):
             self.food_dialog = None
             self.pending_food_id = None
@@ -235,6 +310,7 @@ class ApplicationController:
             self.state is not AppState.STYLE
             or self.style_tab is not StyleTab.ANIMALS
             or self.active_profile is None
+            or self.style_dialog_open
         ):
             return
         item = CHARACTERS_BY_ID.get(character_id)
@@ -277,6 +353,7 @@ class ApplicationController:
             self.state is not AppState.STYLE
             or self.style_tab is not StyleTab.FOODS
             or self.active_profile is None
+            or self.style_dialog_open
         ):
             return
         item = FOODS_BY_ID.get(food_id)

@@ -102,6 +102,10 @@ def _apply_ui_command(controller: ApplicationController, command: UICommand) -> 
         controller.confirm_character_purchase()
     elif action is UIAction.DISMISS_CHARACTER_DIALOG:
         controller.dismiss_character_dialog()
+    elif action is UIAction.PREVIOUS_STYLE_PAGE:
+        controller.previous_style_page()
+    elif action is UIAction.NEXT_STYLE_PAGE:
+        controller.next_style_page()
     return True
 
 
