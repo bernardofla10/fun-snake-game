@@ -10,4 +10,4 @@
 - [x] T008 Review all pages and animal paths at supported screen sizes
 - [x] T009 Update documentation, roadmap numbering, and asset provenance
 - [x] T010 Run Ruff, pytest and isolated wheel validation
-- [ ] T011 Review diff, finalize logical commits, push and open PR
+- [x] T011 Review diff, finalize logical commits, push and open PR
