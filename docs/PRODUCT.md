@@ -122,6 +122,18 @@ The game now:
 * uses the same sprites in Style, gameplay, and Game Over;
 * keeps movement, growth, collisions, score, and coin rewards identical for every animal.
 
+
+### 014 — Expanded Cosmetic Catalog and Connected Bodies
+
+The game now:
+
+* includes 24 animals and 22 food styles, including drinks and sweets;
+* provides separate paginated catalogs operated by the mouse;
+* opens each catalog at the equipped item and preserves pages during purchases and retries;
+* renders continuous bodies with matched straight/curve thickness and centered joins;
+* replaces the original four animals' sprites and adds 20 new species;
+* preserves existing purchases, equipment, balances and gameplay rules.
+
 ---
 
 ## 6. Future Features

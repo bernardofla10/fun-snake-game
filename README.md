@@ -49,15 +49,17 @@ Each launch starts with a two-second welcome animation that can be skipped with
 any key or mouse click. The player must then select or create a local profile.
 Profile names contain 1–20 characters and are unique without case distinctions;
 the list supports any number of profiles through mouse-operated pagination. Home
-provides **Play**, **Style**, **Trocar perfil**, and **Sair**. The **Comidas** tab
-in Style shows apple, strawberry, cheese, cupcake, pizza, and sushi cards with
-their price and availability. Click an acquired food to equip it, or click an
-unowned food to review its price and remaining balance before buying. An item
-without sufficient balance stays visible and explains how many coins are missing.
-The **Animais** tab shows six-segment previews of the Snake, Worm, Caterpillar,
-and Axolotl. Each animal card shows its price and availability. Acquired animals
-equip immediately when clicked; affordable animals are purchased after
-confirmation and then equipped automatically.
+provides **Play**, **Style**, **Trocar perfil**, and **Sair**. Style offers
+24 animals on six pages and 22 foods on four pages. Use **Anterior** and
+**Próxima** to browse four animal cards or six food cards at a time. Each tab
+remembers its page, and opening Style locates the equipped items.
+
+Animal cards show a curved six-segment preview with a continuous body. Cards
+show price and ownership state. Click an acquired item to equip it, or click an
+unowned item to review its price and remaining balance before buying. Purchase
+confirmation equips it automatically; insufficient balance explains the missing
+coins. Dialogs block background controls. See the complete
+[catalog and prices](docs/COSMETIC_CATALOG.md).
 
 Profiles use a local SQLite database named `profiles.db`. On Linux it is stored
 under `$XDG_DATA_HOME/fun-snake-game` or `~/.local/share/fun-snake-game`; on
@@ -130,7 +132,8 @@ geometry, local profile validation, temporary SQLite databases, persistence
 recovery, typed step outcomes, persistent coin credit, atomic purchase results,
 food catalog cards, persistent food equipment, packaged sprite loading and bounds,
 animal segment classification and rotation, persistent animal equipment,
-six-segment previews, cosmetic gameplay equivalence, fullscreen startup,
+six-segment previews, catalog pagination, connected sprite edges and thickness,
+cosmetic gameplay equivalence, fullscreen startup,
 close-event handling, and pygame cleanup after an error.
 
 ## Continuous integration
@@ -161,6 +164,8 @@ fixture.
 - `specs/011-coins-purchases/`: persistent coins and atomic purchase requirements.
 - `specs/012-food-shop-styles/`: cosmetic food shop and sprite requirements.
 - `specs/013-cute-animals/`: animal shop, segmented sprites, and preview requirements.
+- `specs/014-expanded-cosmetic-catalog/`: expanded catalog, pagination, and connected bodies.
+- `docs/COSMETIC_CATALOG.md`: prices, art provenance, and packaged assets.
 - `docs/FEATURE_ROADMAP.md`: ordered post-MVP feature roadmap.
 - `docs/PRODUCT.md`: product vision and future scope.
 
