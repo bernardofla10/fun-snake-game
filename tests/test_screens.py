@@ -90,7 +90,7 @@ def test_food_cards_show_every_catalog_item_without_overlap(
     )
     cards = [button for button in buttons if button.action is UIAction.SELECT_FOOD]
 
-    assert [button.value for button in cards] == [item.id for item in FOOD_CATALOG]
+    assert [button.value for button in cards] == [item.id for item in FOOD_CATALOG[:6]]
     assert len(cards) == 6
     for index, card in enumerate(cards):
         assert pygame.Rect((0, 0), size).contains(card.rect)
@@ -118,7 +118,9 @@ def test_animal_cards_show_every_catalog_item_without_overlap(
     )
     cards = [button for button in buttons if button.action is UIAction.SELECT_CHARACTER]
 
-    assert [button.value for button in cards] == [item.id for item in CHARACTER_CATALOG]
+    assert [button.value for button in cards] == [
+        item.id for item in CHARACTER_CATALOG[:4]
+    ]
     assert len(cards) == 4
     for index, card in enumerate(cards):
         assert pygame.Rect((0, 0), size).contains(card.rect)

@@ -393,3 +393,53 @@ def test_character_purchase_rolls_back_balance_ownership_and_equipment(
     assert unchanged.coins == 30
     assert unchanged.equipped_character == DEFAULT_CHARACTER_ID
     assert OwnedItem(ItemType.CHARACTER, "worm") not in unchanged.owned_items
+
+
+@pytest.mark.parametrize(
+    ("item_type", "item_id", "price"),
+    [
+        (item.item_type, item.item_id, price)
+        for item, price in CATALOG_PRICES.items()
+        if price >= (80 if item.item_type is ItemType.CHARACTER else 40)
+    ],
+)
+def test_expanded_items_buy_equip_reopen_and_remain_isolated(
+    tmp_path, item_type, item_id, price
+):
+    database = tmp_path / "profiles.db"
+    store = ProfileStore(database)
+    store.initialize()
+    ana = store.create_profile("Ana")
+    bia = store.create_profile("Bia")
+    store.credit_coins(ana.id, price - 1)
+    buy = (
+        store.purchase_and_equip_character
+        if item_type is ItemType.CHARACTER
+        else store.purchase_and_equip_food
+    )
+    assert buy(ana.id, item_id).status is PurchaseStatus.INSUFFICIENT_FUNDS
+    assert store.list_profiles()[0].owned_items == ana.owned_items
+    store.credit_coins(ana.id, 2)
+    result = buy(ana.id, item_id)
+    assert result.status is PurchaseStatus.SUCCESS
+    assert result.profile is not None
+    assert result.profile.coins == 1
+    repeated = buy(ana.id, item_id)
+    assert repeated.status is PurchaseStatus.SUCCESS
+    assert repeated.profile == result.profile
+    reopened = ProfileStore(database)
+    reopened.initialize()
+    profiles = {p.name: p for p in reopened.list_profiles()}
+    assert profiles["Ana"] == result.profile
+    assert profiles["Bia"] == bia
+    equipped = (
+        profiles["Ana"].equipped_character
+        if item_type is ItemType.CHARACTER
+        else profiles["Ana"].equipped_food
+    )
+    assert equipped == item_id
+    assert OwnedItem(item_type, item_id) in profiles["Ana"].owned_items
+    with sqlite3.connect(database) as connection:
+        assert (
+            connection.execute("SELECT version FROM schema_version").fetchone()[0] == 1
+        )

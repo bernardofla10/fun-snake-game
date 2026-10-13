@@ -1,0 +1,791 @@
+{
+  "feature": "014-expanded-cosmetic-catalog",
+  "tool": "built-in image_gen.imagegen",
+  "transparent_background": true,
+  "assets": [
+    {
+      "id": "axolotl",
+      "part": "body_curve",
+      "asset": "src/snake_game/assets/characters/axolotl/body_curve.png",
+      "source": "exec-f27f40a2-8f21-452b-addc-af03a47a7c9d.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: pastel pink axolotl with external feathery gills and small feet. CURVED BODY ONLY. One quarter-circle tube linking LEFT canvas edge at (0%,50%) and BOTTOM canvas edge at (50%,100%). Center of the quarter circle is the canvas bottom-left corner (0%,100%); centerline radius50%; thickness40%, inner radius30%, outer radius70%. Thus the curve is in the lower-left portion of the square: it opens LEFT at y30%..70% and BOTTOM at x30%..70%. IMPORTANT no U or C, no head or tail. The cut connections reach those actual canvas edges, no inset margins, caps, black outline or shading across connections. Outside silhouette and the entire upper-right area transparent. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "axolotl",
+      "part": "body_straight",
+      "asset": "src/snake_game/assets/characters/axolotl/body_straight.png",
+      "source": "exec-77a1256f-cf11-420d-bef2-8442c2e8fe1a.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: pastel pink axolotl with external feathery gills and small feet. STRAIGHT BODY ONLY. A horizontal tube from LEFT canvas edge to RIGHT canvas edge, centered y50%, constant thickness 40% (y30%..70%). Both edges are cut open connectors, no caps or outlines across those cut edges. No face or tail, no paws interrupting the connector. Symmetric upper/lower contour. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "axolotl",
+      "part": "head",
+      "asset": "src/snake_game/assets/characters/axolotl/head.png",
+      "source": "exec-cffa6c61-4020-4dfe-a23a-c47bcc558e88.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: pastel pink axolotl with external feathery gills and small feet. HEAD ONLY. Facing RIGHT. Back of neck reaches LEFT canvas edge at (0%,50%), occupies y30%..70% there, open unoutlined connector. Cute oversized species face fits x20%..95%, y10%..90%. No whole animal, no extra body, no tail. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "axolotl",
+      "part": "tail",
+      "asset": "src/snake_game/assets/characters/axolotl/tail.png",
+      "source": "exec-3b41c500-9083-422c-8266-4863301ee782.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: pastel pink axolotl with external feathery gills and small feet. TAIL ONLY. Body connector reaches RIGHT canvas edge at (100%,50%), occupies y30%..70% there, same species body color. Taper towards LEFT, fitting inside square, with species-specific tail details. No head, eyes or complete animal. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "bee",
+      "part": "body_curve",
+      "asset": "src/snake_game/assets/characters/bee/body_curve.png",
+      "source": "exec-c0411d8d-df89-420d-9295-f2a54874955f.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: golden yellow bee with black stripes, small antennae and pale blue wings. CURVED BODY ONLY. One quarter-circle tube linking LEFT canvas edge at (0%,50%) and BOTTOM canvas edge at (50%,100%). Center of the quarter circle is the canvas bottom-left corner (0%,100%); centerline radius50%; thickness40%, inner radius30%, outer radius70%. Thus the curve is in the lower-left portion of the square: it opens LEFT at y30%..70% and BOTTOM at x30%..70%. IMPORTANT no U or C, no head or tail. The cut connections reach those actual canvas edges, no inset margins, caps, black outline or shading across connections. Outside silhouette and the entire upper-right area transparent. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "bee",
+      "part": "body_straight",
+      "asset": "src/snake_game/assets/characters/bee/body_straight.png",
+      "source": "exec-9daedfc9-17fe-4ef0-93a0-755febdc32d9.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: golden yellow bee with black stripes, small antennae and pale blue wings. STRAIGHT BODY ONLY. A horizontal tube from LEFT canvas edge to RIGHT canvas edge, centered y50%, constant thickness 40% (y30%..70%). Both edges are cut open connectors, no caps or outlines across those cut edges. No face or tail, no paws interrupting the connector. Symmetric upper/lower contour. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "bee",
+      "part": "head",
+      "asset": "src/snake_game/assets/characters/bee/head.png",
+      "source": "exec-b006220a-301f-47c7-bd42-efe6d83671f2.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: golden yellow bee with black stripes, small antennae and pale blue wings. HEAD ONLY. Facing RIGHT. Back of neck reaches LEFT canvas edge at (0%,50%), occupies y30%..70% there, open unoutlined connector. Cute oversized species face fits x20%..95%, y10%..90%. No whole animal, no extra body, no tail. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "bee",
+      "part": "tail",
+      "asset": "src/snake_game/assets/characters/bee/tail.png",
+      "source": "exec-4dbde352-f4e7-4b08-9013-b105122e2a8a.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: golden yellow bee with black stripes, small antennae and pale blue wings. TAIL ONLY. Body connector reaches RIGHT canvas edge at (100%,50%), occupies y30%..70% there, same species body color. Taper towards LEFT, fitting inside square, with species-specific tail details. No head, eyes or complete animal. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "butterfly",
+      "part": "body_curve",
+      "asset": "src/snake_game/assets/characters/butterfly/body_curve.png",
+      "source": "exec-112d1186-6751-41f3-9b21-e7a8b2a00f97.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: purple butterfly with purple lilac wings, small antennae and elongated purple body. CURVED BODY ONLY. One quarter-circle tube linking LEFT canvas edge at (0%,50%) and BOTTOM canvas edge at (50%,100%). Center of the quarter circle is the canvas bottom-left corner (0%,100%); centerline radius50%; thickness40%, inner radius30%, outer radius70%. Thus the curve is in the lower-left portion of the square: it opens LEFT at y30%..70% and BOTTOM at x30%..70%. IMPORTANT no U or C, no head or tail. The cut connections reach those actual canvas edges, no inset margins, caps, black outline or shading across connections. Outside silhouette and the entire upper-right area transparent. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "butterfly",
+      "part": "body_straight",
+      "asset": "src/snake_game/assets/characters/butterfly/body_straight.png",
+      "source": "exec-065669e7-2a66-4cb3-9d1c-264d8b868465.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: purple butterfly with purple lilac wings, small antennae and elongated purple body. STRAIGHT BODY ONLY. A horizontal tube from LEFT canvas edge to RIGHT canvas edge, centered y50%, constant thickness 40% (y30%..70%). Both edges are cut open connectors, no caps or outlines across those cut edges. No face or tail, no paws interrupting the connector. Symmetric upper/lower contour. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "butterfly",
+      "part": "head",
+      "asset": "src/snake_game/assets/characters/butterfly/head.png",
+      "source": "exec-4b93edae-84ad-45de-aee6-62145f8a76b2.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: purple butterfly with purple lilac wings, small antennae and elongated purple body. HEAD ONLY. Facing RIGHT. Back of neck reaches LEFT canvas edge at (0%,50%), occupies y30%..70% there, open unoutlined connector. Cute oversized species face fits x20%..95%, y10%..90%. No whole animal, no extra body, no tail. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "butterfly",
+      "part": "tail",
+      "asset": "src/snake_game/assets/characters/butterfly/tail.png",
+      "source": "exec-bd753377-ab14-48b8-9791-1f9b07b7d8c2.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: purple butterfly with purple lilac wings, small antennae and elongated purple body. TAIL ONLY. Body connector reaches RIGHT canvas edge at (100%,50%), occupies y30%..70% there, same species body color. Taper towards LEFT, fitting inside square, with species-specific tail details. No head, eyes or complete animal. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "capybara",
+      "part": "body_curve",
+      "asset": "src/snake_game/assets/characters/capybara/body_curve.png",
+      "source": "exec-c736219e-1478-403d-809b-306b0ba00cbd.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: brown capybara with blunt rounded muzzle and tiny rounded ears. CURVED BODY ONLY. One quarter-circle tube linking LEFT canvas edge at (0%,50%) and BOTTOM canvas edge at (50%,100%). Center of the quarter circle is the canvas bottom-left corner (0%,100%); centerline radius50%; thickness40%, inner radius30%, outer radius70%. Thus the curve is in the lower-left portion of the square: it opens LEFT at y30%..70% and BOTTOM at x30%..70%. IMPORTANT no U or C, no head or tail. The cut connections reach those actual canvas edges, no inset margins, caps, black outline or shading across connections. Outside silhouette and the entire upper-right area transparent. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "capybara",
+      "part": "body_straight",
+      "asset": "src/snake_game/assets/characters/capybara/body_straight.png",
+      "source": "exec-44b6494f-947e-44b0-b60f-6e0891de2112.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: brown capybara with blunt rounded muzzle and tiny rounded ears. STRAIGHT BODY ONLY. A horizontal tube from LEFT canvas edge to RIGHT canvas edge, centered y50%, constant thickness 40% (y30%..70%). Both edges are cut open connectors, no caps or outlines across those cut edges. No face or tail, no paws interrupting the connector. Symmetric upper/lower contour. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "capybara",
+      "part": "head",
+      "asset": "src/snake_game/assets/characters/capybara/head.png",
+      "source": "exec-9658a05e-a46e-4966-8cfc-aaeb6fb9d695.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: brown capybara with blunt rounded muzzle and tiny rounded ears. HEAD ONLY. Facing RIGHT. Back of neck reaches LEFT canvas edge at (0%,50%), occupies y30%..70% there, open unoutlined connector. Cute oversized species face fits x20%..95%, y10%..90%. No whole animal, no extra body, no tail. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "capybara",
+      "part": "tail",
+      "asset": "src/snake_game/assets/characters/capybara/tail.png",
+      "source": "exec-1bb3e961-2f6b-4d3e-ba33-e86967175980.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: brown capybara with blunt rounded muzzle and tiny rounded ears. TAIL ONLY. Body connector reaches RIGHT canvas edge at (100%,50%), occupies y30%..70% there, same species body color. Taper towards LEFT, fitting inside square, with species-specific tail details. No head, eyes or complete animal. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "cat",
+      "part": "body_curve",
+      "asset": "src/snake_game/assets/characters/cat/body_curve.png",
+      "source": "exec-8b1a1b47-de32-4ee6-a12d-785456788287.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: orange tabby kitten, triangular ears, whiskers, warm orange fur with subtle stripes. CURVED BODY ONLY. One quarter-circle tube linking LEFT canvas edge at (0%,50%) and BOTTOM canvas edge at (50%,100%). Center of the quarter circle is the canvas bottom-left corner (0%,100%); centerline radius50%; thickness40%, inner radius30%, outer radius70%. Thus the curve is in the lower-left portion of the square: it opens LEFT at y30%..70% and BOTTOM at x30%..70%. IMPORTANT no U or C, no head or tail. The cut connections reach those actual canvas edges, no inset margins, caps, black outline or shading across connections. Outside silhouette and the entire upper-right area transparent. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "cat",
+      "part": "body_straight",
+      "asset": "src/snake_game/assets/characters/cat/body_straight.png",
+      "source": "exec-186837e2-a497-49aa-9ab5-5517b97fd480.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: orange tabby kitten, triangular ears, whiskers, warm orange fur with subtle stripes. STRAIGHT BODY ONLY. A horizontal tube from LEFT canvas edge to RIGHT canvas edge, centered y50%, constant thickness 40% (y30%..70%). Both edges are cut open connectors, no caps or outlines across those cut edges. No face or tail, no paws interrupting the connector. Symmetric upper/lower contour. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "cat",
+      "part": "head",
+      "asset": "src/snake_game/assets/characters/cat/head.png",
+      "source": "exec-d7508af5-b2f7-46c4-8bdf-34aa827c1d90.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: orange tabby kitten, triangular ears, whiskers, warm orange fur with subtle stripes. HEAD ONLY. Facing RIGHT. Back of neck reaches LEFT canvas edge at (0%,50%), occupies y30%..70% there, open unoutlined connector. Cute oversized species face fits x20%..95%, y10%..90%. No whole animal, no extra body, no tail. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "cat",
+      "part": "tail",
+      "asset": "src/snake_game/assets/characters/cat/tail.png",
+      "source": "exec-c0b9c0c2-4ae0-4266-ac12-3e9e5d1a514b.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: orange tabby kitten, triangular ears, whiskers, warm orange fur with subtle stripes. TAIL ONLY. Body connector reaches RIGHT canvas edge at (100%,50%), occupies y30%..70% there, same species body color. Taper towards LEFT, fitting inside square, with species-specific tail details. No head, eyes or complete animal. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "caterpillar",
+      "part": "body_curve",
+      "asset": "src/snake_game/assets/characters/caterpillar/body_curve.png",
+      "source": "exec-60bad2ae-0b00-4f9c-be0c-ef065745c812.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: lime green caterpillar with subtle body segments, tiny feet and antennae. CURVED BODY ONLY. One quarter-circle tube linking LEFT canvas edge at (0%,50%) and BOTTOM canvas edge at (50%,100%). Center of the quarter circle is the canvas bottom-left corner (0%,100%); centerline radius50%; thickness40%, inner radius30%, outer radius70%. Thus the curve is in the lower-left portion of the square: it opens LEFT at y30%..70% and BOTTOM at x30%..70%. IMPORTANT no U or C, no head or tail. The cut connections reach those actual canvas edges, no inset margins, caps, black outline or shading across connections. Outside silhouette and the entire upper-right area transparent. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "caterpillar",
+      "part": "body_straight",
+      "asset": "src/snake_game/assets/characters/caterpillar/body_straight.png",
+      "source": "exec-6fb7fe19-70c9-4349-82f9-a263e5a52476.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: lime green caterpillar with subtle body segments, tiny feet and antennae. STRAIGHT BODY ONLY. A horizontal tube from LEFT canvas edge to RIGHT canvas edge, centered y50%, constant thickness 40% (y30%..70%). Both edges are cut open connectors, no caps or outlines across those cut edges. No face or tail, no paws interrupting the connector. Symmetric upper/lower contour. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "caterpillar",
+      "part": "head",
+      "asset": "src/snake_game/assets/characters/caterpillar/head.png",
+      "source": "exec-09159388-e94f-4809-9e15-48aa55456f84.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: lime green caterpillar with subtle body segments, tiny feet and antennae. HEAD ONLY. Facing RIGHT. Back of neck reaches LEFT canvas edge at (0%,50%), occupies y30%..70% there, open unoutlined connector. Cute oversized species face fits x20%..95%, y10%..90%. No whole animal, no extra body, no tail. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "caterpillar",
+      "part": "tail",
+      "asset": "src/snake_game/assets/characters/caterpillar/tail.png",
+      "source": "exec-55d0d8fe-1d6b-47a0-ac35-599c91dc9010.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: lime green caterpillar with subtle body segments, tiny feet and antennae. TAIL ONLY. Body connector reaches RIGHT canvas edge at (100%,50%), occupies y30%..70% there, same species body color. Taper towards LEFT, fitting inside square, with species-specific tail details. No head, eyes or complete animal. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "cow",
+      "part": "body_curve",
+      "asset": "src/snake_game/assets/characters/cow/body_curve.png",
+      "source": "exec-7f345b5e-866f-4e25-a6d6-a92f5b285665.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: white cow with black patches, small horns and pink muzzle. CURVED BODY ONLY. One quarter-circle tube linking LEFT canvas edge at (0%,50%) and BOTTOM canvas edge at (50%,100%). Center of the quarter circle is the canvas bottom-left corner (0%,100%); centerline radius50%; thickness40%, inner radius30%, outer radius70%. Thus the curve is in the lower-left portion of the square: it opens LEFT at y30%..70% and BOTTOM at x30%..70%. IMPORTANT no U or C, no head or tail. The cut connections reach those actual canvas edges, no inset margins, caps, black outline or shading across connections. Outside silhouette and the entire upper-right area transparent. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "cow",
+      "part": "body_straight",
+      "asset": "src/snake_game/assets/characters/cow/body_straight.png",
+      "source": "exec-fdb33c9d-f72e-4789-8fd1-2a28598e39a2.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: white cow with black patches, small horns and pink muzzle. STRAIGHT BODY ONLY. A horizontal tube from LEFT canvas edge to RIGHT canvas edge, centered y50%, constant thickness 40% (y30%..70%). Both edges are cut open connectors, no caps or outlines across those cut edges. No face or tail, no paws interrupting the connector. Symmetric upper/lower contour. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "cow",
+      "part": "head",
+      "asset": "src/snake_game/assets/characters/cow/head.png",
+      "source": "exec-bfdbf35e-2afa-4eec-abaa-0676d3e1d741.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: white cow with black patches, small horns and pink muzzle. HEAD ONLY. Facing RIGHT. Back of neck reaches LEFT canvas edge at (0%,50%), occupies y30%..70% there, open unoutlined connector. Cute oversized species face fits x20%..95%, y10%..90%. No whole animal, no extra body, no tail. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "cow",
+      "part": "tail",
+      "asset": "src/snake_game/assets/characters/cow/tail.png",
+      "source": "exec-4100a9a4-17eb-4f53-a902-6f6294df5771.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: white cow with black patches, small horns and pink muzzle. TAIL ONLY. Body connector reaches RIGHT canvas edge at (100%,50%), occupies y30%..70% there, same species body color. Taper towards LEFT, fitting inside square, with species-specific tail details. No head, eyes or complete animal. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "dog",
+      "part": "body_curve",
+      "asset": "src/snake_game/assets/characters/dog/body_curve.png",
+      "source": "exec-0e02323d-78d3-4c77-a35f-e724c22342ee.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: golden puppy with floppy brown ears and black nose, golden tan fur. CURVED BODY ONLY. One quarter-circle tube linking LEFT canvas edge at (0%,50%) and BOTTOM canvas edge at (50%,100%). Center of the quarter circle is the canvas bottom-left corner (0%,100%); centerline radius50%; thickness40%, inner radius30%, outer radius70%. Thus the curve is in the lower-left portion of the square: it opens LEFT at y30%..70% and BOTTOM at x30%..70%. IMPORTANT no U or C, no head or tail. The cut connections reach those actual canvas edges, no inset margins, caps, black outline or shading across connections. Outside silhouette and the entire upper-right area transparent. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "dog",
+      "part": "body_straight",
+      "asset": "src/snake_game/assets/characters/dog/body_straight.png",
+      "source": "exec-14aa0323-35a9-469e-954b-7f053ee4baa1.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: golden puppy with floppy brown ears and black nose, golden tan fur. STRAIGHT BODY ONLY. A horizontal tube from LEFT canvas edge to RIGHT canvas edge, centered y50%, constant thickness 40% (y30%..70%). Both edges are cut open connectors, no caps or outlines across those cut edges. No face or tail, no paws interrupting the connector. Symmetric upper/lower contour. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "dog",
+      "part": "head",
+      "asset": "src/snake_game/assets/characters/dog/head.png",
+      "source": "exec-7521fbf7-95b5-46d3-bdcf-d5021ff0888e.png",
+      "prompt": "Draw one transparent square cartoon game sprite: the head of a friendly golden puppy facing right, with floppy brown ears, big kind eyes and black nose. The neck extends to the left edge at the vertical center, with a wide tan connection occupying the middle 40% of the left edge. Keep the entire cute puppy head inside the tile. Gentle rounded children's illustration. No body, tail, text, logo, shadow or background. True transparent PNG."
+    },
+    {
+      "id": "dog",
+      "part": "tail",
+      "asset": "src/snake_game/assets/characters/dog/tail.png",
+      "source": "exec-3f980cba-4556-4179-96ab-e877a357e091.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: golden puppy with floppy brown ears and black nose, golden tan fur. TAIL ONLY. Body connector reaches RIGHT canvas edge at (100%,50%), occupies y30%..70% there, same species body color. Taper towards LEFT, fitting inside square, with species-specific tail details. No head, eyes or complete animal. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "fish",
+      "part": "body_curve",
+      "asset": "src/snake_game/assets/characters/fish/body_curve.png",
+      "source": "exec-f7bf2582-0b99-4c8a-84a4-ebfc4ef941a9.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: friendly bright orange fish with fins and subtle scales. CURVED BODY ONLY. One quarter-circle tube linking LEFT canvas edge at (0%,50%) and BOTTOM canvas edge at (50%,100%). Center of the quarter circle is the canvas bottom-left corner (0%,100%); centerline radius50%; thickness40%, inner radius30%, outer radius70%. Thus the curve is in the lower-left portion of the square: it opens LEFT at y30%..70% and BOTTOM at x30%..70%. IMPORTANT no U or C, no head or tail. The cut connections reach those actual canvas edges, no inset margins, caps, black outline or shading across connections. Outside silhouette and the entire upper-right area transparent. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "fish",
+      "part": "body_straight",
+      "asset": "src/snake_game/assets/characters/fish/body_straight.png",
+      "source": "exec-d265cc8d-3a62-4530-af69-719d8fd8100a.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: friendly bright orange fish with fins and subtle scales. STRAIGHT BODY ONLY. A horizontal tube from LEFT canvas edge to RIGHT canvas edge, centered y50%, constant thickness 40% (y30%..70%). Both edges are cut open connectors, no caps or outlines across those cut edges. No face or tail, no paws interrupting the connector. Symmetric upper/lower contour. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "fish",
+      "part": "head",
+      "asset": "src/snake_game/assets/characters/fish/head.png",
+      "source": "exec-90472c7e-a5b6-435d-90c0-4222e8e6c048.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: friendly bright orange fish with fins and subtle scales. HEAD ONLY. Facing RIGHT. Back of neck reaches LEFT canvas edge at (0%,50%), occupies y30%..70% there, open unoutlined connector. Cute oversized species face fits x20%..95%, y10%..90%. No whole animal, no extra body, no tail. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "fish",
+      "part": "tail",
+      "asset": "src/snake_game/assets/characters/fish/tail.png",
+      "source": "exec-fca48b0f-176c-49cc-9f4d-071f7e67c3f3.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: friendly bright orange fish with fins and subtle scales. TAIL ONLY. Body connector reaches RIGHT canvas edge at (100%,50%), occupies y30%..70% there, same species body color. Taper towards LEFT, fitting inside square, with species-specific tail details. No head, eyes or complete animal. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "fly",
+      "part": "body_curve",
+      "asset": "src/snake_game/assets/characters/fly/body_curve.png",
+      "source": "exec-a4ca0510-a945-4952-9599-51e73744caba.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: friendly charcoal grey fly, oversized cute eyes and translucent pale blue wings. CURVED BODY ONLY. One quarter-circle tube linking LEFT canvas edge at (0%,50%) and BOTTOM canvas edge at (50%,100%). Center of the quarter circle is the canvas bottom-left corner (0%,100%); centerline radius50%; thickness40%, inner radius30%, outer radius70%. Thus the curve is in the lower-left portion of the square: it opens LEFT at y30%..70% and BOTTOM at x30%..70%. IMPORTANT no U or C, no head or tail. The cut connections reach those actual canvas edges, no inset margins, caps, black outline or shading across connections. Outside silhouette and the entire upper-right area transparent. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "fly",
+      "part": "body_straight",
+      "asset": "src/snake_game/assets/characters/fly/body_straight.png",
+      "source": "exec-1fe7c66e-df54-417c-afbc-d1a9eeeba1a0.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: friendly charcoal grey fly, oversized cute eyes and translucent pale blue wings. STRAIGHT BODY ONLY. A horizontal tube from LEFT canvas edge to RIGHT canvas edge, centered y50%, constant thickness 40% (y30%..70%). Both edges are cut open connectors, no caps or outlines across those cut edges. No face or tail, no paws interrupting the connector. Symmetric upper/lower contour. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "fly",
+      "part": "head",
+      "asset": "src/snake_game/assets/characters/fly/head.png",
+      "source": "exec-2f473ffa-a420-4b78-b8e1-d758d45efd2c.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: friendly charcoal grey fly, oversized cute eyes and translucent pale blue wings. HEAD ONLY. Facing RIGHT. Back of neck reaches LEFT canvas edge at (0%,50%), occupies y30%..70% there, open unoutlined connector. Cute oversized species face fits x20%..95%, y10%..90%. No whole animal, no extra body, no tail. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "fly",
+      "part": "tail",
+      "asset": "src/snake_game/assets/characters/fly/tail.png",
+      "source": "exec-58527cf1-8746-47d9-b42a-57aa5b329f85.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: friendly charcoal grey fly, oversized cute eyes and translucent pale blue wings. TAIL ONLY. Body connector reaches RIGHT canvas edge at (100%,50%), occupies y30%..70% there, same species body color. Taper towards LEFT, fitting inside square, with species-specific tail details. No head, eyes or complete animal. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "fox",
+      "part": "body_curve",
+      "asset": "src/snake_game/assets/characters/fox/body_curve.png",
+      "source": "exec-bcaa1a06-4e1d-4e46-a1b1-84bccfcb2a21.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: orange fox with pointed ears, white muzzle and white tail tip. CURVED BODY ONLY. One quarter-circle tube linking LEFT canvas edge at (0%,50%) and BOTTOM canvas edge at (50%,100%). Center of the quarter circle is the canvas bottom-left corner (0%,100%); centerline radius50%; thickness40%, inner radius30%, outer radius70%. Thus the curve is in the lower-left portion of the square: it opens LEFT at y30%..70% and BOTTOM at x30%..70%. IMPORTANT no U or C, no head or tail. The cut connections reach those actual canvas edges, no inset margins, caps, black outline or shading across connections. Outside silhouette and the entire upper-right area transparent. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "fox",
+      "part": "body_straight",
+      "asset": "src/snake_game/assets/characters/fox/body_straight.png",
+      "source": "exec-c994e90f-1ae2-4b53-9e70-96f6e470fd04.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: orange fox with pointed ears, white muzzle and white tail tip. STRAIGHT BODY ONLY. A horizontal tube from LEFT canvas edge to RIGHT canvas edge, centered y50%, constant thickness 40% (y30%..70%). Both edges are cut open connectors, no caps or outlines across those cut edges. No face or tail, no paws interrupting the connector. Symmetric upper/lower contour. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "fox",
+      "part": "head",
+      "asset": "src/snake_game/assets/characters/fox/head.png",
+      "source": "exec-4a8f3ae7-554c-4f87-9e34-5ebd96d6e51f.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: orange fox with pointed ears, white muzzle and white tail tip. HEAD ONLY. Facing RIGHT. Back of neck reaches LEFT canvas edge at (0%,50%), occupies y30%..70% there, open unoutlined connector. Cute oversized species face fits x20%..95%, y10%..90%. No whole animal, no extra body, no tail. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "fox",
+      "part": "tail",
+      "asset": "src/snake_game/assets/characters/fox/tail.png",
+      "source": "exec-dafeb375-ded4-42ef-bae5-1c6dbce152b7.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: orange fox with pointed ears, white muzzle and white tail tip. TAIL ONLY. Body connector reaches RIGHT canvas edge at (100%,50%), occupies y30%..70% there, same species body color. Taper towards LEFT, fitting inside square, with species-specific tail details. No head, eyes or complete animal. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "goat",
+      "part": "body_curve",
+      "asset": "src/snake_game/assets/characters/goat/body_curve.png",
+      "source": "exec-606cc9e4-63b5-4516-8687-b2d358e3615c.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: cream beige goat with small horns, pointed ears and little beard. CURVED BODY ONLY. One quarter-circle tube linking LEFT canvas edge at (0%,50%) and BOTTOM canvas edge at (50%,100%). Center of the quarter circle is the canvas bottom-left corner (0%,100%); centerline radius50%; thickness40%, inner radius30%, outer radius70%. Thus the curve is in the lower-left portion of the square: it opens LEFT at y30%..70% and BOTTOM at x30%..70%. IMPORTANT no U or C, no head or tail. The cut connections reach those actual canvas edges, no inset margins, caps, black outline or shading across connections. Outside silhouette and the entire upper-right area transparent. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "goat",
+      "part": "body_straight",
+      "asset": "src/snake_game/assets/characters/goat/body_straight.png",
+      "source": "exec-a4908c70-de72-48e2-a932-563e1df51c86.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: cream beige goat with small horns, pointed ears and little beard. STRAIGHT BODY ONLY. A horizontal tube from LEFT canvas edge to RIGHT canvas edge, centered y50%, constant thickness 40% (y30%..70%). Both edges are cut open connectors, no caps or outlines across those cut edges. No face or tail, no paws interrupting the connector. Symmetric upper/lower contour. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "goat",
+      "part": "head",
+      "asset": "src/snake_game/assets/characters/goat/head.png",
+      "source": "exec-b4af8ea8-0a85-4662-8c2d-2c36ae95262b.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: cream beige goat with small horns, pointed ears and little beard. HEAD ONLY. Facing RIGHT. Back of neck reaches LEFT canvas edge at (0%,50%), occupies y30%..70% there, open unoutlined connector. Cute oversized species face fits x20%..95%, y10%..90%. No whole animal, no extra body, no tail. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "goat",
+      "part": "tail",
+      "asset": "src/snake_game/assets/characters/goat/tail.png",
+      "source": "exec-82a0b14d-c8f6-43b2-8d9b-d2b8112da9a3.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: cream beige goat with small horns, pointed ears and little beard. TAIL ONLY. Body connector reaches RIGHT canvas edge at (100%,50%), occupies y30%..70% there, same species body color. Taper towards LEFT, fitting inside square, with species-specific tail details. No head, eyes or complete animal. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "horse",
+      "part": "body_curve",
+      "asset": "src/snake_game/assets/characters/horse/body_curve.png",
+      "source": "exec-a033c219-bba9-4b55-b003-8020b96d5b79.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: chestnut brown horse with dark brown mane and tail. CURVED BODY ONLY. One quarter-circle tube linking LEFT canvas edge at (0%,50%) and BOTTOM canvas edge at (50%,100%). Center of the quarter circle is the canvas bottom-left corner (0%,100%); centerline radius50%; thickness40%, inner radius30%, outer radius70%. Thus the curve is in the lower-left portion of the square: it opens LEFT at y30%..70% and BOTTOM at x30%..70%. IMPORTANT no U or C, no head or tail. The cut connections reach those actual canvas edges, no inset margins, caps, black outline or shading across connections. Outside silhouette and the entire upper-right area transparent. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "horse",
+      "part": "body_straight",
+      "asset": "src/snake_game/assets/characters/horse/body_straight.png",
+      "source": "exec-85f852f7-a235-4881-af2f-47d160e9e34f.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: chestnut brown horse with dark brown mane and tail. STRAIGHT BODY ONLY. A horizontal tube from LEFT canvas edge to RIGHT canvas edge, centered y50%, constant thickness 40% (y30%..70%). Both edges are cut open connectors, no caps or outlines across those cut edges. No face or tail, no paws interrupting the connector. Symmetric upper/lower contour. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "horse",
+      "part": "head",
+      "asset": "src/snake_game/assets/characters/horse/head.png",
+      "source": "exec-39105750-0a22-4320-b88a-456a9cdf8d14.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: chestnut brown horse with dark brown mane and tail. HEAD ONLY. Facing RIGHT. Back of neck reaches LEFT canvas edge at (0%,50%), occupies y30%..70% there, open unoutlined connector. Cute oversized species face fits x20%..95%, y10%..90%. No whole animal, no extra body, no tail. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "horse",
+      "part": "tail",
+      "asset": "src/snake_game/assets/characters/horse/tail.png",
+      "source": "exec-32cbcdc4-daa0-45bb-976c-3e8dbd77c274.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: chestnut brown horse with dark brown mane and tail. TAIL ONLY. Body connector reaches RIGHT canvas edge at (100%,50%), occupies y30%..70% there, same species body color. Taper towards LEFT, fitting inside square, with species-specific tail details. No head, eyes or complete animal. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "jaguar",
+      "part": "body_curve",
+      "asset": "src/snake_game/assets/characters/jaguar/body_curve.png",
+      "source": "exec-a29c4782-c812-4017-9ea1-ec7b691e8b5f.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: golden yellow jaguar with black rosette spots and rounded ears. CURVED BODY ONLY. One quarter-circle tube linking LEFT canvas edge at (0%,50%) and BOTTOM canvas edge at (50%,100%). Center of the quarter circle is the canvas bottom-left corner (0%,100%); centerline radius50%; thickness40%, inner radius30%, outer radius70%. Thus the curve is in the lower-left portion of the square: it opens LEFT at y30%..70% and BOTTOM at x30%..70%. IMPORTANT no U or C, no head or tail. The cut connections reach those actual canvas edges, no inset margins, caps, black outline or shading across connections. Outside silhouette and the entire upper-right area transparent. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "jaguar",
+      "part": "body_straight",
+      "asset": "src/snake_game/assets/characters/jaguar/body_straight.png",
+      "source": "exec-1d39af12-3d5b-470f-9aa5-fcf4adcb6d49.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: golden yellow jaguar with black rosette spots and rounded ears. STRAIGHT BODY ONLY. A horizontal tube from LEFT canvas edge to RIGHT canvas edge, centered y50%, constant thickness 40% (y30%..70%). Both edges are cut open connectors, no caps or outlines across those cut edges. No face or tail, no paws interrupting the connector. Symmetric upper/lower contour. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "jaguar",
+      "part": "head",
+      "asset": "src/snake_game/assets/characters/jaguar/head.png",
+      "source": "exec-d98ee119-1f50-4fc1-952e-30f4b2c8d39f.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: golden yellow jaguar with black rosette spots and rounded ears. HEAD ONLY. Facing RIGHT. Back of neck reaches LEFT canvas edge at (0%,50%), occupies y30%..70% there, open unoutlined connector. Cute oversized species face fits x20%..95%, y10%..90%. No whole animal, no extra body, no tail. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "jaguar",
+      "part": "tail",
+      "asset": "src/snake_game/assets/characters/jaguar/tail.png",
+      "source": "exec-9781a5bb-cc09-4625-a303-e49dcb133156.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: golden yellow jaguar with black rosette spots and rounded ears. TAIL ONLY. Body connector reaches RIGHT canvas edge at (100%,50%), occupies y30%..70% there, same species body color. Taper towards LEFT, fitting inside square, with species-specific tail details. No head, eyes or complete animal. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "ladybug",
+      "part": "body_curve",
+      "asset": "src/snake_game/assets/characters/ladybug/body_curve.png",
+      "source": "exec-02ed7897-3124-4579-8fbe-26bdc2a8ea27.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: red ladybug with black spots and small black antennae. CURVED BODY ONLY. One quarter-circle tube linking LEFT canvas edge at (0%,50%) and BOTTOM canvas edge at (50%,100%). Center of the quarter circle is the canvas bottom-left corner (0%,100%); centerline radius50%; thickness40%, inner radius30%, outer radius70%. Thus the curve is in the lower-left portion of the square: it opens LEFT at y30%..70% and BOTTOM at x30%..70%. IMPORTANT no U or C, no head or tail. The cut connections reach those actual canvas edges, no inset margins, caps, black outline or shading across connections. Outside silhouette and the entire upper-right area transparent. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "ladybug",
+      "part": "body_straight",
+      "asset": "src/snake_game/assets/characters/ladybug/body_straight.png",
+      "source": "exec-74d7604d-0850-439e-a61a-22a5c4214ed4.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: red ladybug with black spots and small black antennae. STRAIGHT BODY ONLY. A horizontal tube from LEFT canvas edge to RIGHT canvas edge, centered y50%, constant thickness 40% (y30%..70%). Both edges are cut open connectors, no caps or outlines across those cut edges. No face or tail, no paws interrupting the connector. Symmetric upper/lower contour. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "ladybug",
+      "part": "head",
+      "asset": "src/snake_game/assets/characters/ladybug/head.png",
+      "source": "exec-28ad6512-e28a-4539-8c8d-af791c06eab4.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: red ladybug with black spots and small black antennae. HEAD ONLY. Facing RIGHT. Back of neck reaches LEFT canvas edge at (0%,50%), occupies y30%..70% there, open unoutlined connector. Cute oversized species face fits x20%..95%, y10%..90%. No whole animal, no extra body, no tail. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "ladybug",
+      "part": "tail",
+      "asset": "src/snake_game/assets/characters/ladybug/tail.png",
+      "source": "exec-fc5eea2c-f1a0-4c28-932d-3e5a74a842db.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: red ladybug with black spots and small black antennae. TAIL ONLY. Body connector reaches RIGHT canvas edge at (100%,50%), occupies y30%..70% there, same species body color. Taper towards LEFT, fitting inside square, with species-specific tail details. No head, eyes or complete animal. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "monkey",
+      "part": "body_curve",
+      "asset": "src/snake_game/assets/characters/monkey/body_curve.png",
+      "source": "exec-ec1b2ec8-896f-4c55-8147-a2831da4725b.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: brown monkey with beige muzzle, round ears and long curled tail. CURVED BODY ONLY. One quarter-circle tube linking LEFT canvas edge at (0%,50%) and BOTTOM canvas edge at (50%,100%). Center of the quarter circle is the canvas bottom-left corner (0%,100%); centerline radius50%; thickness40%, inner radius30%, outer radius70%. Thus the curve is in the lower-left portion of the square: it opens LEFT at y30%..70% and BOTTOM at x30%..70%. IMPORTANT no U or C, no head or tail. The cut connections reach those actual canvas edges, no inset margins, caps, black outline or shading across connections. Outside silhouette and the entire upper-right area transparent. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "monkey",
+      "part": "body_straight",
+      "asset": "src/snake_game/assets/characters/monkey/body_straight.png",
+      "source": "exec-7c5ab014-250e-4bc5-b153-6c0fa62ce04d.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: brown monkey with beige muzzle, round ears and long curled tail. STRAIGHT BODY ONLY. A horizontal tube from LEFT canvas edge to RIGHT canvas edge, centered y50%, constant thickness 40% (y30%..70%). Both edges are cut open connectors, no caps or outlines across those cut edges. No face or tail, no paws interrupting the connector. Symmetric upper/lower contour. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "monkey",
+      "part": "head",
+      "asset": "src/snake_game/assets/characters/monkey/head.png",
+      "source": "exec-7614a830-a341-4158-8261-a6378e317459.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: brown monkey with beige muzzle, round ears and long curled tail. HEAD ONLY. Facing RIGHT. Back of neck reaches LEFT canvas edge at (0%,50%), occupies y30%..70% there, open unoutlined connector. Cute oversized species face fits x20%..95%, y10%..90%. No whole animal, no extra body, no tail. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "monkey",
+      "part": "tail",
+      "asset": "src/snake_game/assets/characters/monkey/tail.png",
+      "source": "exec-364223fa-c20b-4cf2-ba0e-3a9d7dd972c2.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: brown monkey with beige muzzle, round ears and long curled tail. TAIL ONLY. Body connector reaches RIGHT canvas edge at (100%,50%), occupies y30%..70% there, same species body color. Taper towards LEFT, fitting inside square, with species-specific tail details. No head, eyes or complete animal. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "peacock",
+      "part": "body_curve",
+      "asset": "src/snake_game/assets/characters/peacock/body_curve.png",
+      "source": "exec-624fddbf-770a-412f-84bb-37ca12208548.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: teal blue peacock, small crest and green tail with peacock eye markings. CURVED BODY ONLY. One quarter-circle tube linking LEFT canvas edge at (0%,50%) and BOTTOM canvas edge at (50%,100%). Center of the quarter circle is the canvas bottom-left corner (0%,100%); centerline radius50%; thickness40%, inner radius30%, outer radius70%. Thus the curve is in the lower-left portion of the square: it opens LEFT at y30%..70% and BOTTOM at x30%..70%. IMPORTANT no U or C, no head or tail. The cut connections reach those actual canvas edges, no inset margins, caps, black outline or shading across connections. Outside silhouette and the entire upper-right area transparent. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "peacock",
+      "part": "body_straight",
+      "asset": "src/snake_game/assets/characters/peacock/body_straight.png",
+      "source": "exec-ea23fa37-be66-4ffd-9c9c-ed4a4d673baa.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: teal blue peacock, small crest and green tail with peacock eye markings. STRAIGHT BODY ONLY. A horizontal tube from LEFT canvas edge to RIGHT canvas edge, centered y50%, constant thickness 40% (y30%..70%). Both edges are cut open connectors, no caps or outlines across those cut edges. No face or tail, no paws interrupting the connector. Symmetric upper/lower contour. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "peacock",
+      "part": "head",
+      "asset": "src/snake_game/assets/characters/peacock/head.png",
+      "source": "exec-78faf611-51b6-467f-afaf-128bd748aa2d.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: teal blue peacock, small crest and green tail with peacock eye markings. HEAD ONLY. Facing RIGHT. Back of neck reaches LEFT canvas edge at (0%,50%), occupies y30%..70% there, open unoutlined connector. Cute oversized species face fits x20%..95%, y10%..90%. No whole animal, no extra body, no tail. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "peacock",
+      "part": "tail",
+      "asset": "src/snake_game/assets/characters/peacock/tail.png",
+      "source": "exec-2c8e92bc-da0c-4800-9aca-23df45b94a0c.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: teal blue peacock, small crest and green tail with peacock eye markings. TAIL ONLY. Body connector reaches RIGHT canvas edge at (100%,50%), occupies y30%..70% there, same species body color. Taper towards LEFT, fitting inside square, with species-specific tail details. No head, eyes or complete animal. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "pig",
+      "part": "body_curve",
+      "asset": "src/snake_game/assets/characters/pig/body_curve.png",
+      "source": "exec-cd9ba0e9-2c5f-467c-9a61-83c8f3804c64.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: pastel pink pig with round snout, little ears and curled tail. CURVED BODY ONLY. One quarter-circle tube linking LEFT canvas edge at (0%,50%) and BOTTOM canvas edge at (50%,100%). Center of the quarter circle is the canvas bottom-left corner (0%,100%); centerline radius50%; thickness40%, inner radius30%, outer radius70%. Thus the curve is in the lower-left portion of the square: it opens LEFT at y30%..70% and BOTTOM at x30%..70%. IMPORTANT no U or C, no head or tail. The cut connections reach those actual canvas edges, no inset margins, caps, black outline or shading across connections. Outside silhouette and the entire upper-right area transparent. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "pig",
+      "part": "body_straight",
+      "asset": "src/snake_game/assets/characters/pig/body_straight.png",
+      "source": "exec-1bbd1d7a-3b8e-4a6e-9768-4f20168c6b52.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: pastel pink pig with round snout, little ears and curled tail. STRAIGHT BODY ONLY. A horizontal tube from LEFT canvas edge to RIGHT canvas edge, centered y50%, constant thickness 40% (y30%..70%). Both edges are cut open connectors, no caps or outlines across those cut edges. No face or tail, no paws interrupting the connector. Symmetric upper/lower contour. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "pig",
+      "part": "head",
+      "asset": "src/snake_game/assets/characters/pig/head.png",
+      "source": "exec-c181ad75-79f8-42d8-95a9-5ef422eb3ebf.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: pastel pink pig with round snout, little ears and curled tail. HEAD ONLY. Facing RIGHT. Back of neck reaches LEFT canvas edge at (0%,50%), occupies y30%..70% there, open unoutlined connector. Cute oversized species face fits x20%..95%, y10%..90%. No whole animal, no extra body, no tail. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "pig",
+      "part": "tail",
+      "asset": "src/snake_game/assets/characters/pig/tail.png",
+      "source": "exec-e272a294-f286-4924-bea2-aead6f01e99b.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: pastel pink pig with round snout, little ears and curled tail. TAIL ONLY. Body connector reaches RIGHT canvas edge at (100%,50%), occupies y30%..70% there, same species body color. Taper towards LEFT, fitting inside square, with species-specific tail details. No head, eyes or complete animal. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "rabbit",
+      "part": "body_curve",
+      "asset": "src/snake_game/assets/characters/rabbit/body_curve.png",
+      "source": "exec-d1ae564e-210a-4a5a-b5ed-50923971c9e3.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: light grey rabbit with long ears, pink nose and fluffy round tail. CURVED BODY ONLY. One quarter-circle tube linking LEFT canvas edge at (0%,50%) and BOTTOM canvas edge at (50%,100%). Center of the quarter circle is the canvas bottom-left corner (0%,100%); centerline radius50%; thickness40%, inner radius30%, outer radius70%. Thus the curve is in the lower-left portion of the square: it opens LEFT at y30%..70% and BOTTOM at x30%..70%. IMPORTANT no U or C, no head or tail. The cut connections reach those actual canvas edges, no inset margins, caps, black outline or shading across connections. Outside silhouette and the entire upper-right area transparent. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "rabbit",
+      "part": "body_straight",
+      "asset": "src/snake_game/assets/characters/rabbit/body_straight.png",
+      "source": "exec-eec64e7f-7891-4928-8d79-11f8c0d326d2.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: light grey rabbit with long ears, pink nose and fluffy round tail. STRAIGHT BODY ONLY. A horizontal tube from LEFT canvas edge to RIGHT canvas edge, centered y50%, constant thickness 40% (y30%..70%). Both edges are cut open connectors, no caps or outlines across those cut edges. No face or tail, no paws interrupting the connector. Symmetric upper/lower contour. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "rabbit",
+      "part": "head",
+      "asset": "src/snake_game/assets/characters/rabbit/head.png",
+      "source": "exec-fd12bf4a-b8ed-471a-9074-bb66cf63173b.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: light grey rabbit with long ears, pink nose and fluffy round tail. HEAD ONLY. Facing RIGHT. Back of neck reaches LEFT canvas edge at (0%,50%), occupies y30%..70% there, open unoutlined connector. Cute oversized species face fits x20%..95%, y10%..90%. No whole animal, no extra body, no tail. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "rabbit",
+      "part": "tail",
+      "asset": "src/snake_game/assets/characters/rabbit/tail.png",
+      "source": "exec-87703da1-087e-463f-9c0f-925395dfda7f.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: light grey rabbit with long ears, pink nose and fluffy round tail. TAIL ONLY. Body connector reaches RIGHT canvas edge at (100%,50%), occupies y30%..70% there, same species body color. Taper towards LEFT, fitting inside square, with species-specific tail details. No head, eyes or complete animal. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "shark",
+      "part": "body_curve",
+      "asset": "src/snake_game/assets/characters/shark/body_curve.png",
+      "source": "exec-4465492c-6d9c-4777-b5f3-9047546d116f.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: friendly blue grey shark with dorsal fin and white belly. CURVED BODY ONLY. One quarter-circle tube linking LEFT canvas edge at (0%,50%) and BOTTOM canvas edge at (50%,100%). Center of the quarter circle is the canvas bottom-left corner (0%,100%); centerline radius50%; thickness40%, inner radius30%, outer radius70%. Thus the curve is in the lower-left portion of the square: it opens LEFT at y30%..70% and BOTTOM at x30%..70%. IMPORTANT no U or C, no head or tail. The cut connections reach those actual canvas edges, no inset margins, caps, black outline or shading across connections. Outside silhouette and the entire upper-right area transparent. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "shark",
+      "part": "body_straight",
+      "asset": "src/snake_game/assets/characters/shark/body_straight.png",
+      "source": "exec-54aebd68-00f6-4245-9e4b-adbe675d0e77.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: friendly blue grey shark with dorsal fin and white belly. STRAIGHT BODY ONLY. A horizontal tube from LEFT canvas edge to RIGHT canvas edge, centered y50%, constant thickness 40% (y30%..70%). Both edges are cut open connectors, no caps or outlines across those cut edges. No face or tail, no paws interrupting the connector. Symmetric upper/lower contour. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "shark",
+      "part": "head",
+      "asset": "src/snake_game/assets/characters/shark/head.png",
+      "source": "exec-c6e2c39b-e40c-4b9b-9d11-1f5e9889d823.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: friendly blue grey shark with dorsal fin and white belly. HEAD ONLY. Facing RIGHT. Back of neck reaches LEFT canvas edge at (0%,50%), occupies y30%..70% there, open unoutlined connector. Cute oversized species face fits x20%..95%, y10%..90%. No whole animal, no extra body, no tail. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "shark",
+      "part": "tail",
+      "asset": "src/snake_game/assets/characters/shark/tail.png",
+      "source": "exec-38c27833-1d60-46e2-8309-27574f9f9635.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: friendly blue grey shark with dorsal fin and white belly. TAIL ONLY. Body connector reaches RIGHT canvas edge at (100%,50%), occupies y30%..70% there, same species body color. Taper towards LEFT, fitting inside square, with species-specific tail details. No head, eyes or complete animal. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "snake",
+      "part": "body_curve",
+      "asset": "src/snake_game/assets/characters/snake/body_curve.png",
+      "source": "exec-0b04e5d7-cf0c-42fc-bafc-76af05ede39d.png",
+      "prompt": "Use case: stylized-concept. Asset type: exactly ONE production square RGBA transparent tile for a cute children's Snake game. Subject: green snake, soft green scales and warm yellow underside. CURVED BODY ONLY. One quarter-circle tube linking LEFT canvas edge at (0%,50%) and BOTTOM canvas edge at (50%,100%). Center of the quarter circle is the canvas bottom-left corner (0%,100%); centerline radius50%; thickness40%, inner radius30%, outer radius70%. Thus the curve is in the lower-left portion of the square: it opens LEFT at y30%..70% and BOTTOM at x30%..70%. IMPORTANT no U or C, no head or tail. The cut connections reach those actual canvas edges, no inset margins, caps, black outline or shading across connections. Outside silhouette and the entire upper-right area transparent. Engineering dimensions refer to the ENTIRE CANVAS, not an inner bounding box. All tiles of this animal must share matching flat base green and gentle yellow highlights; connectors are a uniform green. Clean charming rounded cartoon, no harsh borders, subtle scales, readable at24px. Keep geometry exact, silhouette entirely in canvas, transparent background, no background panel, no text, no shadow, no checkerboard. Make this one PART only."
+    },
+    {
+      "id": "snake",
+      "part": "body_straight",
+      "asset": "src/snake_game/assets/characters/snake/body_straight.png",
+      "source": "exec-8f40dcaa-9104-41e2-b329-0525f7f89a42.png",
+      "prompt": "Use case: stylized-concept. Asset type: one production sprite for a children's pygame Snake game. Create EXACTLY ONE square RGBA transparent tile, no background, no text, no drop shadow. Subject: green cute snake STRAIGHT BODY ONLY, no head, eyes or tail. Engineering geometry is mandatory: full canvas square; horizontal tube running completely from LEFT EDGE at y=50% to RIGHT EDGE at y=50%, constant thickness exactly 40% of canvas height (occupies y=30% through70%). Both cut edges are open connectors with identical green color, no end caps or vertical outline. No margin at left/right edges. Soft green scales, small golden belly highlight, clean cute cartoon simple shading readable at 24px. Do NOT make a complete animal. Do NOT crop body, round endpoints, curve, surround in white/checkerboard, or draw above y30% / below y70%. The body fills the full width and is centered vertically."
+    },
+    {
+      "id": "snake",
+      "part": "head",
+      "asset": "src/snake_game/assets/characters/snake/head.png",
+      "source": "exec-1df2555f-2309-4598-8f91-990107c88313.png",
+      "prompt": "Use case: stylized-concept. Asset type: exactly ONE production square RGBA transparent tile for a cute children's Snake game. Subject: green snake, soft green scales and warm yellow underside. HEAD ONLY. Facing RIGHT. Back of neck reaches LEFT canvas edge at (0%,50%), occupies y30%..70% there, open unoutlined connector. Cute oversized species face fits x20%..95%, y10%..90%. No whole animal, no extra body, no tail. Engineering dimensions refer to the ENTIRE CANVAS, not an inner bounding box. All tiles of this animal must share matching flat base green and gentle yellow highlights; connectors are a uniform green. Clean charming rounded cartoon, no harsh borders, subtle scales, readable at24px. Keep geometry exact, silhouette entirely in canvas, transparent background, no background panel, no text, no shadow, no checkerboard. Make this one PART only."
+    },
+    {
+      "id": "snake",
+      "part": "tail",
+      "asset": "src/snake_game/assets/characters/snake/tail.png",
+      "source": "exec-3ee77bb7-934a-4e1a-a52e-ea61177cdf3d.png",
+      "prompt": "Use case: stylized-concept. Asset type: exactly ONE production square RGBA transparent tile for a cute children's Snake game. Subject: green snake, soft green scales and warm yellow underside. TAIL ONLY. Body connector reaches RIGHT canvas edge at (100%,50%), occupies y30%..70% there, same species body color. Taper towards LEFT, fitting inside square, with species-specific tail details. No head, eyes or complete animal. Engineering dimensions refer to the ENTIRE CANVAS, not an inner bounding box. All tiles of this animal must share matching flat base green and gentle yellow highlights; connectors are a uniform green. Clean charming rounded cartoon, no harsh borders, subtle scales, readable at24px. Keep geometry exact, silhouette entirely in canvas, transparent background, no background panel, no text, no shadow, no checkerboard. Make this one PART only."
+    },
+    {
+      "id": "turtle",
+      "part": "body_curve",
+      "asset": "src/snake_game/assets/characters/turtle/body_curve.png",
+      "source": "exec-28906d1e-8259-4916-a19e-3b80611c7f7c.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: green turtle with green brown shell pattern. CURVED BODY ONLY. One quarter-circle tube linking LEFT canvas edge at (0%,50%) and BOTTOM canvas edge at (50%,100%). Center of the quarter circle is the canvas bottom-left corner (0%,100%); centerline radius50%; thickness40%, inner radius30%, outer radius70%. Thus the curve is in the lower-left portion of the square: it opens LEFT at y30%..70% and BOTTOM at x30%..70%. IMPORTANT no U or C, no head or tail. The cut connections reach those actual canvas edges, no inset margins, caps, black outline or shading across connections. Outside silhouette and the entire upper-right area transparent. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "turtle",
+      "part": "body_straight",
+      "asset": "src/snake_game/assets/characters/turtle/body_straight.png",
+      "source": "exec-5708885a-b3e5-4cd9-97e0-2d528a37faa8.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: green turtle with green brown shell pattern. STRAIGHT BODY ONLY. A horizontal tube from LEFT canvas edge to RIGHT canvas edge, centered y50%, constant thickness 40% (y30%..70%). Both edges are cut open connectors, no caps or outlines across those cut edges. No face or tail, no paws interrupting the connector. Symmetric upper/lower contour. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "turtle",
+      "part": "head",
+      "asset": "src/snake_game/assets/characters/turtle/head.png",
+      "source": "exec-b8707f8f-c12b-492f-9dd3-e1bb3aa6506f.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: green turtle with green brown shell pattern. HEAD ONLY. Facing RIGHT. Back of neck reaches LEFT canvas edge at (0%,50%), occupies y30%..70% there, open unoutlined connector. Cute oversized species face fits x20%..95%, y10%..90%. No whole animal, no extra body, no tail. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "turtle",
+      "part": "tail",
+      "asset": "src/snake_game/assets/characters/turtle/tail.png",
+      "source": "exec-0ff401b6-c459-47fd-9ad9-b2d1d94a76ad.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: green turtle with green brown shell pattern. TAIL ONLY. Body connector reaches RIGHT canvas edge at (100%,50%), occupies y30%..70% there, same species body color. Taper towards LEFT, fitting inside square, with species-specific tail details. No head, eyes or complete animal. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "unicorn",
+      "part": "body_curve",
+      "asset": "src/snake_game/assets/characters/unicorn/body_curve.png",
+      "source": "exec-e415a450-5a71-42eb-810d-abba73223912.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: white unicorn with golden horn, lavender mane and pastel tail. CURVED BODY ONLY. One quarter-circle tube linking LEFT canvas edge at (0%,50%) and BOTTOM canvas edge at (50%,100%). Center of the quarter circle is the canvas bottom-left corner (0%,100%); centerline radius50%; thickness40%, inner radius30%, outer radius70%. Thus the curve is in the lower-left portion of the square: it opens LEFT at y30%..70% and BOTTOM at x30%..70%. IMPORTANT no U or C, no head or tail. The cut connections reach those actual canvas edges, no inset margins, caps, black outline or shading across connections. Outside silhouette and the entire upper-right area transparent. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "unicorn",
+      "part": "body_straight",
+      "asset": "src/snake_game/assets/characters/unicorn/body_straight.png",
+      "source": "exec-ee0746e3-1677-4d78-a1de-9b53c9334715.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: white unicorn with golden horn, lavender mane and pastel tail. STRAIGHT BODY ONLY. A horizontal tube from LEFT canvas edge to RIGHT canvas edge, centered y50%, constant thickness 40% (y30%..70%). Both edges are cut open connectors, no caps or outlines across those cut edges. No face or tail, no paws interrupting the connector. Symmetric upper/lower contour. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "unicorn",
+      "part": "head",
+      "asset": "src/snake_game/assets/characters/unicorn/head.png",
+      "source": "exec-a22adbad-42f9-4691-9971-7a2d5dab7651.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: white unicorn with golden horn, lavender mane and pastel tail. HEAD ONLY. Facing RIGHT. Back of neck reaches LEFT canvas edge at (0%,50%), occupies y30%..70% there, open unoutlined connector. Cute oversized species face fits x20%..95%, y10%..90%. No whole animal, no extra body, no tail. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "unicorn",
+      "part": "tail",
+      "asset": "src/snake_game/assets/characters/unicorn/tail.png",
+      "source": "exec-a74667ed-731c-435a-a5d6-f6d06ea9b278.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: white unicorn with golden horn, lavender mane and pastel tail. TAIL ONLY. Body connector reaches RIGHT canvas edge at (100%,50%), occupies y30%..70% there, same species body color. Taper towards LEFT, fitting inside square, with species-specific tail details. No head, eyes or complete animal. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "worm",
+      "part": "body_curve",
+      "asset": "src/snake_game/assets/characters/worm/body_curve.png",
+      "source": "exec-26e26bf5-f84d-44a2-b0f6-27be8e8a3b52.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: pink earthworm with subtle segment rings, cute rounded face. CURVED BODY ONLY. One quarter-circle tube linking LEFT canvas edge at (0%,50%) and BOTTOM canvas edge at (50%,100%). Center of the quarter circle is the canvas bottom-left corner (0%,100%); centerline radius50%; thickness40%, inner radius30%, outer radius70%. Thus the curve is in the lower-left portion of the square: it opens LEFT at y30%..70% and BOTTOM at x30%..70%. IMPORTANT no U or C, no head or tail. The cut connections reach those actual canvas edges, no inset margins, caps, black outline or shading across connections. Outside silhouette and the entire upper-right area transparent. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "worm",
+      "part": "body_straight",
+      "asset": "src/snake_game/assets/characters/worm/body_straight.png",
+      "source": "exec-2647eeba-a0e2-4e04-9988-366032892251.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: pink earthworm with subtle segment rings, cute rounded face. STRAIGHT BODY ONLY. A horizontal tube from LEFT canvas edge to RIGHT canvas edge, centered y50%, constant thickness 40% (y30%..70%). Both edges are cut open connectors, no caps or outlines across those cut edges. No face or tail, no paws interrupting the connector. Symmetric upper/lower contour. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "worm",
+      "part": "head",
+      "asset": "src/snake_game/assets/characters/worm/head.png",
+      "source": "exec-58b73f3a-72b0-46e8-a743-9bbcbd10eed2.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: pink earthworm with subtle segment rings, cute rounded face. HEAD ONLY. Facing RIGHT. Back of neck reaches LEFT canvas edge at (0%,50%), occupies y30%..70% there, open unoutlined connector. Cute oversized species face fits x20%..95%, y10%..90%. No whole animal, no extra body, no tail. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "worm",
+      "part": "tail",
+      "asset": "src/snake_game/assets/characters/worm/tail.png",
+      "source": "exec-71a2d08a-089e-4872-932b-fc292d6f2720.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square RGBA transparent production sprite tile for a cute children's Snake game. Species: pink earthworm with subtle segment rings, cute rounded face. TAIL ONLY. Body connector reaches RIGHT canvas edge at (100%,50%), occupies y30%..70% there, same species body color. Taper towards LEFT, fitting inside square, with species-specific tail details. No head, eyes or complete animal. All coordinates refer to the ENTIRE square canvas. Match species colors across head, body, curve, tail. Smooth playful rounded cartoon, modest soft shading, readable at24px. Maintain connecting tube thickness40%, no borders across open connections, no checkerboard, background, text, panel or drop shadow. Draw only this one PART, not a whole animal, not a sheet. Each connection extends to actual canvas edges. Fur/scales/stripes/patches are gentle, base color uniform at connection edges."
+    },
+    {
+      "id": "candies",
+      "part": "food",
+      "asset": "src/snake_game/assets/foods/candies.png",
+      "source": "exec-7ddb6773-89ef-4600-bf1d-efd2d13692f1.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square transparent RGBA cartoon food icon for a child's Snake game: three colorful individually wrapped hard candies. Cute colorful rounded food illustration, clean silhouette, subtle shading, recognizable at24px, centered occupying80% of square with modest transparent margin. Match cozy cute cartoon fruit/food game art. No labels, text, brands, drop shadow, ground, background, checkerboard, plate unless subject requires it. Transparent background mandatory."
+    },
+    {
+      "id": "chocolates",
+      "part": "food",
+      "asset": "src/snake_game/assets/foods/chocolates.png",
+      "source": "exec-f053dccb-6d99-49c6-9d27-47b1f8b379ee.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square transparent RGBA cartoon food icon for a child's Snake game: two chocolate bonbons, one showing creamy filling. Cute colorful rounded food illustration, clean silhouette, subtle shading, recognizable at24px, centered occupying80% of square with modest transparent margin. Match cozy cute cartoon fruit/food game art. No labels, text, brands, drop shadow, ground, background, checkerboard, plate unless subject requires it. Transparent background mandatory."
+    },
+    {
+      "id": "cucumber",
+      "part": "food",
+      "asset": "src/snake_game/assets/foods/cucumber.png",
+      "source": "exec-c76313f2-4358-46ff-bf03-78d115d23928.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square transparent RGBA cartoon food icon for a child's Snake game: a green cucumber with one cut slice. Cute colorful rounded food illustration, clean silhouette, subtle shading, recognizable at24px, centered occupying80% of square with modest transparent margin. Match cozy cute cartoon fruit/food game art. No labels, text, brands, drop shadow, ground, background, checkerboard, plate unless subject requires it. Transparent background mandatory."
+    },
+    {
+      "id": "grapes",
+      "part": "food",
+      "asset": "src/snake_game/assets/foods/grapes.png",
+      "source": "exec-bb352de4-6578-4bfd-b34a-050f7adfddb0.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square transparent RGBA cartoon food icon for a child's Snake game: small bunch of purple grapes. Cute colorful rounded food illustration, clean silhouette, subtle shading, recognizable at24px, centered occupying80% of square with modest transparent margin. Match cozy cute cartoon fruit/food game art. No labels, text, brands, drop shadow, ground, background, checkerboard, plate unless subject requires it. Transparent background mandatory."
+    },
+    {
+      "id": "heart_of_palm",
+      "part": "food",
+      "asset": "src/snake_game/assets/foods/heart_of_palm.png",
+      "source": "exec-40cf5caf-f78a-4605-9dfe-4486b93da64b.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square transparent RGBA cartoon food icon for a child's Snake game: ivory cylindrical heart of palm pieces. Cute colorful rounded food illustration, clean silhouette, subtle shading, recognizable at24px, centered occupying80% of square with modest transparent margin. Match cozy cute cartoon fruit/food game art. No labels, text, brands, drop shadow, ground, background, checkerboard, plate unless subject requires it. Transparent background mandatory."
+    },
+    {
+      "id": "ice",
+      "part": "food",
+      "asset": "src/snake_game/assets/foods/ice.png",
+      "source": "exec-fdf86dd2-7122-4197-947d-df4acc9fd538.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square transparent RGBA cartoon food icon for a child's Snake game: three translucent pale blue ice cubes. Cute colorful rounded food illustration, clean silhouette, subtle shading, recognizable at24px, centered occupying80% of square with modest transparent margin. Match cozy cute cartoon fruit/food game art. No labels, text, brands, drop shadow, ground, background, checkerboard, plate unless subject requires it. Transparent background mandatory."
+    },
+    {
+      "id": "jelly_beans",
+      "part": "food",
+      "asset": "src/snake_game/assets/foods/jelly_beans.png",
+      "source": "exec-eb5a02a0-619b-487c-9374-8bbf73dbd51f.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square transparent RGBA cartoon food icon for a child's Snake game: small pile of colorful unwrapped jelly beans. Cute colorful rounded food illustration, clean silhouette, subtle shading, recognizable at24px, centered occupying80% of square with modest transparent margin. Match cozy cute cartoon fruit/food game art. No labels, text, brands, drop shadow, ground, background, checkerboard, plate unless subject requires it. Transparent background mandatory."
+    },
+    {
+      "id": "juice",
+      "part": "food",
+      "asset": "src/snake_game/assets/foods/juice.png",
+      "source": "exec-64431025-d4fb-4821-8347-8d1a8a67a3e9.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square transparent RGBA cartoon food icon for a child's Snake game: glass of orange juice. Cute colorful rounded food illustration, clean silhouette, subtle shading, recognizable at24px, centered occupying80% of square with modest transparent margin. Match cozy cute cartoon fruit/food game art. No labels, text, brands, drop shadow, ground, background, checkerboard, plate unless subject requires it. Transparent background mandatory."
+    },
+    {
+      "id": "orange",
+      "part": "food",
+      "asset": "src/snake_game/assets/foods/orange.png",
+      "source": "exec-12ef22fd-f6bb-4851-b913-a27c79627cbe.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square transparent RGBA cartoon food icon for a child's Snake game: one orange with small leaf. Cute colorful rounded food illustration, clean silhouette, subtle shading, recognizable at24px, centered occupying80% of square with modest transparent margin. Match cozy cute cartoon fruit/food game art. No labels, text, brands, drop shadow, ground, background, checkerboard, plate unless subject requires it. Transparent background mandatory."
+    },
+    {
+      "id": "passion_fruit",
+      "part": "food",
+      "asset": "src/snake_game/assets/foods/passion_fruit.png",
+      "source": "exec-19ea4fe9-2f74-4b03-b615-8c5f863ce31b.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square transparent RGBA cartoon food icon for a child's Snake game: yellow passion fruit with a cut half showing seeds. Cute colorful rounded food illustration, clean silhouette, subtle shading, recognizable at24px, centered occupying80% of square with modest transparent margin. Match cozy cute cartoon fruit/food game art. No labels, text, brands, drop shadow, ground, background, checkerboard, plate unless subject requires it. Transparent background mandatory."
+    },
+    {
+      "id": "potato",
+      "part": "food",
+      "asset": "src/snake_game/assets/foods/potato.png",
+      "source": "exec-703391d1-0263-49d4-a14a-5e23d06e81be.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square transparent RGBA cartoon food icon for a child's Snake game: one raw golden brown potato. Cute colorful rounded food illustration, clean silhouette, subtle shading, recognizable at24px, centered occupying80% of square with modest transparent margin. Match cozy cute cartoon fruit/food game art. No labels, text, brands, drop shadow, ground, background, checkerboard, plate unless subject requires it. Transparent background mandatory."
+    },
+    {
+      "id": "pudding",
+      "part": "food",
+      "asset": "src/snake_game/assets/foods/pudding.png",
+      "source": "exec-d860f36d-8834-41f3-80c1-595b6570049a.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square transparent RGBA cartoon food icon for a child's Snake game: small caramel flan pudding. Cute colorful rounded food illustration, clean silhouette, subtle shading, recognizable at24px, centered occupying80% of square with modest transparent margin. Match cozy cute cartoon fruit/food game art. No labels, text, brands, drop shadow, ground, background, checkerboard, plate unless subject requires it. Transparent background mandatory."
+    },
+    {
+      "id": "pumpkin",
+      "part": "food",
+      "asset": "src/snake_game/assets/foods/pumpkin.png",
+      "source": "exec-1790e930-cd21-4f1a-9b46-83a36c1b9719.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square transparent RGBA cartoon food icon for a child's Snake game: orange pumpkin, green stem. Cute colorful rounded food illustration, clean silhouette, subtle shading, recognizable at24px, centered occupying80% of square with modest transparent margin. Match cozy cute cartoon fruit/food game art. No labels, text, brands, drop shadow, ground, background, checkerboard, plate unless subject requires it. Transparent background mandatory."
+    },
+    {
+      "id": "sugar_bag",
+      "part": "food",
+      "asset": "src/snake_game/assets/foods/sugar_bag.png",
+      "source": "exec-d303f758-6e0c-45a8-8b88-c95796b12fae.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square transparent RGBA cartoon food icon for a child's Snake game: unbranded paper bag of sugar with small spill of white sugar. Cute colorful rounded food illustration, clean silhouette, subtle shading, recognizable at24px, centered occupying80% of square with modest transparent margin. Match cozy cute cartoon fruit/food game art. No labels, text, brands, drop shadow, ground, background, checkerboard, plate unless subject requires it. Transparent background mandatory."
+    },
+    {
+      "id": "tomato",
+      "part": "food",
+      "asset": "src/snake_game/assets/foods/tomato.png",
+      "source": "exec-9ccec487-fd83-4c27-86b2-e425c49966ef.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square transparent RGBA cartoon food icon for a child's Snake game: one ripe red tomato with green stem. Cute colorful rounded food illustration, clean silhouette, subtle shading, recognizable at24px, centered occupying80% of square with modest transparent margin. Match cozy cute cartoon fruit/food game art. No labels, text, brands, drop shadow, ground, background, checkerboard, plate unless subject requires it. Transparent background mandatory."
+    },
+    {
+      "id": "water",
+      "part": "food",
+      "asset": "src/snake_game/assets/foods/water.png",
+      "source": "exec-7455199c-5066-446e-ba42-4ee35d15b993.png",
+      "prompt": "Use case: stylized-concept. Exactly ONE square transparent RGBA cartoon food icon for a child's Snake game: unbranded clear bottle of water. Cute colorful rounded food illustration, clean silhouette, subtle shading, recognizable at24px, centered occupying80% of square with modest transparent margin. Match cozy cute cartoon fruit/food game art. No labels, text, brands, drop shadow, ground, background, checkerboard, plate unless subject requires it. Transparent background mandatory."
+    }
+  ]
+}

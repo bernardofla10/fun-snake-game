@@ -41,6 +41,8 @@ class UIAction(Enum):
     SELECT_CHARACTER = auto()
     CONFIRM_CHARACTER_PURCHASE = auto()
     DISMISS_CHARACTER_DIALOG = auto()
+    PREVIOUS_STYLE_PAGE = auto()
+    NEXT_STYLE_PAGE = auto()
 
 
 @dataclass(frozen=True)

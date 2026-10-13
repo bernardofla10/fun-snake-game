@@ -557,7 +557,34 @@ Todos os animais deverão:
 
 ---
 
-## 5.7 Etapa 014 — Acabamento e documentação
+## 5.7 Etapa 014 — Expansão do catálogo e corpos contínuos
+
+### Objetivo
+
+Adicionar os 20 animais e 16 comidas solicitados e corrigir o encaixe dos quatro
+animais existentes. Especificação: `specs/014-expanded-cosmetic-catalog/`.
+
+### Entregas
+
+- 24 animais e 22 comidas; preços e IDs em `docs/COSMETIC_CATALOG.md`.
+- Paginação por mouse: quatro animais ou seis comidas por página.
+- Páginas independentes, preservadas durante compras e recuperação de falhas.
+- Corpos alongados contínuos, conexões centralizadas e espessura consistente.
+- 96 sprites de animais e 22 sprites de comidas no pacote.
+- Perfis, compras, equipamento e regras preservados.
+
+### Tarefas
+
+- [x] Expandir os catálogos com preços progressivos.
+- [x] Implementar paginação e bloqueio durante diálogos.
+- [x] Substituir a arte existente e gerar os novos sprites.
+- [x] Corrigir conexões e espessura dos corpos.
+- [x] Validar persistência, renderização, empacotamento e telas suportadas.
+- [x] Atualizar a documentação e abrir PR.
+
+---
+
+## 5.8 Etapa 015 — Acabamento e documentação
 
 ### Objetivo
 

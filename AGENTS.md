@@ -12,13 +12,17 @@ incrementally through new specifications.
 ## Current State
 
 - `main` is the integration branch for completed features.
-- Specifications `001` through `013` are implemented and complete.
+- Specifications `001` through `014` are implemented and complete.
 - The application includes fullscreen navigation and requires selection or
   creation of a SQLite-backed local profile before Home.
-- The food shop supports mouse-driven purchases, persistent equipment, and six
+- The food shop supports mouse-driven purchases, persistent equipment, and 22
   packaged cartoon food sprites without changing gameplay rewards.
-- The animal shop supports four segmented cartoon characters, persistent
+- The animal shop supports 24 segmented cartoon characters, persistent
   equipment, six-segment previews, and shared rendering in gameplay and Game Over.
+- Style uses independent paginated catalogs with modal-safe mouse navigation.
+- Animal bodies use full square canvases, shared 40% thickness and centered
+  connectors; generation prompts are documented in `docs/ASSET_GENERATION.json`.
+- General polish is roadmap stage `015`.
 - The next feature specification must use the next available three-digit number.
 - Existing gameplay behavior must remain stable unless a new specification
   explicitly changes it.
