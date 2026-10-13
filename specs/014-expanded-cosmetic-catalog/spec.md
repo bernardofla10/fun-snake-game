@@ -109,7 +109,10 @@ migration or new dependencies.
 
 Package 96 animal and 22 food PNGs. Preserve full square animal canvases; do not
 crop parts independently. Bound loaded originals to 256×256, preserve alpha and
-canvas proportions, cache transforms, and draw tail-to-head.
+canvas proportions, cache transforms, and draw tail-to-head. Normalize the
+straight/curved silhouettes and short head/tail connectors to the shared 40%
+geometry at load time, using a shared per-species connector color. This provides
+deterministic joins despite small image-generation geometry variations.
 
 ### ER-003
 

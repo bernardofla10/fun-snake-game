@@ -22,7 +22,9 @@ species identity and matched palettes/patterns across parts. Replace the current
 animal art to fix the reported defects. Inspect joins before accepting assets.
 
 Remove per-part bounding-box cropping. Scale full canvases once to at most 256
-pixels, then rotate/scale cached cells. Retain domain segment classification,
+pixels. Normalize body silhouettes and short head/tail connection strips to
+canonical geometry using generated artwork and a shared species base color,
+then rotate/scale cached cells. Retain domain segment classification,
 tail-to-head rendering and cell clipping.
 
 ## Validation and Delivery
